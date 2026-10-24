@@ -1668,7 +1668,7 @@ function zdeco(name,A,kd){
 /* ===== Schwierigkeitsstufen & Heldenlook ===== */
 const DIFFK=['leicht','normal','schwer','hardcore','1hp'];
 const DIFFS={
-  leicht:{name:'Leicht',rotFree:true,hp:8,mhp:-1,mon:0,price:1,money:1.5,undo:1,ammo:1,heart:3,noUndo:false,fixed:false,bossMon:0,col:'#ff8ab8',desc:'8 Leben, schwächere Gegner, mehr Münzen, 2 Zurück pro Etage, Umsehen kostet keinen Zug. Hier stirbst du nur mit Absicht.'},
+  leicht:{name:'Leicht',rotFree:true,hp:8,mhp:-1,mon:0,price:1.3,money:1.5,undo:1,ammo:1,heart:3,noUndo:false,fixed:false,bossMon:0,col:'#ff8ab8',desc:'8 Leben, schwächere Gegner, mehr Münzen, 2 Zurück pro Etage, Umsehen kostet keinen Zug. Hier stirbst du nur mit Absicht.'},
   normal:{name:'Normal',hp:5,mhp:0,mon:0,price:1,money:1,undo:0,ammo:0,heart:2,noUndo:false,fixed:false,bossMon:0,col:'#3fd0b0',desc:'5 Leben. So wurde das Spiel gebaut.'},
   schwer:{name:'Schwer',hp:4,mhp:1,hpAt:6,monAt:[5],mon:1,price:1.2,money:1,undo:0,ammo:0,heart:2,noUndo:false,fixed:false,bossMon:0,col:'#ff8a3d',desc:'4 Leben, ab Etage 5 mehr und zähere Gegner, Waren 20 % teurer.'},
   hardcore:{name:'Hardcore',hp:4,mhp:1,hpAt:6,monAt:[4,10],mon:2,price:1.4,money:1,undo:0,ammo:0,heart:1,noUndo:true,fixed:false,bossMon:0,col:'#e8302d',desc:'4 Leben, mehr Gegner ab Etage 4 und 10, kein Zurück, Herzen heilen nur 1, Waren 40 % teurer.'},
@@ -1790,7 +1790,7 @@ AU.init=function(){
     this.apply();
   }catch(e){this.ctx=null;}
 };
-AU.apply=function(){if(!this.ctx)return;this.mus.gain.value=save.settings.music?.4*(save.settings.musicVol/100):0;this.sfx.gain.value=save.settings.sfx?.9*(save.settings.sfxVol/100):0;};
+AU.apply=function(){if(!this.ctx)return;this.mus.gain.value=save.settings.music?.6*(save.settings.musicVol/100):0;this.sfx.gain.value=save.settings.sfx?.9*(save.settings.sfxVol/100):0;};
 AU.unlock=function(){this.init();if(this.ctx&&this.ctx.state==='suspended')this.ctx.resume();if(this.ctx&&!this.playing)this.startMusic();};
 AU.tone=function(o){
   const c=this.ctx;if(!c)return;
@@ -1824,80 +1824,92 @@ AU.sched=function(){
   while(this.next<c.currentTime+.16){this.play(this.step,this.next);this.next+=this.sd;this.step=(this.step+1)%64;}
 };
 const mfT=n=>mf(n+(AU.trans||0));
+const SC={minp:[0,3,5,7,10],majp:[0,2,4,7,9],phryg:[0,1,4,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],min:[0,2,3,5,7,8,10],whole:[0,2,4,6,8,10]};
 const ZMUS={
-  gruft:{ch:CH,bpm:88,pad:'sawtooth',lp:800,arp:'triangle',oct:[1,2],step:2,dens:.8,dur:4,bs:[0,6,8,14],bass:'triangle',perc:'drum'},
-  gold:{ch:[[52,56,59],[57,61,64],[50,54,57],[55,59,62]],bpm:104,pad:'triangle',lp:1500,arp:'sine',oct:[2,3],step:2,dens:.9,dur:2,bs:[0,8],bass:'triangle',perc:'clink'},
-  wueste:{ch:[[50,53,57],[51,55,58],[50,53,57],[49,53,56]],bpm:84,pad:'sawtooth',lp:700,arp:'square',oct:[1,2],step:2,dens:.6,dur:2,bs:[0,10],bass:'triangle',perc:'darbuka',drone:1},
-  moor:{ch:[[45,48,52],[41,45,48],[43,47,50],[40,43,47]],bpm:72,pad:'triangle',lp:600,arp:'sine',oct:[0,1],step:4,dens:.7,dur:6,bs:[0,8],bass:'sine',perc:'frog'},
-  wind:{ch:[[50,57,62],[48,55,60],[53,60,65],[55,62,67]],bpm:96,pad:'sine',lp:2200,arp:'sine',oct:[2,3],step:2,dens:.6,dur:5,bs:[0],bass:'sine',perc:'wind'},
-  uhrwerk:{ch:[[45,48,52],[45,48,52],[41,45,48],[43,46,50]],bpm:112,pad:'sawtooth',lp:900,arp:'square',oct:[1,2],step:1,dens:.45,dur:1,bs:[0,4,8,12],bass:'sawtooth',perc:'tick'},
-  eis:{ch:[[52,55,59],[48,52,55],[50,53,57],[47,50,54]],bpm:76,pad:'sine',lp:3000,arp:'sine',oct:[2,3],step:2,dens:.6,dur:7,bs:[0],bass:'sine',perc:'bell'},
-  tiefsee:{ch:[[43,46,50],[41,44,48],[38,41,45],[40,43,47]],bpm:68,pad:'triangle',lp:450,arp:'sine',oct:[0,1],step:4,dens:.5,dur:6,bs:[0,8],bass:'sine',perc:'bubble'},
-  glut:{ch:[[40,47,52],[43,50,55],[41,48,53],[38,45,50]],bpm:100,pad:'sawtooth',lp:1300,arp:'sawtooth',oct:[1],step:2,dens:.45,dur:2,bs:[0,3,6,8,11,14],bass:'sawtooth',perc:'heavy'},
-  leere:{ch:[[46,49,53],[47,50,54],[44,47,51],[45,48,52]],bpm:60,pad:'sawtooth',lp:500,arp:'sine',oct:[2,3],step:4,dens:.35,dur:5,bs:[0],bass:'sine',perc:'void',drone:1}
+  gruft:{root:57,sc:'minp',prog:[0,2,4,3],bpm:112,pad:'sawtooth',padLp:600,lead:'square',leadLp:2400,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:520,vol:.17,pat:[0,3,6,8,11,14]},stab:[6,10],drums:'rock'},
+  gold:{root:60,sc:'majp',prog:[0,2,1,3],bpm:128,pad:'triangle',padLp:1500,lead:'triangle',leadLp:3000,leadVol:.1,leadDur:2,bass:{type:'triangle',lp:900,vol:.26,pat:[0,2,4,6,8,10,12,14]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
+  wueste:{root:52,sc:'phryg',prog:[0,1,0,4],bpm:104,pad:'sawtooth',padLp:600,lead:'sawtooth',leadLp:1700,leadVol:.045,leadDur:2,bass:{type:'sawtooth',lp:480,vol:.17,pat:[0,3,6,10,13]},stab:[3,10],drums:'tribal',drone:1},
+  moor:{root:50,sc:'dor',prog:[0,3,4,2],bpm:98,pad:'triangle',padLp:600,lead:'triangle',leadLp:1500,leadVol:.1,leadDur:3,bass:{type:'sine',lp:700,vol:.3,pat:[0,6,8,14]},stab:[10],drums:'soft'},
+  wind:{root:53,sc:'lyd',prog:[0,1,0,4],bpm:118,pad:'sine',padLp:2000,lead:'triangle',leadLp:2600,leadVol:.09,leadDur:3,bass:{type:'triangle',lp:800,vol:.24,pat:[0,4,8,12]},stab:[4,12],stabType:'triangle',drums:'rock',wash:1},
+  uhrwerk:{root:52,sc:'min',prog:[0,5,3,4],bpm:124,pad:'sawtooth',padLp:600,lead:'square',leadLp:2000,leadVol:.045,leadDur:1,bass:{type:'sawtooth',lp:520,vol:.15,pat:[0,2,4,6,8,10,12,14]},stab:[4,12],drums:'tick'},
+  eis:{root:50,sc:'min',prog:[0,5,2,6],bpm:100,pad:'sine',padLp:1400,lead:'triangle',leadLp:1500,leadVol:.085,leadDur:3,bass:{type:'sine',lp:600,vol:.3,pat:[0,6,8,14]},stab:[6,14],stabType:'triangle',drums:'soft',soft:1},
+  tiefsee:{root:45,sc:'min',prog:[0,3,4,0],bpm:92,pad:'triangle',padLp:420,lead:'sine',leadLp:1200,leadVol:.12,leadDur:3,bass:{type:'sine',lp:500,vol:.34,pat:[0,6,8,14]},stab:[],drums:'bubble'},
+  glut:{root:52,sc:'phryg',prog:[0,1,3,4],bpm:134,pad:'sawtooth',padLp:700,lead:'sawtooth',leadLp:1900,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:560,vol:.2,pat:[0,2,3,6,8,10,11,14]},stab:[3,6,11],drums:'heavy'},
+  leere:{root:48,sc:'whole',prog:[0,2,4,1],bpm:86,pad:'sawtooth',padLp:420,lead:'sine',leadLp:1400,leadVol:.1,leadDur:4,bass:{type:'sine',lp:400,vol:.3,pat:[0,8]},stab:[],drums:'void',sparse:.65,drone:1}
 };
-AU.zm=ZMUS.gruft;
+const noteOf=(zm,deg)=>{const sc=SC[zm.sc];const o=Math.floor(deg/sc.length);return zm.root+sc[((deg%sc.length)+sc.length)%sc.length]+12*o;};
+function mkMotif(kind,zm){
+  let a=2166136261;for(let i=0;i<kind.length;i++){a^=kind.charCodeAt(i);a=Math.imul(a,16777619);}
+  const R=()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296;};
+  const RH=[[0,3,6,8,10,12,14],[0,2,3,6,8,11,12,14],[0,4,6,8,10,13,14],[0,3,4,7,8,12,14],[0,2,6,8,10,14]];
+  const rA=RH[Math.floor(R()*RH.length)],rB=RH[Math.floor(R()*RH.length)];
+  const walk=(rh,base)=>{const seq=[];let c=base;for(const st of rh){const m=R();c+=m<.18?-2:m<.42?-1:m<.52?0:m<.78?1:2;c=Math.max(base-3,Math.min(base+4,c));seq.push([st,c]);}return seq;};
+  const A=walk(rA,zm.prog[0]+2),B=walk(rB,zm.prog[1]+2);
+  const B2=B.map((x,i)=>i===B.length-1?[x[0],zm.prog[0]]:x);
+  const mot=Array(64).fill(null);
+  [A,B,A,B2].forEach((bar,bi)=>{for(const [st,deg] of bar)mot[bi*16+st]=deg;});
+  return mot;
+}
+const MOT={};for(const k of Object.keys(ZMUS))MOT[k]=mkMotif(k,ZMUS[k]);
+AU.zm=ZMUS.gruft;AU.motif=MOT.gruft;
 AU.play=function(step,t){
-  const zm=this.zm||ZMUS.gruft;
-  const bar=Math.floor(step/16),s=step%16,ch=zm.ch[bar],I=this.intensity,sd=this.sd;
+  const zm=this.zm||ZMUS.gruft,I=this.intensity,sd=this.sd,bar=Math.floor(step/16),s=step%16;
+  const sc=SC[zm.sc],rd=zm.prog[bar];
+  const nt=d=>mfT(noteOf(zm,d));
   const tn=o=>{o.t=t;o.dest=this.mus;this.tone(o);},ns=o=>{o.t=t;o.dest=this.mus;this.noise(o);};
+  const kick=v=>tn({f:140,to:45,dur:.18,type:'sine',vol:v||.38});
+  const snare=v=>{ns({f:1900,dur:.12,vol:v||.14,q:.7});tn({f:190,to:120,dur:.08,type:'triangle',vol:.09});};
+  const hat=v=>ns(zm.soft?{f:4200,dur:.04,vol:(v||.04)*.6,q:.8}:{f:8000,ft:'highpass',dur:.03,vol:v||.045});
+  // Teppich
   if(s===0){
-    for(const n of ch){
-      tn({f:mfT(n+12),dur:sd*15.5,attack:.9,type:zm.pad,vol:.045,lp:zm.lp});
-      tn({f:mfT(n),dur:sd*15.5,attack:1.1,type:'triangle',vol:.05});
-    }
-    if(zm.drone)tn({f:mfT(ch[0]-12),dur:sd*15.5,attack:1.4,type:'sine',vol:.07});
+    for(const d of [0,2,4])tn({f:nt(rd+d),dur:sd*15.5,attack:.6,type:zm.pad,vol:.03,lp:zm.padLp});
+    if(zm.drone)tn({f:nt(rd)/2,dur:sd*15.5,attack:1,type:'sine',vol:.06});
   }
-  if(I>=1&&zm.bs.includes(s))tn({f:mfT(ch[0]-12),dur:sd*3,type:zm.bass,vol:zm.bass==='sawtooth'?.14:.26,attack:.01,lp:zm.bass==='sawtooth'?500:undefined});
-  if(s%zm.step===0&&Math.random()<(I>=1?zm.dens:zm.dens*.6)){
-    const n=ch[rnd(3)]+12*zm.oct[rnd(zm.oct.length)];
-    tn({f:mfT(n),dur:sd*zm.dur,type:zm.arp,vol:zm.arp==='sawtooth'||zm.arp==='square'?.05:.09,attack:.005,send:true,lp:zm.arp==='sawtooth'||zm.arp==='square'?1800:undefined});
-  }
-  switch(zm.perc){
-    case 'drum':
-      if(I>=2){
-        if(s%8===0)tn({f:130,to:42,dur:.22,type:'sine',vol:.4});
-        if(s%4===2)ns({f:7500,ft:'highpass',dur:.05,vol:.07});
-        if(s===8)ns({f:1700,dur:.13,vol:.16,q:.7});
-      }break;
-    case 'clink':
-      if(s%4===0&&I>=1)tn({f:2093,to:1900,dur:.12,type:'sine',vol:.05,send:true});
-      if(I>=2&&s%8===0)tn({f:150,to:60,dur:.18,type:'sine',vol:.3});
-      if(I>=2&&s%4===2)ns({f:6500,ft:'highpass',dur:.04,vol:.06});break;
-    case 'darbuka':
-      if(I>=1){
-        if(s%8===0)tn({f:150,to:70,dur:.13,type:'sine',vol:.24});
-        if(s===6||s===10||s===13)ns({f:1500,dur:.05,vol:.1,q:1.2});
-      }
-      if(I>=2&&s%2===1)ns({f:6000,ft:'highpass',dur:.03,vol:.05});break;
-    case 'frog':
-      if(s%4===1&&Math.random()<.22)tn({f:180,to:340,dur:.1,type:'square',vol:.05,lp:700});
-      if(I>=2&&s%8===0)tn({f:90,to:40,dur:.3,type:'sine',vol:.35});break;
-    case 'wind':
-      if(s===0&&bar%2===0)ns({f:300,to:1800,dur:sd*14,vol:.07,q:.4});
-      if(I>=2&&s%4===2)ns({f:5000,ft:'highpass',dur:.08,vol:.05});
-      if(I>=2&&s%8===0)tn({f:120,to:50,dur:.2,type:'sine',vol:.3});break;
+  // Bass
+  const bi=zm.bass.pat.indexOf(s);
+  if(bi>=0&&(I>=1||s===0||s===8))tn({f:nt(rd+(bi%4===2?4:0))/2,dur:sd*1.7,type:zm.bass.type,vol:zm.bass.vol,lp:zm.bass.lp,attack:.005});
+  // Akkord-Stöße
+  if(I>=1&&zm.stab.includes(s))for(const d of [0,2,4])tn({f:nt(rd+d),dur:sd*1.2,type:zm.stabType||'triangle',vol:.032,lp:1700});
+  // Melodie
+  const m=(this.motif||MOT.gruft)[bar*16+s];
+  if(m!==null&&m!==undefined&&(!zm.sparse||Math.random()<zm.sparse))
+    tn({f:nt(m+sc.length),dur:sd*(zm.leadDur||2),type:zm.lead,vol:(zm.leadVol||.07)*(I>=2?1.15:1),lp:zm.leadLp,attack:.012,send:true});
+  // Schlagzeug
+  switch(zm.drums){
+    case 'rock':
+      if(s===0||s===8||(I>=2&&s===10))kick();
+      if(s===4||s===12)snare();
+      if(I>=1&&s%2===0)hat();if(I>=2&&s%2===1)hat(.03);break;
+    case 'dance':
+      if(I>=1&&s%4===0)kick(.34);else if(s===0)kick(.34);
+      if(s===4||s===12)snare(.1);
+      if(s%4===2)hat(.05);break;
+    case 'tribal':
+      if(s===0||s===6||s===10)tn({f:130,to:75,dur:.14,type:'sine',vol:.3});
+      if(I>=1&&(s===3||s===8||s===13))ns({f:2200,dur:.05,vol:.1,q:2});
+      if(I>=2&&s%2===1)hat(.04);break;
     case 'tick':
-      if(I>=1&&s%2===0)ns({f:6500,ft:'highpass',dur:.02,vol:.05});
-      if(I>=1&&s%4===0)tn({f:1800,dur:.025,type:'square',vol:.05});
-      if(I>=1&&s%8===4)tn({f:1200,dur:.03,type:'square',vol:.05});
-      if(I>=2&&s%8===0)tn({f:140,to:50,dur:.18,type:'sine',vol:.35});break;
-    case 'bell':
-      if(s%8===4&&I>=0)tn({f:mfT(ch[2]+36),dur:.9,type:'sine',vol:.05,send:true});
-      if(I>=2&&s%16===8)ns({f:7000,ft:'highpass',dur:.2,vol:.05});
-      if(I>=2&&s%8===0)tn({f:110,to:45,dur:.25,type:'sine',vol:.3});break;
+      if(I>=1&&s%2===0)tn({f:1800,dur:.02,type:'square',vol:.04});
+      if(s===0||s===8)kick(.3);if(s===4||s===12)ns({f:2600,dur:.05,vol:.12,q:1.5});
+      if(I>=2)hat(.035);break;
+    case 'soft':
+      if(s===0||(I>=1&&s===10))kick(.3);
+      if(I>=1&&(s===4||s===12))hat(.05);
+      if(zm.soft&&I>=2&&s%8===4)tn({f:300,dur:.2,type:'triangle',vol:.05});break;
     case 'bubble':
+      if(s===0||(I>=1&&s===8))kick(.3);
       if(s%2===1&&Math.random()<.16)tn({f:300+Math.random()*200,to:900,dur:.09,type:'sine',vol:.06});
-      if(I>=2&&s%8===0)tn({f:100,to:40,dur:.3,type:'sine',vol:.35});break;
+      if(I>=1&&(s===4||s===12))hat(.04);break;
     case 'heavy':
-      if(I>=1&&s%4===0)tn({f:120,to:40,dur:.2,type:'sine',vol:.4});
-      if(I>=1&&(s===8||s===12))ns({f:1700,dur:.12,vol:.16,q:.7});
-      if(I>=2&&s%2===1)ns({f:7000,ft:'highpass',dur:.04,vol:.06});break;
+      if(s%4===0||(I>=1&&(s===3||s===11)))kick(.4);
+      if(s===4||s===12)snare(.18);
+      if(s%2===0)hat(.05);if(I>=2&&s%2===1)hat(.035);break;
     case 'void':
-      if(s===0&&bar%2===0)tn({f:mfT(ch[0]-24),dur:sd*16,type:'sine',vol:.2,attack:1});
-      if(I>=2&&s%16===8)ns({f:300,ft:'lowpass',dur:.4,vol:.15});
-      if(Math.random()<.05)tn({f:mfT(ch[rnd(3)]+48),dur:.5,type:'sine',vol:.05,send:true});break;
+      if(s===0&&bar%2===0)tn({f:nt(rd)/4,dur:sd*16,type:'sine',vol:.2,attack:1});
+      if(I>=1&&s===8)kick(.3);
+      if(I>=2&&s%4===2)ns({f:400,ft:'lowpass',dur:.3,vol:.1});break;
   }
+  if(zm.wash&&s===0&&bar%2===0)ns({f:300,to:1500,dur:sd*14,vol:.05,q:.4});
 };
 AU.setIntensity=function(i){this.intensity=i;};
 document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else AU.ctx.resume();});
@@ -1946,9 +1958,9 @@ const SFXV={
   clank(t){T({t,f:420,to:380,dur:.1,type:'square',vol:.1});T({t,f:640,to:600,dur:.12,type:'square',vol:.07});N({t,f:3000,dur:.06,vol:.12});},
   bolt(t){T({t,f:900,to:300,dur:.1,type:'sawtooth',vol:.09,lp:2000});N({t,f:2000,dur:.08,vol:.1,q:1.5});},
   steam(t){N({t,f:5000,ft:'highpass',dur:.45,vol:.25});T({t,f:300,to:200,dur:.3,type:'sine',vol:.1});},
-  crystal(t){T({t,f:1568,dur:.12,type:'sine',vol:.11,send:true});T({t:t+.03,f:2093,dur:.14,type:'sine',vol:.08,send:true});},
-  shard(t){T({t,f:2600,to:1200,dur:.14,type:'triangle',vol:.1});N({t,f:7000,ft:'highpass',dur:.08,vol:.08});},
-  shatter(t){N({t,f:6000,ft:'highpass',dur:.3,vol:.3});[0,1,2].forEach(k=>T({t:t+k*.04,f:2400-k*400,dur:.12,type:'triangle',vol:.08}));},
+  crystal(t){T({t,f:784,dur:.14,type:'triangle',vol:.1,send:true});T({t:t+.04,f:1047,dur:.16,type:'triangle',vol:.07,send:true});},
+  shard(t){T({t,f:1500,to:700,dur:.14,type:'triangle',vol:.1});N({t,f:3500,dur:.08,vol:.06,q:.8});},
+  shatter(t){N({t,f:2800,dur:.3,vol:.2,q:.7});[0,1,2].forEach(k=>T({t:t+k*.04,f:1200-k*200,dur:.12,type:'triangle',vol:.08}));},
   bloop(t){T({t,f:200,to:420,dur:.1,type:'sine',vol:.15});},
   bubble(t){T({t,f:500,to:1100,dur:.1,type:'sine',vol:.12});T({t:t+.06,f:700,to:1400,dur:.08,type:'sine',vol:.08});},
   crackle(t){N({t,f:4000,to:1200,dur:.14,vol:.14,q:1.2});T({t,f:180,to:90,dur:.1,type:'sawtooth',vol:.08,lp:600});},
@@ -3469,7 +3481,8 @@ const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const dieHTML=(n,col,cls='')=>`<div class="die ${cls}" style="--dc:${col||'#f4efe0'}">${[0,1,2,3,4,5,6,7,8].map(k=>`<i class="${PIPS[n].includes(k)?'on':''}"></i>`).join('')}</div>`;
 const rollDie=kd=>{const f=DIE[kd].fav;if(Math.random()<.34)return f;const o=[1,2,3,4,5,6].filter(n=>n!==f);return o[Math.floor(Math.random()*5)];};
 let shop=null;
-const stakeOf=n=>Math.round(50*n*(1+.4*(n-1))*(1+.25*(shop?shop.rolls:0)));
+const MAXROLLS=5;
+const stakeOf=n=>Math.max(5,Math.round(12*n*(1+.3*(n-1))*(1+.012*G.depth)*Math.pow(1.5,shop?shop.rolls:0)*(1+.4*(shop?shop.heat||0:0))*DF().price*(1-.05*metaMul('rep'))));
 function afterCard(){
   if(G.depth%10===0){
     const kd=kindOf(G.depth);let nd=null;
@@ -3491,10 +3504,10 @@ function shopItem(sid,price,num){
   it.sid=sid;it.price=price;it.num=num;return it;
 }
 function serializeShop(){
-  return {conv:shop.conv,newAmmo:shop.newAmmo,rolls:shop.rolls,sel:[...shop.sel],res:shop.res,msg:shop.msg,newDie:shop.newDie,stock:shop.stock.map(i=>[i.sid,i.price,i.num])};
+  return {conv:shop.conv,newAmmo:shop.newAmmo,rolls:shop.rolls,bought:shop.bought||0,heat:shop.heat||0,sel:[...shop.sel],res:shop.res,msg:shop.msg,newDie:shop.newDie,stock:shop.stock.map(i=>[i.sid,i.price,i.num])};
 }
 function restoreShop(d){
-  return {conv:d.conv,newAmmo:d.newAmmo,rolls:d.rolls,sel:new Set(d.sel),res:d.res,msg:d.msg,newDie:d.newDie,busy:false,stock:d.stock.map(x=>shopItem(x[0],x[1],x[2])).filter(Boolean)};
+  return {conv:d.conv,newAmmo:d.newAmmo,rolls:d.rolls,bought:d.bought||0,heat:d.heat||0,sel:new Set(d.sel),res:d.res,msg:d.msg,newDie:d.newDie,busy:false,stock:d.stock.map(x=>shopItem(x[0],x[1],x[2])).filter(Boolean)};
 }
 function openShop(newDie){
   const nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
@@ -3509,7 +3522,8 @@ function openShop(newDie){
   if(G.daily)withSeed(G.dday+':s'+G.depth,buildStock);else buildStock();
   renderShop();openModal('m-shop');sfx('key');
 }
-const priceOf=it=>Math.max(5,Math.round(it.price*(1-.2*G.haggle)*DF().price*(1-.05*metaMul('rep'))));
+const depthPrice=()=>1+.045*G.depth;
+const priceOf=it=>Math.max(5,Math.round(it.price*(1-.2*G.haggle)*DF().price*(1-.05*metaMul('rep'))*depthPrice()*(1+.3*(shop?shop.bought||0:0))));
 function renderShop(){
   const nk=kindOf(G.depth+1),NA=AMMO[nk],OA=AMMO[kindOf(G.depth)];
   $('#shop-sub').innerHTML=`Du hast <b style="color:var(--gold)">${G.money} Münzen</b>. Hier endet die Zone, die nächste beginnt mit neuen Gegnern.`;
@@ -3528,13 +3542,13 @@ function renderShop(){
     const pr=priceOf(it),ok=G.money>=pr&&it.can();
     b.disabled=!ok;if(!ok)b.style.opacity='.5';
     b.innerHTML=`${spr(it.ico)}<div><b>${it.name}<span class="numb" style="display:inline">Zahl ${it.num}</span></b><span>${it.desc}</span><em>${pr} Münzen</em></div>`;
-    b.addEventListener('click',()=>{if(G.money<pr||!it.can())return;G.money-=pr;it.buy();sfx('card');shop.stock=shop.stock.filter(x=>x!==it);renderShop();});
+    b.addEventListener('click',()=>{if(G.money<pr||!it.can())return;G.money-=pr;it.buy();sfx('card');shop.bought=(shop.bought||0)+1;shop.stock=shop.stock.filter(x=>x!==it);renderShop();});
     w.appendChild(b);
   }
   const gm=$('#shop-gamble');gm.innerHTML='';
   if(G.dice.length){
     const h=document.createElement('p');
-    h.innerHTML=`<b style="color:var(--gold)">Glücksspiel:</b> Wähle Würfel und wirf. Jede Zahl, die eine Ware trägt, gewinnt sie gratis. Jeder Würfel ist gezinkt. Mehr Würfel kosten mehr Einsatz.`;gm.appendChild(h);
+    h.innerHTML=`<b style="color:var(--gold)">Glücksspiel:</b> Wähle Würfel und wirf. Jede Zahl, die eine Ware trägt, gewinnt sie gratis. Jeder Würfel ist gezinkt. Mehr Würfel und jeder weitere Wurf kosten mehr (höchstens 5 Würfe pro Händler). Ohne Treffer gibt es Trostpreise, Pasch und Jackpot, aber auch Pech.`;gm.appendChild(h);
     const row=document.createElement('div');row.className='dice-row';
     G.dice.forEach((kd,i)=>{
       const b=document.createElement('button');b.className='dbtn'+(shop.sel.has(i)?' sel':'');
@@ -3545,7 +3559,8 @@ function renderShop(){
     gm.appendChild(row);
     const n=shop.sel.size,st=stakeOf(n);
     const rb=document.createElement('button');rb.className='btn big';rb.id='b-roll';
-    rb.textContent=n?`Würfeln (${n}) für ${st} Münzen`:'Würfel wählen';rb.disabled=!n||G.money<st||shop.busy;
+    const left=MAXROLLS-shop.rolls;
+    rb.textContent=left<=0?'Der Händler will nicht mehr würfeln':n?`Würfeln (${n}) für ${st} Münzen`:'Würfel wählen';rb.disabled=!n||G.money<st||shop.busy||left<=0;
     rb.addEventListener('click',rollDice);gm.appendChild(rb);
     const rs=document.createElement('div');rs.className='dice-res';rs.id='dice-res';
     if(shop.res)rs.innerHTML=shop.res.map(r=>dieHTML(r.n,DIE[r.kd].col)).join('');
@@ -3556,7 +3571,7 @@ function renderShop(){
   if(!shop.busy&&G&&!G.over)saveRun();
 }
 async function rollDice(){
-  if(!shop||shop.busy)return;
+  if(!shop||shop.busy||shop.rolls>=MAXROLLS)return;
   const idx=[...shop.sel].filter(i=>G.dice[i]);const n=idx.length;if(!n)return;
   const st=stakeOf(n);if(G.money<st)return;
   G.money-=st;shop.rolls++;shop.busy=true;shop.msg='';sfx('card');
@@ -3570,11 +3585,30 @@ async function rollDice(){
   }
   shop.res=res;
   const nums=res.map(r=>r.n);
+  const nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
+  const free=()=>{const pl=UPS.filter(u=>u.can()&&u.tier<=nz);if(!pl.length)return null;const u=pick(pl);u.apply();G.ups[u.id]=(G.ups[u.id]||0)+1;return u.name;};
   const won=shop.stock.filter(it=>nums.includes(it.num));
-  const names=[];
+  const names=[],extra=[];
   for(const it of won){if(it.can()){it.buy();names.push(it.name);}else{G.money+=Math.round(priceOf(it)/2);names.push(it.name+' (als Münzen)');}}
   shop.stock=shop.stock.filter(it=>!won.includes(it));
-  shop.msg=names.length?`Gewonnen: <b style="color:var(--gold)">${names.join(', ')}</b>.`:'Leider nichts. Die Würfel zeigen keine Zahl der Waren.';
+  shop.heat=(shop.heat||0)+won.length;
+  // Würfe ohne Treffer: Trostpreise und Pech
+  const have=new Set(won.map(w=>w.num));
+  const miss=nums.filter(x=>!have.has(x));
+  for(const x of miss){
+    const r=Math.random();
+    if(r<.30){const m=Math.max(3,Math.round(st/n*(.5+Math.random()*1.1)));G.money+=m;extra.push('Trostpreis +'+m);}
+    else if(r<.48){if(G.hp<G.maxhp&&!DF().fixed){G.hp=Math.min(G.maxhp,G.hp+2);extra.push('Heiltrunk +2');}else{G.money+=6;extra.push('Trostpreis +6');}}
+    else if(r<.62){shop.newAmmo+=1;extra.push('+1 Wurf-Item');}
+    else if(r<.72){const u=free();if(u)extra.push('Geschenk: '+u);}
+    else if(r<.88){extra.push('nichts');}
+    else{const l=Math.max(5,Math.round(G.money*.1));G.money=Math.max(0,G.money-l);extra.push('Pech: −'+l+' Münzen');}
+  }
+  const cnt={};nums.forEach(x=>{cnt[x]=(cnt[x]||0)+1;});
+  const mx=Math.max(...Object.values(cnt));
+  if(mx>=3){const a=free(),b2=free();const j=Math.round(100*(1+G.depth/20));G.money+=j;extra.push('JACKPOT! '+[a,b2].filter(Boolean).join(' und ')+' +'+j+' Münzen');sfx('win');}
+  else if(mx>=2){const u=free();if(u)extra.push('Pasch! Gratis: '+u);}
+  shop.msg=(names.length?`Gewonnen: <b style="color:var(--gold)">${names.join(', ')}</b>. `:'')+(extra.length?extra.join(' · ')+'.':(names.length?'':'Nichts getroffen.'));
   questEvent('rolls',1);save.stats.rolls++;if(names.length)award('lucky');if(save.stats.rolls>=10)award('gambler');
   if(names.length)sfx('win');
   shop.busy=false;renderShop();
@@ -3871,7 +3905,7 @@ function applyTheme(){
   applyZone();
   const d=(G.depth-1+zoneOf(G.depth)*3)%10;
   document.documentElement.style.setProperty('--tint',G.boss?'#5a1f2a':(ZTINT[kindOf(G.depth)]||TINTS[d]));
-  const kz=kindOf(G.depth);AU.zm=ZMUS[kz]||ZMUS.gruft;
+  const kz=kindOf(G.depth);AU.zm=ZMUS[kz]||ZMUS.gruft;AU.motif=MOT[kz]||MOT.gruft;
   AU.trans=G.boss?-5:(kz==='gruft'?TRANS[(G.depth-1)%10]:0);AU.sd=60/(G.boss?AU.zm.bpm+12:AU.zm.bpm)/4;
 }
 const SAVEKEYS=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','daily','rule','dday','bossKills','gsPaid','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
