@@ -353,6 +353,7 @@ svg{display:block}
     <div class="menu">
       <button class="btn big" id="b-cont" hidden>Fortsetzen</button>
       <button class="btn big" id="b-play">Spielen</button>
+      <button class="btn big" id="b-endless" hidden>Endlosmodus</button>
       <button class="btn ghost" id="b-help">Anleitung</button>
       <button class="btn ghost" id="b-set">Einstellungen</button>
     </div>
@@ -421,9 +422,9 @@ svg{display:block}
   <div class="res" id="over-res"></div>
   <div class="stack"><button class="btn big" id="o-again">Nochmal versuchen</button><button class="btn ghost" id="o-title">Zum Titel</button></div></div></div>
 
-<div class="modal" id="m-win"><div class="panel"><h2>Bezwungen</h2><div class="newbest">Alle 50 Etagen geschafft</div><p>Du stehst über dem Würfel. Die Gruft hat nichts Neues mehr für dich.</p>
+<div class="modal" id="m-win"><div class="panel"><h2>Bezwungen</h2><div class="newbest">Alle 50 Etagen geschafft</div><p>Du stehst über dem Würfel. Der Endlosmodus ist jetzt freigeschaltet.</p>
   <div class="res" id="win-res"></div>
-  <div class="stack"><button class="btn big" id="w-title">Zum Titel</button></div></div></div>
+  <div class="stack"><button class="btn big" id="w-go">Endlosmodus</button><button class="btn ghost" id="w-title">Zum Titel</button></div></div></div>
 
 <div class="modal" id="m-set"><div class="panel"><h2>Einstellungen</h2>
   <div class="row-set"><div>Musik</div><button class="sw" role="switch" data-k="music" aria-label="Musik"></button></div>
@@ -941,7 +942,7 @@ const fmt=n=>Number(n).toLocaleString('de-DE');
 
 /* ================= Speicher ================= */
 const SAVE_KEY='wuerfelgruft.v1';
-let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false}};
+let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s)save={...save,...s,settings:{...save.settings,...(s.settings||{})}};}catch(e){}
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
 
@@ -1789,8 +1790,8 @@ async function completeLevel(){
   if(G.rest&&G.hp<G.maxhp){G.hp=Math.min(G.maxhp,G.hp+G.rest*2);setMsg('Am Lagerfeuer erholt.');}
   render();recordBest();
   await sleep(750);
-  if(G.depth>=GOAL){
-    G.won=true;save.run=null;persist();sfx('win');
+  if(G.depth>=GOAL&&!G.endless){
+    G.won=true;save.run=null;save.endless=true;persist();sfx('win');
     $('#win-res').innerHTML=`<span>Punkte</span><b>${fmt(G.score)}</b><span>Besiegt</span><b>${G.kills}</b><span>Züge</span><b>${G.turns}</b>`;
     openModal('m-win');return;
   }
@@ -1819,8 +1820,8 @@ function showUpgrades(){
 }
 
 /* ================= Lauf starten ================= */
-function newRun(resume){
-  G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false};
+function newRun(resume,endless){
+  G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false,endless:!!endless};
   if(resume&&save.run){Object.assign(G,JSON.parse(JSON.stringify(save.run)));G.over=false;G.busy=false;}
   startLevel();
 }
@@ -1848,12 +1849,12 @@ function closeModal(id){$('#'+id).classList.remove('on');}
 function anyModal(){return $$('.modal.on').length>0;}
 
 function updateStats(){
-  $('#b-cont').hidden=!save.run;$('#b-play').textContent=save.run?'Neues Spiel':'Spielen';
+  $('#b-cont').hidden=!save.run;$('#b-endless').hidden=!save.endless;$('#b-play').textContent=save.run?'Neues Spiel':'Spielen';
   $('#stats').textContent=save.runs||save.best?`Bestwert ${fmt(save.best)} Punkte, tiefste Etage ${save.bestDepth}`:'Noch kein Lauf. Viel Glück.';
 }
-function startGame(){
+function startGame(endless){
   show('scr-game');
-  newRun();
+  newRun(false,!!endless);
 }
 let introI=0,introTimer=null,introDone=true;
 const INTRO=[
@@ -1956,9 +1957,11 @@ $('#p-quit').addEventListener('click',()=>{
   save.run=null;persist();
   G=null;AU.setIntensity(0);updateStats();show('scr-title');
 });
+$('#b-endless').addEventListener('click',()=>{AU.unlock();sfx('click');startGame(true);});
 $('#b-cont').addEventListener('click',()=>{AU.unlock();sfx('click');show('scr-game');newRun(true);});
 $('#o-again').addEventListener('click',()=>{sfx('click');closeModal('m-over');newRun();});
 $('#o-title').addEventListener('click',()=>{sfx('click');closeModal('m-over');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
+$('#w-go').addEventListener('click',()=>{sfx('click');closeModal('m-win');G.endless=true;showUpgrades();});
 $('#w-title').addEventListener('click',()=>{sfx('click');closeModal('m-win');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
 
 /* ================= Theme, Staub, Zurück-Taste ================= */
@@ -1970,7 +1973,7 @@ function applyTheme(){
   AU.trans=G.boss?-5:TRANS[d];AU.sd=60/(G.boss?100:88)/4;
 }
 function saveRun(){
-  const keys=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
+  const keys=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
   const r={};keys.forEach(k=>{r[k]=G[k];});save.run=r;persist();
 }
 function buildDust(){
