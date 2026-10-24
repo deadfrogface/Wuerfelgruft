@@ -588,20 +588,11 @@ svg{display:block}
     <li><svg class="ico" viewBox="0 0 32 32"><use href="#s-target"/></svg><span>Wische über das Brett, um den Würfel zu drehen. Tippe auf das Netz unten, um eine Seite direkt anzusehen.</span></li>
     <li><span class="ph" data-spr="stairs"></span><span>Die Treppe liegt immer auf einer anderen Seite. Ab Etage 2 ist sie versiegelt, du brauchst den Schlüssel.</span></li>
   </ul>
-  <h3>Gegner</h3>
-  <ul>
-    <li><span class="ph" data-spr="slime"></span><span>Schleim: läuft jeden Zug auf dich zu. Stachel töten ihn.</span></li>
-    <li><span class="ph" data-spr="archer"></span><span>Bogenschütze: zielt einen Zug, schießt im nächsten. Verlasse die Linie, bevor er schießt.</span></li>
-    <li><i class="hatch"></i><span>Schraffierte Felder liegen in einer Schusslinie.</span></li>
-    <li><span class="ph" data-spr="brute"></span><span>Brocken: zäh, schlägt hart, handelt nur jeden zweiten Zug. Das „!“ zeigt, wann.</span></li>
-    <li><span class="ph" data-spr="ghost"></span><span>Geist: gleitet durch Wände.</span></li>
-    <li><span class="ph" data-spr="king"></span><span>Würfelkönig (Etage 5 und 10): ruft alle paar Züge Schleime. Mit seinem Tod öffnet sich die Treppe.</span></li>
-    <li><span class="ph" data-spr="ghost"></span><span>Alle zehn Etagen beginnt eine neue Zone mit 20 neuen Gegnern, zwei neuen Bossen und neuen Verstärkungen. Beim Auftauchen eines neuen Gegners steht seine Eigenschaft oben im Text.</span></li>
-  </ul>
+  <div id="h-zone"></div>
   <h3>Fundstücke</h3>
   <ul>
     <li><span class="ph" data-spr="heart"></span><span>Herz: heilt 2 Leben.</span></li>
-    <li><span class="ph" data-spr="bomb"></span><span>Bombe: trifft alle angrenzenden Gegner mit 2 Schaden.</span></li>
+    <li><i class="hatch"></i><span>Schraffierte Felder liegen in einer Schusslinie oder im Wurfbereich eines Gegners.</span></li>
     <li><span class="ph" data-spr="spike"></span><span>Stachelfalle: 1 Schaden für dich.</span></li>
     <li><span class="ph" data-spr="coin"></span><span>Münzen und Siege geben Geld. Nach jeder Zone (Etage 10, 20 …) wartet ein Händler.</span></li>
     <li><span class="ph" data-spr="bomb"></span><span>Jede Zone hat ein eigenes Wurf-Item (Bombe, Sporen, Frost, Fass, Leere). Beim Zonenwechsel tauschst du übrige Stücke gegen Münzen oder gegen das neue Item.</span></li>
@@ -2297,6 +2288,37 @@ function showUpgrades(){
   openModal('m-up');
 }
 
+/* ================= Zonen-Anleitung ================= */
+const OLD_DESC={slime:'läuft jeden Zug auf dich zu. Stachel töten ihn.',archer:'zielt einen Zug, schießt im nächsten. Verlasse die Linie, bevor er schießt.',brute:'zäh, schlägt hart, handelt nur jeden zweiten Zug. Das „!“ zeigt, wann.',ghost:'gleitet durch Wände.',king:'ruft alle paar Züge Schleime. Mit seinem Tod öffnet sich die Treppe.'};
+const ZINFO={
+  gruft:'Die alte Gruft. Hier lernst du Schleim, Schützen und Brocken kennen.',
+  gold:'Goblins und Leprechauns rennen mit ihrem Beutel davon: fang sie mit Diagonalschritten. Diebe stehlen dir etwas und fliehen, jage sie, bevor sie entkommen. Truhen bergen Überraschungen.',
+  moor:'Gift, Ranken und Sumpfwesen. Viele Gegner heilen sich, explodieren oder legen Stacheln.',
+  wind:'Manche Gegner schleudern dich zurück, dabei kannst du auf Stacheln oder Fundstücken landen. Windladungen schleudern Gegner weg.',
+  eis:'Frostige Gegner mit Rüstung und Teleportern. Dein Frost-Item friert sie ein.',
+  glut:'Brand, Explosionen und zähe Golems. Das Fass setzt Gegner in Brand.',
+  leere:'Schatten, Schwarze Ritter und Weltenfresser. Die Leerenkugel schleudert Gegner fort.'
+};
+const PDESC={p_beere:'heilt 2 und gibt 1 Block',p_pilz:'5 Schritte kosten keinen Zug',p_kristall:'friert alle Gegner kurz ein',p_schneeherz:'+1 maximales Leben und heilt 3',p_glutkern:'die nächsten 3 Angriffe machen +2 Schaden',p_feder:'+1 Zurück in dieser Etage',p_splitter:'+100 Punkte und +25 Münzen',p_mantel:'Gegner bemerken dich 2 Züge lang nicht',p_barren:'+50 Münzen und Punkte',p_kleeblatt:'die nächsten 4 Angriffe machen doppelten Schaden',chest:'Überraschung: Münzen, ein Fund, ein fliehender Goblin oder eine Mimik',p_windfeder:'4 Schritte gratis und heilt 1',p_wirbel:'stößt alle Gegner in der Nähe weg'};
+function buildHelpZone(){
+  const box=$('#h-zone');if(!box)return;
+  const z=G?zoneOf(G.depth)%ZONES.length:0,kd=ZKIND[z],A=AMMO[kd];
+  const first=z*10+1;
+  const li=(ico,t,d)=>`<li><span class="ph">${spr(ico)}</span><span><b>${t}</b>${d?': '+d:''}</span></li>`;
+  const endl=G&&zoneOf(G.depth)>=ZONES.length;
+  let h=`<h3>${ZONES[z]} (${endl?'Endlosmodus, Gegner wiederholen sich':'Etage '+first+'–'+(first+9)})</h3><ul><li><span class="ph">${spr(A.ico)}</span><span>${ZINFO[kd]}</span></li></ul>`;
+  h+='<h3>Gegner dieser Zone</h3><ul>';
+  const ids=ROSTER[z].slice().sort((a,b)=>MT[a].d-MT[b].d);
+  for(const id of ids){const T=MT[id];h+=li(id,T.name,(OLD_DESC[id]||traitText(T)||'läuft auf dich zu.')+' <i style="opacity:.7">'+(endl?'':'(ab Etage '+(first+T.d-1)+')')+'</i>');}
+  for(const id of BOSSES[z]){const T=MT[id];h+=li(id,'Boss '+T.name,(OLD_DESC[id]||traitText(T))+' Etage '+(first+(id===BOSSES[z][0]?4:9))+'.');}
+  h+='</ul><h3>Wurf-Item</h3><ul>'+li(A.ico,A.name,A.desc+'. Beim Zonenwechsel tauschst du übrige Stücke im Händler.')+'</ul>';
+  const pk=ZPICKS[kd];
+  if(pk){h+='<h3>Fundstücke dieser Zone</h3><ul>'+[...new Set(pk)].map(k=>li(k,PICKN[k],PDESC[k])).join('')+'</ul>';}
+  const ups=UPS.filter(u=>u.tier===z);
+  if(ups.length)h+='<h3>Neue Verstärkungen</h3><ul>'+ups.map(u=>li(u.ico,u.name,u.desc)).join('')+'</ul>';
+  box.innerHTML=h;
+}
+
 /* ================= Händler zwischen den Zonen ================= */
 const DIE={gruft:{fav:1,name:'Gruftwürfel',col:'#e9dfc8'},gold:{fav:6,name:'Goldwürfel',col:'#f4b942'},moor:{fav:2,name:'Moorwürfel',col:'#8bd450'},wind:{fav:5,name:'Windwürfel',col:'#cfe6ff'},eis:{fav:3,name:'Eiswürfel',col:'#8fd0e8'},glut:{fav:4,name:'Glutwürfel',col:'#ff8a5c'},leere:{fav:6,name:'Leerenwürfel',col:'#b890ff'}};
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
@@ -2516,7 +2538,7 @@ window.addEventListener('keydown',e=>{
 });
 
 $('#b-play').addEventListener('click',()=>{AU.unlock();sfx('click');if(save.seenIntro)startGame();else playIntro();});
-$('#b-help').addEventListener('click',()=>{AU.unlock();sfx('click');openModal('m-help');});
+$('#b-help').addEventListener('click',()=>{AU.unlock();sfx('click');buildHelpZone();openModal('m-help');});
 $('#b-set').addEventListener('click',()=>{AU.unlock();sfx('click');syncSwitches();openModal('m-set');});
 $('#scr-intro').addEventListener('click',e=>{if(e.target.id==='i-skip')return;introNext();});
 $('#i-skip').addEventListener('click',endIntro);
@@ -2528,7 +2550,7 @@ $$('.sw').forEach(b=>b.addEventListener('click',()=>{
   if(save.settings.sfx)sfx('click');
 }));
 $('#p-resume').addEventListener('click',()=>{sfx('click');closeModal('m-pause');});
-$('#p-help').addEventListener('click',()=>{sfx('click');openModal('m-help');});
+$('#p-help').addEventListener('click',()=>{sfx('click');buildHelpZone();openModal('m-help');});
 $('#p-set').addEventListener('click',()=>{sfx('click');syncSwitches();openModal('m-set');});
 $('#p-title').addEventListener('click',()=>{sfx('click');closeModal('m-pause');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
 $('#p-quit').addEventListener('click',()=>{
