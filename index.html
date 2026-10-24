@@ -280,6 +280,27 @@ svg{display:block}
 .boom.zb{background:radial-gradient(circle,#fff 0,var(--b1) 35%,var(--b2) 60%,transparent 70%)}
 
 /* ===== Zonen: Hintergründe ===== */
+/* ===== Anreize ===== */
+.btn.gold{background:linear-gradient(180deg,#ffe27a,#f4b942);color:#17152b;box-shadow:0 4px 0 #b47a14}
+.trow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.trow2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.btn.sm{padding:10px 4px;font-size:.92rem;position:relative}
+.dot{position:absolute;top:6px;right:8px;width:10px;height:10px;border-radius:50%;background:#e8553d;box-shadow:0 0 0 2px #17152b}
+.ldays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
+.ld{background:var(--ink3);border-radius:10px;padding:8px 2px;text-align:center;border:2px solid transparent}
+.ld small{display:block;color:var(--dim);font-size:.6rem}
+.ld b{font-size:.95rem;color:var(--gold)}
+.ld.cur{border-color:var(--gold)}
+.ld.done{opacity:.5}
+.qrow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--ink3);border-radius:10px;padding:8px 10px;margin:6px 0}
+.qrow>div{flex:1;min-width:0}
+.qrow b{display:block;font-size:.95rem}
+.qrow small{color:var(--dim)}
+.qrow em{font-style:normal;color:var(--gold);font-weight:800}
+.qrow.ok{opacity:.55}
+.qb{height:6px;background:#17152b;border-radius:4px;margin-top:4px;overflow:hidden}
+.qb i{display:block;height:100%;background:linear-gradient(90deg,#3fd0b0,#8ff5da)}
+
 /* ===== Sammlung & Sparmodus ===== */
 .dexg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .dx{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--ink3);border-radius:10px;padding:6px 2px;min-width:0}
@@ -292,6 +313,7 @@ svg{display:block}
 .ach li.lock{opacity:.45}
 .toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:300;background:var(--gold);color:#17152b;font-weight:800;padding:8px 16px;border-radius:99px;box-shadow:0 4px 0 #b47a14;animation:toastin 3.4s ease-out forwards;pointer-events:none;max-width:92%;white-space:normal;text-align:center}
 @keyframes toastin{0%{opacity:0;transform:translate(-50%,-14px)}8%{opacity:1;transform:translate(-50%,0)}85%{opacity:1}100%{opacity:0}}
+@media (max-height:700px){#scr-title .cast{display:none}}
 @media (max-width:390px){.act{min-width:52px;padding:4px 2px}.act span{font-size:.74rem}}
 html.lite .zbg>*:nth-child(n+7){display:none}
 html.lite .ember{display:none}
@@ -676,9 +698,9 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
       <button class="btn big" id="b-cont" hidden>Fortsetzen</button>
       <button class="btn big" id="b-play">Spielen</button>
       <button class="btn big" id="b-endless" hidden>Endlosmodus</button>
-      <button class="btn ghost" id="b-dex">Sammlung</button>
-      <button class="btn ghost" id="b-help">Anleitung</button>
-      <button class="btn ghost" id="b-set">Einstellungen</button>
+      <button class="btn big gold" id="b-daily">Tageslauf</button>
+      <div class="trow"><button class="btn ghost sm" id="b-forge">Schmiede</button><button class="btn ghost sm" id="b-q">Aufgaben<i class="dot" id="q-dot" hidden></i></button><button class="btn ghost sm" id="b-dex">Sammlung</button></div>
+      <div class="trow2"><button class="btn ghost sm" id="b-help">Anleitung</button><button class="btn ghost sm" id="b-set">Einstellungen</button></div>
     </div>
     <p class="stats" id="stats"></p>
   </div>
@@ -745,6 +767,15 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 
 <div class="modal" id="m-shop"><div class="panel help"><h2>Händler</h2><p id="shop-sub"></p><div class="cards" id="shop-conv"></div><div class="cards" id="shop-wares"></div><div id="shop-gamble"></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="shop-go">Weiter</button></div></div></div>
+
+<div class="modal" id="m-login"><div class="panel"><h2>Täglicher Bonus</h2><p id="login-sub"></p><div class="ldays" id="login-days"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="login-go">Abholen</button></div></div></div>
+
+<div class="modal" id="m-forge"><div class="panel help"><h2>Gruftschmiede</h2><p>Gruftsteine: <b style="color:var(--gold)" id="forge-gs">0</b>. Verbesserungen gelten dauerhaft für alle normalen Läufe, nicht für den Tageslauf.</p><div class="cards" id="forge-list"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="f-close">Fertig</button></div></div></div>
+
+<div class="modal" id="m-quests"><div class="panel help"><h2>Aufgaben</h2><div id="q-body"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="q-close">Schließen</button></div></div></div>
 
 <div class="modal" id="m-dex"><div class="panel help"><h2>Sammlung</h2><div class="seg" id="dex-tabs"></div><div id="dex-body"></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="x-close">Schließen</button></div></div></div>
@@ -1674,7 +1705,7 @@ function heroFrames(k){
   return [frames[0],[E,...frames[1].slice(0,9),...frames[1].slice(10)],frames[2],[...frames[3].slice(1,10),frames[3][9],...frames[3].slice(10)]];
 }
 for(const k of DIFFK)if(k!=='normal')GEN['hero_'+k]={frames:heroFrames(k)};
-const DF=()=>DIFFS[(G&&G.diff)||save.diff||'normal'];
+const DF=()=>(G&&G.dailyD)||DIFFS[(G&&G.diff)||save.diff||'normal'];
 /* Härte wächst mit der Etage: Anfang bleibt fair */
 const hpMod=()=>{const D=DF();return D.mhp<0?D.mhp:(G&&G.depth>=(D.hpAt||1)?D.mhp:0);};
 const monAdd=()=>{const D=DF();return (D.monAt||[]).filter(t=>G.depth>=t).length;};
@@ -1733,7 +1764,7 @@ const fmt=n=>Number(n).toLocaleString('de-DE');
 
 /* ================= Speicher ================= */
 const SAVE_KEY='wuerfelgruft.v1';
-let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},dex:{},ach:{},stats:{bosses:0,throws:0,rolls:0,turns:0},settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false,lite:false,liteAuto:false}};
+let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},dex:{},ach:{},stats:{bosses:0,throws:0,rolls:0,turns:0},gs:0,meta:{},daily:{day:'',best:0,done:false,streak:0,last:''},login:{last:'',streak:0,claimed:''},q:{day:'',list:[],prog:{},done:{}},wq:{week:'',t:'',n:0,r:0,prog:0,done:false},achPaid:false,settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false,lite:false,liteAuto:false}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s)save={...save,...s,settings:{...save.settings,...(s.settings||{})}};}catch(e){}
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
 
@@ -2479,7 +2510,7 @@ function hitMonster(m,dmg,byPlayer){
   if(m.hp>0){burst(m.pos,'#ffffff',4);return false;}
   G.mons=G.mons.filter(x=>x!==m);
   const pts=Math.round(T.pts*(G.soul?1.5:1));
-  trackKill(m);G.kills++;G.score+=pts;G.money+=Math.max(1,Math.round(T.pts/25*(G.loot?1.5:1)*DF().money));G.killCount++;
+  trackKill(m);G.kills++;G.score+=pts;G.money+=Math.max(1,Math.round(T.pts/25*(G.loot?1.5:1)*DF().money*(1+.1*metaMul('greed'))));G.killCount++;
   burst(m.pos,T.col,14);sfx('kill',ZKIND[T.z||0]);if(T.z>0)mfx(m.pos,T);
   if(T.boss){G.hasKey=true;setMsg('Der Boss fällt. Die Treppe ist offen.');sfx('key');shake();}
   floatText(m.pos,'+'+pts,'gold');
@@ -2504,7 +2535,7 @@ function hitMonster(m,dmg,byPlayer){
 function pickup(it,t){pickFx(t,it);
   if(it==='heart'){const per=DF().heart,h=Math.min(per>0?per+(G.spare?1:0):0,G.maxhp-G.hp);G.hp+=h;sfx('heart');floatText(t,h?'+'+h:'Voll','green');}
   else if(it==='coin'){
-    G.coins=(G.coins||0)+1;const v=15+G.gold*10,mo=Math.round((5+G.gold*2)*(G.pearl?2:1)*DF().money);G.score+=v;G.money+=mo;sfx('coin');floatText(t,'+'+mo,'gold');
+    questEvent('coins',1);G.coins=(G.coins||0)+1;const v=15+G.gold*10,mo=Math.round((5+G.gold*2)*(G.pearl?2:1)*DF().money*(1+.1*metaMul('greed')));G.score+=v;G.money+=mo;sfx('coin');floatText(t,'+'+mo,'gold');
     if(G.gold&&G.coins%4===0&&G.hp<G.maxhp){G.hp++;floatText(G.pos,'+1','green');}
   }
   else if(it==='key'){G.hasKey=true;sfx('key');floatText(t,'Schlüssel','gold');setMsg('Schlüssel gefunden. Die Treppe ist jetzt offen.');}
@@ -3074,7 +3105,7 @@ async function throwAt(t){
   try{
     await sleep(380);
     const hit=await A.throw(t);
-    save.stats.throws++;if(hit&&hit.length>=3)award('bomber');if(save.stats.throws>=50)award('thrower');
+    questEvent('throws',1);save.stats.throws++;if(hit&&hit.length>=3)award('bomber');if(save.stats.throws>=50)award('thrower');
     if(G.sandy)for(const m of hit||[])if(G.mons.includes(m))m.stun=Math.max(m.stun||0,1);
   }catch(e){console.error(e);}
   vibe(40);render();await sleep(200);
@@ -3115,11 +3146,12 @@ function die(){
   }
   G.over=true;G.busy=true;
   const newBest=G.score>save.best;
-  save.runs++;save.kills+=G.kills;save.run=null;recordBest();persist();
+  save.runs++;save.kills+=G.kills;save.run=null;recordBest();
+  const gsGain=grantRun();if(G.daily)dailyProgress();persist();
   sfx('over');render();
   setTimeout(()=>{
     $('#over-new').innerHTML=newBest&&G.score>0?'<span class="newbest">Neuer Rekord</span>':'';
-    $('#over-res').innerHTML=`<span>Etage</span><b>${G.depth}</b><span>Zone</span><b>${nearTen(G.depth)}</b><span>Punkte</span><b>${fmt(G.score)}</b><span>Besiegt</span><b>${G.kills}</b><span>Züge</span><b>${G.turns}</b>`;
+    $('#over-res').innerHTML=`<span>Etage</span><b>${G.depth}</b><span>Zone</span><b>${nearTen(G.depth)}</b><span>Punkte</span><b>${fmt(G.score)}</b><span>Besiegt</span><b>${G.kills}</b><span>Züge</span><b>${G.turns}</b><span>Gruftsteine</span><b>+${gsGain}</b>`;
     openModal('m-over');
   },900);
 }
@@ -3132,8 +3164,8 @@ async function completeLevel(){
   await sleep(750);
   if(G.depth>=GOAL&&!G.endless){
     $('#m-win .newbest').textContent='Alle '+GOAL+' Etagen geschafft';
-    G.won=true;save.run=null;save.endless=true;persist();sfx('win');
-    $('#win-res').innerHTML=`<span>Punkte</span><b>${fmt(G.score)}</b><span>Besiegt</span><b>${G.kills}</b><span>Züge</span><b>${G.turns}</b>`;
+    G.won=true;save.run=null;save.endless=true;const gsGain=grantRun();persist();sfx('win');
+    $('#win-res').innerHTML=`<span>Punkte</span><b>${fmt(G.score)}</b><span>Besiegt</span><b>${G.kills}</b><span>Züge</span><b>${G.turns}</b><span>Gruftsteine</span><b>+${gsGain}</b>`;
     openModal('m-win');return;
   }
   showUpgrades();
@@ -3143,16 +3175,15 @@ function showUpgrades(){
   const nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
   $('#up-sub').textContent=G.depth%10===0&&G.depth<GOAL?'Neue Zone, neue Verstärkungen. Wähle eine für den Abstieg.':'Wähle eine Verstärkung für den Abstieg.';
   const avail=UPS.filter(u=>u.can()&&u.tier<=nz);
-  const fresh=nz>0?shuffle(avail.filter(u=>u.tier===nz)):[];
-  const pool=fresh.slice(0,1);
-  pool.push(...shuffle(avail.filter(u=>!pool.includes(u))).slice(0,3-pool.length));
+  const mkPool=()=>{const fresh=nz>0?shuffle(avail.filter(u=>u.tier===nz)):[];const pl=fresh.slice(0,1);pl.push(...shuffle(avail.filter(u=>!pl.includes(u))).slice(0,3-pl.length));return pl;};
+  const pool=G.daily?withSeed(G.dday+':u'+G.depth,mkPool):mkPool();
   const box=$('#cards');box.innerHTML='';
   for(const u of pool){
     const n=G.ups[u.id]||0;
     const b=document.createElement('button');b.className='card';
     b.innerHTML=`${spr(u.ico)}<div><b>${u.name}</b><span>${u.desc}</span>${n?`<em>Du hast ${n}</em>`:''}</div>`;
     b.addEventListener('click',()=>{
-      sfx('card');u.apply();G.ups[u.id]=n+1;closeModal('m-up');
+      sfx('card');questEvent('picks',1);u.apply();G.ups[u.id]=n+1;closeModal('m-up');
       if(Object.values(G.ups).filter(v=>v>0).length>=10)award('collector');
       afterCard();
     });
@@ -3225,9 +3256,10 @@ function toast(t){
   const el=document.createElement('div');el.className='toast';el.textContent=t;
   const host=$('#app')||document.body;host.appendChild(el);setTimeout(()=>el.remove(),3400);
 }
+function achGS(id){return ACHGS[id]||10;}
 function award(id){
   if(!ACHN[id]||save.ach[id])return;
-  save.ach[id]=Date.now();persist();toast('Erfolg: '+ACHN[id]);sfx('win');
+  save.ach[id]=Date.now();const g=achGS(id);addGS(g);persist();toast('Erfolg: '+ACHN[id]+' (+'+g+' Gruftsteine)');sfx('win');
 }
 function noteSeen(type){
   const d=save.dex[type]||(save.dex[type]={s:0,k:0});
@@ -3245,10 +3277,12 @@ function trackKill(m){
   const T=MT[m.type],d=save.dex[m.type]||(save.dex[m.type]={s:1,k:0});d.k++;
   if(T.boss){save.stats.bosses++;award('boss1');if(save.stats.bosses>=10)award('boss10');}
   if(T.flee)award('goblin');
+  questEvent('kills',1);if(T.boss){questEvent('bosses',1);if(G)G.bossKills=(G.bossKills||0)+1;}
   if(m.carry)award('thief');
 }
 function trackLevel(){
   const d=G.depth;
+  questEvent('depth',d,true);if(!(G.lvlLoss>0))questEvent('untouched',1);if(d%10===0)questEvent('zones',1);if(G.daily)dailyProgress();
   if(d%10===0&&d<=100)award('zone'+(d/10));
   if(d>=5&&!(G.lvlLoss>0))award('untouched');
   if(G.money>=1000)award('rich');
@@ -3288,6 +3322,147 @@ function openDex(tab){
   openModal('m-dex');
 }
 
+/* ================= Anreize: Gruftsteine, Tageslauf, Login, Aufgaben ================= */
+const pad2=n=>String(n).padStart(2,'0');
+const dayKey=(d=new Date())=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const yesterdayKey=()=>{const d=new Date();d.setDate(d.getDate()-1);return dayKey(d);};
+const weekKey=()=>{const d=new Date(),t=new Date(d.getFullYear(),0,1);return d.getFullYear()+'-W'+Math.floor(((d-t)/86400000+t.getDay())/7);};
+const hashStr=str=>{let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
+function withSeed(key,fn){
+  const orig=Math.random;let a=hashStr(key);
+  Math.random=()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296;};
+  try{return fn();}finally{Math.random=orig;}
+}
+function addGS(n){if(n>0){save.gs=(save.gs||0)+n;persist();}}
+const ACHGS={boss1:15,boss10:50,goblin:15,thief:25,lucky:15,gambler:20,dice10:80,rich:20,collector:30,phoenix:25,bomber:20,thrower:20,untouched:20,hc30:100,hp10:100,zoo:40,zooall:200,win:300,endless:100};
+for(let i=1;i<=10;i++)ACHGS['zone'+i]=10*i;
+/* dauerhafte Verbesserungen */
+const META=[
+  {id:'mhp',name:'Zähes Blut',desc:'+1 maximales Leben zu Beginn jedes Laufs.',cost:[40,80,140,220,320]},
+  {id:'start',name:'Startvorrat',desc:'+1 Wurf-Item zu Beginn.',cost:[30,70,120]},
+  {id:'gold',name:'Taschengeld',desc:'+20 Münzen zu Beginn.',cost:[30,60,90,130,180]},
+  {id:'shield',name:'Eisenhaut',desc:'+1 Block pro Etage.',cost:[120,250]},
+  {id:'undo',name:'Zeitband',desc:'+1 Zurück pro Etage (nicht auf Hardcore und 1 HP).',cost:[150,300]},
+  {id:'dice',name:'Glücksbringer',desc:'Du startest mit dem Gruftwürfel.',cost:[100]},
+  {id:'rep',name:'Verhandlungsgeschick',desc:'Händler verlangen 5 % weniger.',cost:[60,110,170,240]},
+  {id:'greed',name:'Beutegeist',desc:'+10 % Münzen von Gegnern und Boden.',cost:[80,150,240]},
+  {id:'edge',name:'Scharfer Anfang',desc:'+1 Grundschaden in jedem Lauf.',cost:[500]}
+];
+const metaLv=id=>(save.meta[id]||0);
+const metaOn=()=>!(G&&G.daily);
+const metaMul=id=>metaOn()?metaLv(id):0;
+/* Tageslauf */
+const DAILY_RULES=[
+  {name:'Doppelte Gegner',desc:'Zwei Gegner mehr pro Etage, dafür 50 % mehr Münzen.',mod:{mon:2,monAt:[1,1],money:1.5}},
+  {name:'Glasherz',desc:'Nur 3 Leben, Herzen heilen 1, doppelte Münzen.',mod:{hp:3,heart:1,money:2}},
+  {name:'Wurfkönig',desc:'Start mit 6 Wurf-Items und +1 Wurf-Item pro Etage.',mod:{ammo:5},start(g){g.sack=1;}},
+  {name:'Teure Waren',desc:'Händler verlangen fast das Doppelte, Münzen geben 80 % mehr.',mod:{price:1.8,money:1.8}},
+  {name:'Zähe Gegner',desc:'Gegner haben 2 Leben mehr, du startest mit 8 Leben.',mod:{hp:8,mhp:2,hpAt:1}},
+  {name:'Kein Nachschub',desc:'Herzen liegen nicht herum, dafür 6 Leben und 50 % mehr Münzen.',mod:{hp:6,heart:0,money:1.5}}
+];
+const ruleOf=(day=dayKey())=>hashStr('rule'+day)%DAILY_RULES.length;
+function makeDaily(r){const R=DAILY_RULES[r];return {...DIFFS.normal,...R.mod,name:'Tageslauf'};}
+function dailyRoll(){const d=save.daily;if(d.day!==dayKey()){d.day=dayKey();d.best=0;d.done=false;persist();}}
+function dailyProgress(){
+  dailyRoll();const d=save.daily;
+  if(G.depth>d.best)d.best=G.depth;
+  if(!d.done&&G.depth>=10){
+    d.done=true;d.streak=d.last===yesterdayKey()?d.streak+1:1;d.last=dayKey();
+    const g=30+5*Math.min(d.streak,10);addGS(g);toast('Tageslauf geschafft: +'+g+' Gruftsteine (Serie '+d.streak+')');sfx('win');
+  }
+  persist();
+}
+/* Gruftsteine nach einem Lauf */
+function grantRun(){
+  if(!G||G.gsPaid)return 0;G.gsPaid=true;
+  const mul=G.daily?1.4:({leicht:.6,normal:1,schwer:1.4,hardcore:2,'1hp':2.8}[G.diff]||1);
+  const g=Math.max(1,Math.round((G.depth*2+Math.floor(G.kills/5)+(G.bossKills||0)*15)*mul));
+  addGS(g);return g;
+}
+/* Aufgaben */
+const QPOOL=[
+  {t:'kills',txt:n=>'Besiege '+n+' Gegner',g:[25,40,60],r:15},
+  {t:'depth',txt:n=>'Erreiche Etage '+n+' in einem Lauf',g:[8,12,16],r:20,max:true},
+  {t:'bosses',txt:n=>'Besiege '+n+(n>1?' Bosse':' Boss'),g:[1,2],r:25},
+  {t:'coins',txt:n=>'Sammle '+n+' Münzen vom Boden',g:[10,16,24],r:15},
+  {t:'throws',txt:n=>'Wirf '+n+' Wurf-Items',g:[4,6,9],r:15},
+  {t:'untouched',txt:n=>'Schaffe '+n+' Etagen ohne Schaden',g:[2,3,4],r:20},
+  {t:'picks',txt:n=>'Wähle '+n+' Verstärkungen',g:[5,8,12],r:15},
+  {t:'rolls',txt:n=>'Würfle '+n+'-mal im Händler',g:[1,2,3],r:20},
+  {t:'zones',txt:n=>'Schaffe '+n+(n>1?' Zonen':' Zone'),g:[1,2],r:30}
+];
+const WPOOL=[{t:'kills',n:250,r:150,txt:'Besiege 250 Gegner'},{t:'depth',n:40,r:150,txt:'Erreiche Etage 40',max:true},{t:'bosses',n:8,r:150,txt:'Besiege 8 Bosse'},{t:'zones',n:6,r:150,txt:'Schaffe 6 Zonen'}];
+function rollQuests(){
+  const q=save.q;
+  if(q.day!==dayKey()){
+    const list=withSeed('q'+dayKey(),()=>shuffle(QPOOL.slice()).slice(0,3).map(d=>({t:d.t,n:pick(d.g),r:d.r})));
+    save.q={day:dayKey(),list,prog:{},done:{}};
+  }
+  const w=save.wq;
+  if(w.week!==weekKey()){const d=WPOOL[hashStr('w'+weekKey())%WPOOL.length];save.wq={week:weekKey(),t:d.t,n:d.n,r:d.r,prog:0,done:false};}
+  persist();
+}
+function questEvent(t,n,isMax){
+  rollQuests();
+  const q=save.q;
+  q.prog[t]=isMax?Math.max(q.prog[t]||0,n):(q.prog[t]||0)+n;
+  for(const e of q.list){
+    if(e.t!==t||q.done[t])continue;
+    if(q.prog[t]>=e.n){q.done[t]=true;addGS(e.r);toast('Aufgabe geschafft: +'+e.r+' Gruftsteine');sfx('win');}
+  }
+  const w=save.wq;
+  if(w.t===t&&!w.done){w.prog=isMax?Math.max(w.prog,n):w.prog+n;if(w.prog>=w.n){w.done=true;addGS(w.r);toast('Wochenaufgabe geschafft: +'+w.r+' Gruftsteine');sfx('win');}}
+  persist();
+}
+/* Login-Bonus */
+const LOGIN_R=[10,15,20,30,40,60,100];
+function loginPending(){return save.login.claimed!==dayKey();}
+function loginNext(){const l=save.login;return l.last===yesterdayKey()?l.streak+1:(l.claimed===dayKey()?l.streak:1);}
+function openLogin(){
+  const l=save.login,st=loginPending()?loginNext():l.streak;
+  const cur=((st-1)%7)+1;
+  $('#login-days').innerHTML=LOGIN_R.map((r,i)=>`<div class="ld${i+1===cur?' cur':''}${(i+1<cur||(i+1===cur&&!loginPending()))?' done':''}"><small>Tag ${i+1}</small><b>${r}</b></div>`).join('');
+  $('#login-sub').textContent=loginPending()?`Tag ${cur} deiner Serie. Hol dir deine Belohnung.`:'Heute schon abgeholt. Komm morgen wieder.';
+  $('#login-go').textContent=loginPending()?'Abholen: '+LOGIN_R[cur-1]+' Gruftsteine':'Schließen';
+  openModal('m-login');
+}
+function claimLogin(){
+  if(!loginPending()){closeModal('m-login');return;}
+  const l=save.login,st=loginNext(),r=LOGIN_R[(st-1)%7];
+  l.streak=st;l.last=dayKey();l.claimed=dayKey();addGS(r);persist();sfx('win');
+  closeModal('m-login');toast('Login-Bonus: +'+r+' Gruftsteine');updateStats();
+}
+/* Schmiede */
+function openForge(){
+  const box=$('#forge-list');box.innerHTML='';
+  $('#forge-gs').textContent=fmt(save.gs||0);
+  for(const m of META){
+    const lv=metaLv(m.id),max=m.cost.length,cost=m.cost[lv];
+    const b=document.createElement('button');b.className='card';
+    const done=lv>=max,ok=!done&&(save.gs||0)>=cost;
+    b.disabled=done||!ok;if(!ok)b.style.opacity=done?'.7':'.5';
+    b.innerHTML=`<div><b>${m.name} <small style="color:var(--dim)">Stufe ${lv}/${max}</small></b><span>${m.desc}</span><em>${done?'Maximal':cost+' Gruftsteine'}</em></div>`;
+    b.addEventListener('click',()=>{if(done||(save.gs||0)<cost)return;save.gs-=cost;save.meta[m.id]=lv+1;persist();sfx('card');openForge();updateStats();});
+    box.appendChild(b);
+  }
+  openModal('m-forge');
+}
+/* Aufgaben-Fenster */
+function openQuests(){
+  rollQuests();dailyRoll();
+  const q=save.q,d=save.daily,r=ruleOf(),R=DAILY_RULES[r];
+  const bar=(p,n)=>`<div class="qb"><i style="width:${Math.min(100,p/n*100)}%"></i></div>`;
+  let h=`<h3>Tageslauf</h3><p><b style="color:var(--gold)">${R.name}</b>: ${R.desc}</p><p>Heute bester Lauf: <b>Etage ${d.best||0}</b>. Serie: <b>${d.streak||0}</b> ${d.last===dayKey()?'(heute geschafft)':'(erreiche Etage 10)'}.</p><button class="btn big" id="q-daily">Tageslauf starten</button><h3>Tagesaufgaben</h3>`;
+  for(const e of q.list){const def=QPOOL.find(x=>x.t===e.t),p=q.prog[e.t]||0;h+=`<div class="qrow${q.done[e.t]?' ok':''}"><div><b>${def.txt(e.n)}</b><small>${Math.min(p,e.n)} / ${e.n}</small>${bar(p,e.n)}</div><em>+${e.r}</em></div>`;}
+  const w=save.wq;const wd=WPOOL.find(x=>x.t===w.t);
+  h+=`<h3>Wochenaufgabe</h3><div class="qrow${w.done?' ok':''}"><div><b>${wd?wd.txt:''}</b><small>${Math.min(w.prog,w.n)} / ${w.n}</small>${bar(w.prog,w.n)}</div><em>+${w.r}</em></div>`;
+  h+=`<h3>Login-Bonus</h3><p>Serie: <b>${save.login.streak||0}</b> Tage.</p><button class="btn ghost" id="q-login">${loginPending()?'Belohnung abholen':'Belohnungen ansehen'}</button>`;
+  $('#q-body').innerHTML=h;
+  $('#q-daily').addEventListener('click',()=>{sfx('click');closeModal('m-quests');startGame(false,true);});
+  $('#q-login').addEventListener('click',()=>{sfx('click');closeModal('m-quests');openLogin();});
+  openModal('m-quests');
+}
+
 /* ================= Händler zwischen den Zonen ================= */
 const DIE={wueste:{fav:3,name:'Wüstenwürfel',col:'#e8c870'},uhrwerk:{fav:4,name:'Uhrwerkwürfel',col:'#c98a4b'},tiefsee:{fav:2,name:'Tiefseewürfel',col:'#4aa0c8'},gruft:{fav:1,name:'Gruftwürfel',col:'#e9dfc8'},gold:{fav:6,name:'Goldwürfel',col:'#f4b942'},moor:{fav:2,name:'Moorwürfel',col:'#8bd450'},wind:{fav:5,name:'Windwürfel',col:'#cfe6ff'},eis:{fav:3,name:'Eiswürfel',col:'#8fd0e8'},glut:{fav:4,name:'Glutwürfel',col:'#ff8a5c'},leere:{fav:6,name:'Leerenwürfel',col:'#b890ff'}};
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
@@ -3324,14 +3499,17 @@ function restoreShop(d){
 function openShop(newDie){
   const nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
   shop={conv:G.bombs>0,newAmmo:0,stock:[],rolls:0,sel:new Set(),res:null,msg:'',newDie:newDie||null,busy:false};
-  for(const u of shuffle(UPS.filter(u=>u.can()&&u.tier<=nz)).slice(0,3))shop.stock.push(shopItem('up:'+u.id,60+u.tier*20+rnd(20),0));
-  if(!DF().fixed)shop.stock.push(shopItem('potion',30,0));
-  shop.stock.push(shopItem('ammo',45,0));
-  if(!DF().fixed)shop.stock.push(shopItem('heart',90,0));
-  for(const it of shop.stock)it.num=1+rnd(6);
+  const buildStock=()=>{
+    for(const u of shuffle(UPS.filter(u=>u.can()&&u.tier<=nz)).slice(0,3))shop.stock.push(shopItem('up:'+u.id,60+u.tier*20+rnd(20),0));
+    if(!DF().fixed)shop.stock.push(shopItem('potion',30,0));
+    shop.stock.push(shopItem('ammo',45,0));
+    if(!DF().fixed)shop.stock.push(shopItem('heart',90,0));
+    for(const it of shop.stock)it.num=1+rnd(6);
+  };
+  if(G.daily)withSeed(G.dday+':s'+G.depth,buildStock);else buildStock();
   renderShop();openModal('m-shop');sfx('key');
 }
-const priceOf=it=>Math.max(5,Math.round(it.price*(1-.2*G.haggle)*DF().price));
+const priceOf=it=>Math.max(5,Math.round(it.price*(1-.2*G.haggle)*DF().price*(1-.05*metaMul('rep'))));
 function renderShop(){
   const nk=kindOf(G.depth+1),NA=AMMO[nk],OA=AMMO[kindOf(G.depth)];
   $('#shop-sub').innerHTML=`Du hast <b style="color:var(--gold)">${G.money} Münzen</b>. Hier endet die Zone, die nächste beginnt mit neuen Gegnern.`;
@@ -3397,7 +3575,7 @@ async function rollDice(){
   for(const it of won){if(it.can()){it.buy();names.push(it.name);}else{G.money+=Math.round(priceOf(it)/2);names.push(it.name+' (als Münzen)');}}
   shop.stock=shop.stock.filter(it=>!won.includes(it));
   shop.msg=names.length?`Gewonnen: <b style="color:var(--gold)">${names.join(', ')}</b>.`:'Leider nichts. Die Würfel zeigen keine Zahl der Waren.';
-  save.stats.rolls++;if(names.length)award('lucky');if(save.stats.rolls>=10)award('gambler');
+  questEvent('rolls',1);save.stats.rolls++;if(names.length)award('lucky');if(save.stats.rolls>=10)award('gambler');
   if(names.length)sfx('win');
   shop.busy=false;renderShop();
 }
@@ -3409,13 +3587,26 @@ function leaveShop(){
 }
 
 /* ================= Lauf starten ================= */
-function newRun(resume,endless){
+function newRun(resume,endless,daily){
   shop=null;
-  const dk=save.diff||'normal',D0=DIFFS[dk];
-  G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,money:0,rage:0,cloak:0,freeSteps:0,lucky:0,veil:false,curse:false,oasis:0,maprel:false,sandy:false,assassin:false,gears:false,rod:false,torch:false,spare:false,lens:false,chain:false,pearl:false,ink:false,harpoon:false,feast:false,volt:false,anchor:false,paralyzed:0,shell:0,gale:false,gustshield:false,tailwind:0,sack:0,shadow:false,fury:false,dice:[],loot:false,haggle:0,income:0,net:false,hunter:false,lockpicks:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false,endless:!!endless,diff:dk};
+  const dr=daily?ruleOf():0;
+  const dk=daily?'normal':(save.diff||'normal'),D0=daily?makeDaily(dr):DIFFS[dk];
+  G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,money:0,rage:0,cloak:0,freeSteps:0,lucky:0,veil:false,curse:false,oasis:0,maprel:false,sandy:false,assassin:false,gears:false,rod:false,torch:false,spare:false,lens:false,chain:false,pearl:false,ink:false,harpoon:false,feast:false,volt:false,anchor:false,paralyzed:0,shell:0,gale:false,gustshield:false,tailwind:0,sack:0,shadow:false,fury:false,dice:[],loot:false,haggle:0,income:0,net:false,hunter:false,lockpicks:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false,endless:!!endless,diff:dk,daily:!!daily,rule:dr,dday:dayKey(),bossKills:0,gsPaid:false};
+  if(daily)G.dailyD=D0;
   G.hp=G.maxhp=D0.hp;G.bombs=1+(D0.ammo||0);G.undoBonus=D0.undo||0;G.undos=D0.noUndo?0:1+G.undoBonus;
+  if(!resume){
+    if(daily){const R=DAILY_RULES[dr];if(R.start)R.start(G);}
+    else{
+      const M=save.meta;
+      if(!D0.fixed){G.maxhp+=M.mhp||0;G.hp=G.maxhp;}
+      G.bombs+=M.start||0;G.money+=(M.gold||0)*20;G.shieldMax+=M.shield||0;
+      if(M.edge)G.dmg+=1;
+      if(!D0.noUndo){G.undoBonus+=M.undo||0;G.undos=1+G.undoBonus;}
+      if(M.dice)G.dice=['gruft'];
+    }
+  }
   let sh=null;
-  if(resume&&save.run){Object.assign(G,JSON.parse(JSON.stringify(save.run)));sh=G.shop||null;delete G.shop;G.over=false;G.busy=false;}
+  if(resume&&save.run){Object.assign(G,JSON.parse(JSON.stringify(save.run)));sh=G.shop||null;delete G.shop;G.over=false;G.busy=false;if(G.daily)G.dailyD=makeDaily(G.rule);}
   startLevel();
   if(sh){shop=restoreShop(sh);renderShop();openModal('m-shop');}
 }
@@ -3433,7 +3624,7 @@ function startLevel(){
   checkFps();
   G.hpb=Math.max(0,zoneOf(G.depth)-(ZONES.length-1));
   if(G.depth%5===0)setTimeout(()=>sfx('boss'),500);
-  const L=genLevel(G.depth);
+  const L=G.daily?withSeed(G.dday+':'+G.depth,()=>genLevel(G.depth)):genLevel(G.depth);
   G.freeSteps+=G.tailwind*2;
   if(G.frost)for(const m of L.mons)if(!MT[m.type].boss)m.stun=G.frost;
   Object.assign(G,{lvlLoss:0,terrain:L.terrain||new Map(),fields:[],aiming:false,picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
@@ -3458,11 +3649,14 @@ function anyModal(){return $$('.modal.on').length>0;}
 function updateStats(){
   $('#b-cont').hidden=!save.run;$('#b-endless').hidden=!save.endless;$('#b-play').textContent=save.run?'Neues Spiel':'Spielen';
   const bd=save.bd[save.diff]||null;
-  $('#stats').textContent=(bd&&(bd.score||bd.depth)?`Bestwert ${fmt(bd.score)} Punkte, tiefste Etage ${bd.depth}`:(save.runs||save.best?'Auf dieser Stufe noch kein Lauf.':'Noch kein Lauf. Viel Glück.'))+` · Stufe: ${DIFFS[save.diff].name}`;
+  $('#stats').textContent=(bd&&(bd.score||bd.depth)?`Bestwert ${fmt(bd.score)} Punkte, tiefste Etage ${bd.depth}`:(save.runs||save.best?'Auf dieser Stufe noch kein Lauf.':'Noch kein Lauf. Viel Glück.'))+` · Stufe: ${DIFFS[save.diff].name} · ${fmt(save.gs||0)} Gruftsteine`;
+  rollQuests();dailyRoll();
+  $('#b-daily').textContent='Tageslauf: '+DAILY_RULES[ruleOf()].name;
+  $('#q-dot').hidden=!loginPending();
 }
-function startGame(endless){
+function startGame(endless,daily){
   show('scr-game');
-  newRun(false,!!endless);
+  newRun(false,!!endless,!!daily);
 }
 let introI=0,introTimer=null,introDone=true;
 const INTRO=[
@@ -3569,6 +3763,12 @@ window.addEventListener('keydown',e=>{
 
 $('#b-play').addEventListener('click',()=>{AU.unlock();sfx('click');if(save.seenIntro)openDiff(()=>startGame());else playIntro();});
 $('#d-cancel').addEventListener('click',()=>{sfx('click');closeModal('m-diff');if($('#scr-intro').classList.contains('on'))show('scr-title');});
+$('#b-forge').addEventListener('click',()=>{AU.unlock();sfx('click');openForge();});
+$('#f-close').addEventListener('click',()=>{sfx('click');closeModal('m-forge');});
+$('#b-q').addEventListener('click',()=>{AU.unlock();sfx('click');openQuests();});
+$('#q-close').addEventListener('click',()=>{sfx('click');closeModal('m-quests');updateStats();});
+$('#login-go').addEventListener('click',claimLogin);
+$('#b-daily').addEventListener('click',()=>{AU.unlock();sfx('click');startGame(false,true);});
 $('#b-dex').addEventListener('click',()=>{AU.unlock();sfx('click');openDex('dex');});
 $('#x-close').addEventListener('click',()=>{sfx('click');closeModal('m-dex');});
 $('#b-help').addEventListener('click',()=>{AU.unlock();sfx('click');buildHelpZone();openModal('m-help');});
@@ -3602,7 +3802,7 @@ $('#p-set').addEventListener('click',()=>{sfx('click');syncSwitches();openModal(
 $('#p-title').addEventListener('click',()=>{sfx('click');closeModal('m-pause');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
 $('#p-quit').addEventListener('click',()=>{
   sfx('click');closeModal('m-pause');
-  if(G&&!G.over){G.over=true;save.runs++;save.kills+=G.kills;recordBest();}
+  if(G&&!G.over){G.over=true;save.runs++;save.kills+=G.kills;recordBest();const gg=grantRun();if(G.daily)dailyProgress();if(gg)toast('+'+gg+' Gruftsteine');}
   save.run=null;persist();
   G=null;AU.setIntensity(0);updateStats();show('scr-title');
 });
@@ -3674,7 +3874,7 @@ function applyTheme(){
   const kz=kindOf(G.depth);AU.zm=ZMUS[kz]||ZMUS.gruft;
   AU.trans=G.boss?-5:(kz==='gruft'?TRANS[(G.depth-1)%10]:0);AU.sd=60/(G.boss?AU.zm.bpm+12:AU.zm.bpm)/4;
 }
-const SAVEKEYS=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
+const SAVEKEYS=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','daily','rule','dday','bossKills','gsPaid','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
 function saveRun(){
   const r={};SAVEKEYS.forEach(k=>{r[k]=G[k];});
   r.shop=shop?serializeShop():null;
@@ -3732,8 +3932,11 @@ function buildTitle(){
 }
 
 if(!DIFFS[save.diff])save.diff='normal';
+if(!save.achPaid){for(const id of Object.keys(save.ach))addGS(achGS(id));save.achPaid=true;persist();}
 if(!save.bd)save.bd={};if(!save.dex)save.dex={};if(!save.ach)save.ach={};if(!save.stats)save.stats={bosses:0,throws:0,rolls:0,turns:0};
+if(!save.meta)save.meta={};if(!save.daily)save.daily={day:'',best:0,done:false,streak:0,last:''};if(!save.login)save.login={last:'',streak:0,claimed:''};if(!save.q)save.q={day:'',list:[],prog:{},done:{}};if(!save.wq)save.wq={week:'',t:'',n:0,r:0,prog:0,done:false};
 initSprites();fillStatic();applySettings();buildGrid();buildNet();buildTitle();buildDust();updateStats();syncSwitches();
+setTimeout(()=>{try{if(loginPending()&&$('#scr-title').classList.contains('on'))openLogin();}catch(e){}},900);
 window.__wg={get G(){return G;}};
 })();
 </script>
