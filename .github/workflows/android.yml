@@ -2,7 +2,7 @@ name: Android APK
 
 on:
   push:
-    branches: [main, claude/wuerfelgruft-android-build-8ez5nd]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
