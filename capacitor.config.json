@@ -1,0 +1,10 @@
+{
+  "appId": "com.wuerfelgruft.game",
+  "appName": "Würfelgruft",
+  "webDir": "www",
+  "backgroundColor": "#17152b",
+  "android": {
+    "backgroundColor": "#17152b",
+    "allowMixedContent": false
+  }
+}
