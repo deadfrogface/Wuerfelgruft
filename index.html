@@ -692,7 +692,6 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
   <div class="row-set"><div>Leben als Zahl</div><button class="sw" role="switch" data-k="num" aria-label="Leben als Zahl"></button></div>
   <h3>Spiel</h3>
   <div class="row-set"><div>Vibration</div><button class="sw" role="switch" data-k="vib" aria-label="Vibration"></button></div>
-  <div class="row-set"><div>Drehen kostet einen Zug<small>Dann ziehen die Monster, während du dich umsiehst.</small></div><button class="sw" role="switch" data-k="rotcost" aria-label="Drehen kostet einen Zug"></button></div>
   <div class="row-set" style="display:block"><div>Standard-Schwierigkeit<small>Gilt für den nächsten neuen Lauf.</small></div><div class="seg" id="set-diff"></div></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="s-close">Fertig</button><button class="btn ghost" id="s-reset">Bestwerte löschen</button></div></div></div>
 
@@ -701,7 +700,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
   <ul>
     <li><span class="ph" data-spr="hero"></span><span>Tippe auf ein Nachbarfeld, um zu gehen oder anzugreifen, auch diagonal. Nach jedem Zug ziehen alle Monster.</span></li>
     <li><svg class="ico" viewBox="0 0 24 24" style="color:var(--gold)"><use href="#s-chev"/></svg><span>Am Rand erscheint ein goldener Pfeil. Tippe ihn, um über die Kante auf die nächste Seite zu laufen.</span></li>
-    <li><svg class="ico" viewBox="0 0 32 32"><use href="#s-target"/></svg><span>Wische über das Brett, um den Würfel zu drehen. Tippe auf das Netz unten, um eine Seite direkt anzusehen.</span></li>
+    <li><svg class="ico" viewBox="0 0 32 32"><use href="#s-target"/></svg><span>Wische über das Brett, um den Würfel zu drehen. Tippe auf das Netz unten, um eine Seite direkt anzusehen. Umsehen kostet einen Zug, auf Leicht nicht. Laufen über Kanten und der Zentrier-Knopf kosten nichts.</span></li>
     <li><span class="ph" data-spr="stairs"></span><span>Die Treppe liegt immer auf einer anderen Seite. Ab Etage 2 ist sie versiegelt, du brauchst den Schlüssel.</span></li>
   </ul>
   <div id="h-zone"></div>
@@ -838,7 +837,7 @@ const MT={
 let MID=0;
 const MON_BASE=[2,3,4,5,5,6,6,7,7,8];
 function mkMon(type,pos,extra){
-  const T=MT[type];const D=DF();const hp=Math.max(1,T.hp+(T.boss?D.mhp*3:((G&&G.hpb)||0)+(T.z>=6?1:0)+D.mhp));
+  const T=MT[type];const hm=hpMod();const hp=Math.max(1,T.hp+(T.boss?hm*3:((G&&G.hpb)||0)+(T.z>=6?1:0)+hm));
   return {id:'m'+(++MID),type,hp,mx:hp,pos,cd:T.slow&&!T.boss?rnd(2):(T.boss?1:0),mcd:rnd(2),aim:false,n:0,...extra};
 }
 function zonePool(z,pos){
@@ -897,7 +896,7 @@ function genLevel(depth){
       mons.push(mkMon(bossType,kp,{}));
       used.add(kp);mcells=mcells.filter(c=>c!==kp);mc=(pos===5?2:3)+(z>>1);
     }else mc=Math.max(mc,forced.length);
-    mc+=DF().mon+(boss?(DF().bossMon||0):0);
+    mc+=monAdd()+(boss?(DF().bossMon||0):0);
     for(let k=0;k<mc&&k<mcells.length;k++){
       const type=pickType(z,pos,forced);
       mons.push(mkMon(type,mcells[k],{}));
@@ -1007,7 +1006,7 @@ const RAW=[
  ['Münzfresser','worm','#c9a050','#ffe27a','stripes',3,1,5,{drain:1,loot:10}],
  ['Dukatenspinne','bug','#d9a030','#17152b','',2,1,5,{trail:1,loot:6}],
  ['Straßenräuber','human','#4a3a5a','#e8553d','',2,1,6,{thief:1,fast:1}],
- ['Funkenimp','beast','#ffb347','#e8553d','horns',2,1,6,{lob:1}],
+ ['Funkenimp','beast','#ffb347','#e8553d','horns',2,1,8,{lob:1}],
  ['Midasstatue','golem','#ffd36a','#ffffff','',6,2,7,{regen:1,slow:1,loot:30}],
  ['Goldharpyie','wing','#f4d03a','#e8553d','',3,1,7,{charge:1,loot:12}],
  ['Drachenbrut','blob','#e8b84a','#e8553d','spots',3,1,8,{split:'Münzkäfer',dumb:1}]
@@ -1430,11 +1429,11 @@ function zdeco(name,A,kd){
 /* ===== Schwierigkeitsstufen & Heldenlook ===== */
 const DIFFK=['leicht','normal','schwer','hardcore','1hp'];
 const DIFFS={
-  leicht:{name:'Leicht',hp:8,mhp:-1,mon:0,price:1,money:1.5,undo:1,ammo:1,heart:3,noUndo:false,fixed:false,bossMon:0,col:'#ff8ab8',desc:'8 Leben, schwächere Gegner, mehr Münzen, 2 Zurück pro Etage. Hier stirbst du nur mit Absicht.'},
+  leicht:{name:'Leicht',rotFree:true,hp:8,mhp:-1,mon:0,price:1,money:1.5,undo:1,ammo:1,heart:3,noUndo:false,fixed:false,bossMon:0,col:'#ff8ab8',desc:'8 Leben, schwächere Gegner, mehr Münzen, 2 Zurück pro Etage, Umsehen kostet keinen Zug. Hier stirbst du nur mit Absicht.'},
   normal:{name:'Normal',hp:5,mhp:0,mon:0,price:1,money:1,undo:0,ammo:0,heart:2,noUndo:false,fixed:false,bossMon:0,col:'#3fd0b0',desc:'5 Leben. So wurde das Spiel gebaut.'},
-  schwer:{name:'Schwer',hp:4,mhp:1,mon:1,price:1.2,money:1,undo:0,ammo:0,heart:2,noUndo:false,fixed:false,bossMon:0,col:'#ff8a3d',desc:'4 Leben, zähere und mehr Gegner, Waren 20 % teurer.'},
-  hardcore:{name:'Hardcore',hp:3,mhp:1,mon:2,price:1.4,money:1,undo:0,ammo:0,heart:1,noUndo:true,fixed:false,bossMon:0,col:'#e8302d',desc:'3 Leben, noch mehr Gegner, kein Zurück, Herzen heilen nur 1, Waren 40 % teurer.'},
-  '1hp':{name:'1 HP',hp:1,mhp:1,mon:2,price:1.4,money:1,undo:0,ammo:0,heart:0,noUndo:true,fixed:true,bossMon:1,col:'#7a1a2a',desc:'Ein Leben. Ein Fehler. Herzen und Heiltränke wirken nicht. Bosse bringen mehr Gegner mit.'}
+  schwer:{name:'Schwer',hp:4,mhp:1,hpAt:6,monAt:[5],mon:1,price:1.2,money:1,undo:0,ammo:0,heart:2,noUndo:false,fixed:false,bossMon:0,col:'#ff8a3d',desc:'4 Leben, ab Etage 5 mehr und zähere Gegner, Waren 20 % teurer.'},
+  hardcore:{name:'Hardcore',hp:4,mhp:1,hpAt:6,monAt:[4,10],mon:2,price:1.4,money:1,undo:0,ammo:0,heart:1,noUndo:true,fixed:false,bossMon:0,col:'#e8302d',desc:'4 Leben, mehr Gegner ab Etage 4 und 10, kein Zurück, Herzen heilen nur 1, Waren 40 % teurer.'},
+  '1hp':{name:'1 HP',hp:1,mhp:1,hpAt:6,monAt:[5,12],mon:2,price:1.4,money:1,undo:0,ammo:0,heart:0,noUndo:true,fixed:true,bossMon:1,col:'#7a1a2a',desc:'Ein Leben. Ein Fehler. Herzen und Heiltränke wirken nicht. Bosse bringen mehr Gegner mit.'}
 };
 const heroId=k=>(!k||k==='normal')?'hero':'hero_'+k;
 const HEROPAL={
@@ -1468,6 +1467,9 @@ function heroFrames(k){
 }
 for(const k of DIFFK)if(k!=='normal')GEN['hero_'+k]={frames:heroFrames(k)};
 const DF=()=>DIFFS[(G&&G.diff)||save.diff||'normal'];
+/* Härte wächst mit der Etage: Anfang bleibt fair */
+const hpMod=()=>{const D=DF();return D.mhp<0?D.mhp:(G&&G.depth>=(D.hpAt||1)?D.mhp:0);};
+const monAdd=()=>{const D=DF();return (D.monAt||[]).filter(t=>G.depth>=t).length;};
 /*CONTENT-END*/
 const FR={hero:4,slime:4,archer:4,brute:4,ghost:4,king:4,coin:4,bomb:2,stairs:3};
 const FD={coin:.14,bomb:.28,stairs:.4};
@@ -1824,7 +1826,7 @@ const UPS=[
 ];
 const NAMES=['Der Abstieg','Feuchte Gänge','Knochenhalle','Dornengarten','Das Echo','Die Schlucht','Schwarze Kammer','Gläserner Gang','Das Herz','Der letzte Stein'];
 const HINTS={
-  1:'Tippe auf ein Feld neben dir. Wische, um den Würfel zu drehen. Die Treppe liegt auf einer anderen Seite, das Netz unten zeigt sie.',
+  1:'Tippe auf ein Feld neben dir. Wische, um den Würfel zu drehen: Umsehen kostet einen Zug (auf Leicht nicht). Die Treppe liegt auf einer anderen Seite, das Netz unten zeigt sie.',
   2:'Neu: Bogenschützen. Schraffierte Felder liegen in ihrer Schusslinie. Die Treppe ist versiegelt, finde den Schlüssel.',
   3:'Neu: Brocken. Sie handeln nur jeden zweiten Zug. Das „!“ zeigt, wann.',
   4:'Neu: Geister gleiten durch Wände.',
@@ -2671,13 +2673,13 @@ async function useBomb(){
 async function lookDir(d){
   if(!G||G.busy||G.over||flipping)return;
   await flipView(rotView(view,d),d);
-  if(save.settings.rotcost){G.busy=true;await endTurn();}
+  if(!DF().rotFree){G.busy=true;await endTurn();}
 }
 async function lookFace(k){
   if(!G||G.busy||G.over||flipping)return;
   const nv=FACES[k];if(sameN(nv,view)&&sameView(nv,view))return;
   await flipView(nv);
-  if(save.settings.rotcost&&true){G.busy=true;await endTurn();}
+  if(!DF().rotFree){G.busy=true;await endTurn();}
 }
 async function centerMe(){
   if(!G||G.over||flipping)return;
