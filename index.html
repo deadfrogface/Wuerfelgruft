@@ -280,6 +280,26 @@ svg{display:block}
 .boom.zb{background:radial-gradient(circle,#fff 0,var(--b1) 35%,var(--b2) 60%,transparent 70%)}
 
 /* ===== Zonen: Hintergründe ===== */
+/* ===== Wurf-Items: Zielen und Felder ===== */
+.cell.aimok{outline:2px dashed rgba(255,226,122,.85);outline-offset:-4px;cursor:crosshair}
+.cell.aimok::after{content:'';position:absolute;inset:0;background:rgba(255,226,122,.12);pointer-events:none;animation:aimp 1s ease-in-out infinite}
+@keyframes aimp{50%{background:rgba(255,226,122,.28)}}
+.act.on{outline:3px solid var(--gold);outline-offset:-3px}
+.fld{position:absolute;inset:0;pointer-events:none;z-index:1}
+.fld.sand{background:radial-gradient(circle at 30% 30%,rgba(232,200,128,.6),rgba(201,164,90,.4));animation:fsand 2.4s linear infinite}
+@keyframes fsand{0%{filter:brightness(1)}50%{filter:brightness(1.25) blur(1px)}100%{filter:brightness(1)}}
+.fld.spore{background:radial-gradient(circle at 70% 70%,rgba(160,230,90,.55),rgba(60,140,40,.35));animation:fspore 1.6s ease-in-out infinite}
+@keyframes fspore{50%{transform:scale(1.08);opacity:.75}}
+.fld.ice{background:linear-gradient(135deg,rgba(225,246,255,.65),rgba(120,190,230,.45) 55%,rgba(225,246,255,.55));animation:fice 2s ease-in-out infinite}
+@keyframes fice{50%{filter:brightness(1.3)}}
+.fld.fire{background:radial-gradient(circle at 50% 85%,rgba(255,220,90,.9),rgba(232,85,61,.65) 55%,rgba(232,85,61,.15));animation:ffire .5s steps(2) infinite}
+@keyframes ffire{50%{transform:translateY(-4%) scale(1.05);filter:brightness(1.25)}}
+.fld.whirl{background:conic-gradient(rgba(74,160,200,.7),rgba(143,208,232,.15),rgba(74,160,200,.7),rgba(143,208,232,.15),rgba(74,160,200,.7));border-radius:50%;animation:swl 1.6s linear infinite}
+.bolt{position:absolute;height:4px;margin-top:-2px;transform-origin:0 50%;background:linear-gradient(90deg,#fff,#ffe27a,#fff);box-shadow:0 0 8px #ffd36a;animation:boltf .3s steps(3) forwards;pointer-events:none}
+@keyframes boltf{0%{opacity:1}60%{opacity:.5}100%{opacity:0}}
+.gustl{position:absolute;height:12px;margin-top:-6px;transform-origin:0 50%;border-radius:6px;background:linear-gradient(90deg,transparent,rgba(232,244,255,.85),transparent);animation:arrow .45s ease-out forwards;pointer-events:none}
+.proj.ico{width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:0;box-shadow:none;image-rendering:pixelated;background-repeat:no-repeat;filter:drop-shadow(0 0 3px rgba(0,0,0,.6))}
+
 /* ===== Schwierigkeit & Einstellungen ===== */
 #app{filter:brightness(var(--bright,1))}
 html{font-size:calc(100%*var(--ts,1))}
@@ -1237,31 +1257,97 @@ const traitText=T=>Object.keys(TR).filter(k=>T[k]).map(k=>TR[k]).join(', ');
 const zoneOf=d=>Math.floor((d-1)/10);                 /* 0..: Zone der Etage */
 const posOf=d=>((d-1)%10)+1;                          /* Etage innerhalb der Zone */
 /* Wurf-Item je Zone (zählt in G.bombs). Beim Zonenwechsel im Händler umtauschbar. */
-function pull(m,steps){
+function settle(m){
+  if(!G.mons.includes(m))return;
+  const T=MT[m.type];
+  if(G.spikes.has(m.pos)&&!T.ghost&&T.body!=='wing'&&T.body!=='wisp'){
+    if(m.spk!==m.pos){m.spk=m.pos;floatText(m.pos,'Stachel','red');sfx('spike');hitMonster(m,1,false);}
+  }else m.spk=-1;
+}
+function pull(m,steps,to){
   for(let i=0;i<steps;i++){
     if(!G.mons.includes(m))return;
-    const T=MT[m.type],dd=bfs(G.pos,null),cur=dd.get(m.pos);if(cur===undefined)return;
+    const T=MT[m.type],src=to===undefined?G.pos:to,dd=bfs(src,null),cur=dd.get(m.pos);if(cur===undefined||cur===0)return;
     const c=NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&(T.ghost||!G.walls.has(n))&&dd.get(n)!==undefined&&dd.get(n)<cur);
-    if(!c.length)return;m.pos=pick(c);
+    if(!c.length)return;m.pos=pick(c);settle(m);
   }
 }
+const AIM=5;
+function areaOf(t,r){
+  let a=new Set([t]);
+  for(let i=0;i<r;i++){const n=new Set(a);for(const c of a){for(const x of NB[c])n.add(x);for(const x of ND[c].keys())n.add(x);}a=n;}
+  for(const c of [...a])if(G.walls.has(c))a.delete(c);
+  return a;
+}
+const monsIn=ar=>G.mons.filter(m=>ar.has(m.pos));
+function addField(kind,cells,ttl,c){G.fields.push({kind,cells:[...cells],ttl,c});}
+const fieldAt=i=>{let k=null;for(const f of G.fields||[])if(f.cells.includes(i))k=f.kind;return k;};
+const KZ=k=>({z:ZKIND.indexOf(k)});
 const AMMO={
-  wueste:{name:'Sand',ico:'ammo_wueste',r:2,desc:'blendet Gegner in 2 Schritten für 3 Züge',hit(m){m.stun=MT[m.type].boss?1:3;floatText(m.pos,'Blind','gold');}},
-  uhrwerk:{name:'Batterie',ico:'ammo_uhrwerk',r:3,desc:'1 Schaden und Stromschlag für Gegner in 3 Schritten',hit(m){if(hitMonster(m,G.master?2:1,false))return;m.stun=1;floatText(m.pos,'Zap','gold');}},
-  tiefsee:{name:'Strudel',ico:'ammo_tiefsee',r:2,desc:'1 Schaden und zieht Gegner in 2 Schritten zu dir',hit(m){if(hitMonster(m,G.master?2:1,false))return;pull(m,2);}},
-  gruft:{name:'Bombe',ico:'bomb',r:1,desc:'trifft angrenzende Gegner mit 2 Schaden',hit(m){hitMonster(m,G.master?3:2,false);}},
-  wind:{name:'Windladung',ico:'ammo_wind',r:2,desc:'schleudert Gegner in 2 Schritten 3 Felder weit weg',hit(m){knock(m,G.master?4:3);}},
-  gold:{name:'Beutel',ico:'ammo_gold',r:2,desc:'1 Schaden, lenkt Gegner in 2 Schritten ab und gibt Münzen',hit(m){if(hitMonster(m,G.master?2:1,false))return;m.stun=1;G.money+=2;floatText(m.pos,'Gold','gold');}},
-  moor:{name:'Sporen',ico:'ammo_moor',r:2,desc:'vergiftet alle Gegner in 2 Schritten',hit(m){m.poison=Math.max(m.poison||0,G.master?4:3);floatText(m.pos,'Gift','green');}},
-  eis:{name:'Frost',ico:'ammo_eis',r:2,desc:'1 Schaden und friert Gegner in 2 Schritten ein',hit(m){if(hitMonster(m,G.master?2:1,false))return;m.stun=MT[m.type].boss?1:2;floatText(m.pos,'Eis','blue');}},
-  glut:{name:'Fass',ico:'ammo_glut',r:1,desc:'3 Schaden und Brand für angrenzende Gegner',hit(m){if(hitMonster(m,G.master?4:3,false))return;m.poison=2;}},
-  leere:{name:'Leere',ico:'ammo_leere',r:2,desc:'1 Schaden und schleudert Gegner in 2 Schritten weit weg',hit(m){
-    if(hitMonster(m,G.master?2:1,false))return;
-    const dA=bfs(G.pos,null);
-    const c=SHELL.filter(i=>(dA.get(i)||0)>=5&&!G.walls.has(i)&&!monAt(i)&&!G.spikes.has(i)&&i!==G.exit&&i!==G.pos);
-    if(c.length){burst(m.pos,MT[m.type].col,8);m.pos=pick(c);}
-  }}
+  gruft:{name:'Bombe',ico:'bomb',desc:'explodiert am Zielfeld und trifft 3×3 Felder mit 2 Schaden. Steht du mittendrin, trifft sie auch dich',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));boomFx(t,KZ('gruft'));sfx('boom');shake();
+      const hit=monsIn(ar);for(const m of hit)hitMonster(m,G.master?3:2,false);
+      if(ar.has(G.pos)){floatText(G.pos,'Eigenschaden','red');hurtPlayer(1,null);}return hit;}},
+  gold:{name:'Beutel',ico:'ammo_gold',desc:'Münzregen am Zielfeld: 1 Schaden, Gegner und Diebe rennen 4 Züge zum Gold',
+    async throw(t){const ar=areaOf(t,2+(G.wide?1:0));sfx('coins');burst(t,'#ffe27a',16);boomFx(t,KZ('gold'));
+      const hit=monsIn(ar);const d=bfs(t,G.walls);
+      for(const m of hit){if(hitMonster(m,G.master?2:1,false))continue;m.lure={c:t,n:4,d};floatText(m.pos,'Gold!','gold');}
+      return hit;}},
+  wueste:{name:'Sand',ico:'ammo_wueste',desc:'Sandwolke am Zielfeld: Gegner darin sind 4 Züge blind',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));sfx('dust');boomFx(t,KZ('wueste'));addField('sand',ar,4,t);return monsIn(ar);}},
+  moor:{name:'Sporen',ico:'ammo_moor',desc:'Giftwolke am Zielfeld: Gegner darin bleiben 4 Züge vergiftet',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));sfx('spore');boomFx(t,KZ('moor'));addField('spore',ar,4,t);return monsIn(ar);}},
+  wind:{name:'Windladung',ico:'ammo_wind',desc:'Windstoß am Zielfeld: schleudert Gegner 4 Felder von dir weg, Aufprall macht Schaden',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));sfx('gust');gustFx(G.pos,t);boomFx(t,KZ('wind'));
+      const hit=monsIn(ar);for(const m of hit)knock(m,G.master?5:4);return hit;}},
+  uhrwerk:{name:'Batterie',ico:'ammo_uhrwerk',desc:'Blitz springt vom Zielfeld über bis zu 4 Gegner, je 1 Schaden und Stromschlag',
+    async throw(t){
+      const hit=[],jumps=G.wide?5:4;
+      const near=(c,r)=>{const d=bfs(c,null);return G.mons.filter(m=>!hit.includes(m)&&(d.get(m.pos)===undefined?99:d.get(m.pos))<=r).sort((a,b)=>d.get(a.pos)-d.get(b.pos))[0];};
+      let m=near(t,2);
+      if(!m){boltFx(G.pos,t);burst(t,'#ffe27a',8);floatText(t,'Funken','gold');sfx('zap');return hit;}
+      boltFx(G.pos,m.pos);
+      for(let i=0;i<jumps&&m;i++){
+        sfx('zap');hit.push(m);const p=m.pos;burst(p,'#ffe27a',8);
+        if(!hitMonster(m,G.master?2:1,false)&&G.mons.includes(m))m.stun=Math.max(m.stun||0,1);
+        const nx=near(p,3);if(nx)boltFx(p,nx.pos);m=nx;await sleep(130);
+      }
+      return hit;}},
+  eis:{name:'Frost',ico:'ammo_eis',desc:'Eisfeld am Zielfeld: 1 Schaden, Gegner darin bleiben 5 Züge eingefroren',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));sfx('shatter');boomFx(t,KZ('eis'));addField('ice',ar,5,t);
+      const hit=monsIn(ar);for(const m of hit)hitMonster(m,G.master?2:1,false);return hit;}},
+  tiefsee:{name:'Strudel',ico:'ammo_tiefsee',desc:'Wasserstrudel am Zielfeld: zieht Gegner 3 Züge lang zur Mitte, dort 1 Schaden pro Zug',
+    async throw(t){const ar=areaOf(t,2+(G.wide?1:0));sfx('bubble');boomFx(t,KZ('tiefsee'));addField('whirl',ar,3,t);return monsIn(ar);}},
+  glut:{name:'Fass',ico:'ammo_glut',desc:'Feuerfass am Zielfeld: 3 Schaden in der Mitte, 4 Züge Flammen drumherum (auch für dich gefährlich)',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));sfx('fireball');boomFx(t,KZ('glut'));shake();addField('fire',ar,4,t);
+      const hit=monsIn(ar);for(const m of hit)hitMonster(m,m.pos===t?(G.master?4:3):1,false);
+      if(ar.has(G.pos)){floatText(G.pos,'Flammen','red');hurtPlayer(1,null);}return hit;}},
+  leere:{name:'Leere',ico:'ammo_leere',desc:'Riss am Zielfeld: Gegner darin nehmen 1 Schaden und werden weit weggeschleudert',
+    async throw(t){const ar=areaOf(t,1+(G.wide?1:0));const dA=bfs(G.pos,null);sfx('voidzap');boomFx(t,KZ('leere'));
+      const hit=monsIn(ar);
+      for(const m of hit){if(hitMonster(m,G.master?2:1,false))continue;
+        const c=SHELL.filter(i=>(dA.get(i)||0)>=5&&!G.walls.has(i)&&!monAt(i)&&i!==G.exit&&i!==G.pos);
+        if(c.length){burst(m.pos,MT[m.type].col,8);m.pos=pick(c);settle(m);}}
+      return hit;}}
 };
+function tickFields(){
+  if(!G.fields||!G.fields.length)return;
+  for(const f of G.fields){
+    const cs=new Set(f.cells);
+    for(const m of G.mons.slice()){
+      if(!G.mons.includes(m)||!cs.has(m.pos))continue;
+      const boss=MT[m.type].boss;
+      if(f.kind==='sand'&&!boss){m.stun=Math.max(m.stun||0,1);}
+      else if(f.kind==='ice'&&!boss){m.stun=Math.max(m.stun||0,1);}
+      else if(f.kind==='spore'){m.poison=Math.max(m.poison||0,2);}
+      else if(f.kind==='fire'){if(!hitMonster(m,1,false))m.poison=Math.max(m.poison||0,1);}
+      else if(f.kind==='whirl'){if(m.pos===f.c)hitMonster(m,1,false);else pull(m,1,f.c);}
+    }
+    if(f.kind==='fire'&&cs.has(G.pos)&&G.hp>0){floatText(G.pos,'Brand','red');sfx('crackle');hurtPlayer(1,null);}
+    f.ttl--;
+  }
+  G.fields=G.fields.filter(f=>f.ttl>0);
+}
 const ZPICKS={wueste:['p_skarab','p_ankh'],uhrwerk:['p_zahnrad','p_oel'],tiefsee:['p_perle','p_muschel'],wind:['p_windfeder','p_wirbel'],gold:['p_barren','p_kleeblatt','chest','chest'],moor:['p_beere','p_pilz'],eis:['p_kristall','p_schneeherz'],glut:['p_glutkern','p_feder'],leere:['p_splitter','p_mantel']};
 const PICKN={p_skarab:'Skarabäus',p_ankh:'Anch',p_zahnrad:'Zahnrad',p_oel:'Ölkanne',p_perle:'Perle',p_muschel:'Muschel',p_windfeder:'Windfeder',p_wirbel:'Wirbelwind',p_barren:'Goldbarren',p_kleeblatt:'Kleeblatt',chest:'Truhe',p_beere:'Moorbeere',p_pilz:'Glühpilz',p_kristall:'Eiskristall',p_schneeherz:'Schneeherz',p_glutkern:'Glutkern',p_feder:'Aschefeder',p_splitter:'Sternensplitter',p_mantel:'Schattenmantel'};
 const nearTen=d=>Math.max(10,Math.round(d/10)*10);    /* 33 -> 30 */
@@ -1936,12 +2022,15 @@ function dangerSet(){
     if(T.lob&&m.aim&&m.tg!==undefined){s.add(m.tg);for(const n of NB[m.tg])s.add(n);}
     if(T.steam&&m.sa){for(const [c,d] of bfs(m.pos,null))if(d<=2)s.add(c);}
   }
+  for(const f of G.fields||[])if(f.kind==='fire')for(const c of f.cells)s.add(c);
   return s;
 }
 const itemSpr=it=>it==='bomb'?AMMO[kindOf(G.depth)].ico:it;
 function renderBoard(){
   const danger=dangerSet();
   const locked=G.keyNeeded&&!G.hasKey;
+  const fmap=new Map();for(const f of G.fields||[])for(const c of f.cells)fmap.set(c,f.kind);
+  let aimSet=null;if(G.aiming){const dd=bfs(G.pos,null);aimSet=new Set();for(const [c,d] of dd)if(d<=AIM&&!G.walls.has(c)&&c!==G.pos)aimSet.add(c);}
   for(let k=0;k<25;k++){
     const col=k%5,row=Math.floor(k/5);
     const i=cellAt(view,col,row),el=cellEls[k];
@@ -1953,11 +2042,13 @@ function renderBoard(){
       if(i===G.exit)html+=spr('stairs')+(locked?spr('lock','lock'):'');
       const it=G.items.get(i);
       if(it)html+=spr(itemSpr(it),'item');
+      if(fmap.has(i))html+=`<i class="fld ${fmap.get(i)}"></i>`;
     }
     if(el._h!==html){el.innerHTML=html;el._h=html;}
     const fv=(i*7+(i>>3))%4;
     if(el._fv!==fv){if(el._fv!==undefined)el.classList.remove('fl'+el._fv);el.classList.add('fl'+fv);el._fv=fv;}
     el.classList.toggle('danger',danger.has(i));
+    el.classList.toggle('aimok',!!(aimSet&&aimSet.has(i)));
     el.classList.toggle('path',!!(G.path&&G.path.has(i)));
   }
 }
@@ -2088,7 +2179,8 @@ function renderHUD(){
   $('#depth').textContent='Etage '+G.depth;
   $('#score').textContent=fmt(G.score)+' Punkte';
   const A=AMMO[kindOf(G.depth)];
-  $('#bombn').textContent=A.name+' '+G.bombs;
+  $('#bombn').textContent=G.aiming?'Ziel wählen':A.name+' '+G.bombs;
+  $('#b-bomb').classList.toggle('on',!!G.aiming);
   const bi=$('#b-bomb .ph');if(bi&&bi._k!==A.ico){bi.innerHTML=spr(A.ico);bi._k=A.ico;}
   $('#b-bomb').disabled=G.bombs<1;
   $('#b-undo').disabled=!(G.last&&G.undos>0);$('#undon').textContent='Zurück '+G.undos;
@@ -2170,6 +2262,26 @@ function flyFx(pa,pb,cls,arc,ms,rot){
   const dx=(pb.x-pa.x)*W/100,dy=(pb.y-pa.y)*W/100,r=rot===undefined?'':' rotate('+rot+'rad)';
   if(el.animate)el.animate([{transform:'translate(0,0)'+r},{transform:`translate(${dx/2}px,${dy/2-arc*W/100}px)`+r,offset:.5},{transform:`translate(${dx}px,${dy}px)`+r}],{duration:ms,easing:'linear'});
   setTimeout(()=>el.remove(),ms);
+  return el;
+}
+function throwFx(a,b,ico){
+  const pa=cellPct(a),pb=cellPct(b);if(!pa||!pb)return;
+  const el=flyFx(pa,pb,'proj ico',16,380);
+  if(el){el.style.backgroundImage='var(--sp-'+ico+')';el.style.backgroundSize=ico==='bomb'?'200% 100%':'100% 100%';}
+}
+function boltFx(a,b){
+  const pa=cellPct(a),pb=cellPct(b);if(!pa||!pb)return;
+  const dx=pb.x-pa.x,dy=pb.y-pa.y;
+  const el=document.createElement('div');el.className='bolt';
+  el.style.cssText=`left:${pa.x}%;top:${pa.y}%;width:${Math.hypot(dx,dy)}%;transform:rotate(${Math.atan2(dy,dx)}rad)`;
+  fxLayer.appendChild(el);setTimeout(()=>el.remove(),320);
+}
+function gustFx(a,b){
+  const pa=cellPct(a),pb=cellPct(b);if(!pa||!pb)return;
+  const dx=pb.x-pa.x,dy=pb.y-pa.y;
+  for(let k=0;k<3;k++){const el=document.createElement('div');el.className='gustl';
+    el.style.cssText=`left:${pa.x}%;top:${pa.y+(k-1)*4}%;width:${Math.hypot(dx,dy)*1.3}%;transform:rotate(${Math.atan2(dy,dx)}rad);animation-delay:${k*.06}s`;
+    fxLayer.appendChild(el);setTimeout(()=>el.remove(),520);}
 }
 function lobFx(a,b){
   const pa=cellPct(a),pb=cellPct(b);if(!pa||!pb)return;
@@ -2249,7 +2361,7 @@ function hitMonster(m,dmg,byPlayer){
   if(byPlayer&&G.splash)for(const o of G.mons.slice())if(NB[m.pos].includes(o.pos))hitMonster(o,1,false);
   if(T.split){
     const fr=shuffle(NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&!G.walls.has(n)));
-    for(const c of fr.slice(0,2))G.mons.push(mkMon(T.split,c,{mcd:1}));
+    for(const c of fr.slice(0,2)){const nm=mkMon(T.split,c,{mcd:1});G.mons.push(nm);settle(nm);}
     if(fr.length){burst(m.pos,T.col,8);sfx('split');}
   }
   if(T.boom){
@@ -2293,14 +2405,15 @@ function openChest(t){
   if(r<.4){const n=25+rnd(26);G.money+=n;G.score+=n;floatText(t,'+'+n,'gold');setMsg('Die Truhe war voller Münzen.');}
   else if(r<.62){const k=pick(['heart','bomb','p_barren']);setMsg('Die Truhe birgt einen Fund.');pickup(k,t);}
   else if(r<.84&&free.length){
-    G.mons.push(mkMon(BYNAME['Goldgoblin'],free[0],{mcd:1}));burst(free[0],'#a8743a',10);
+    {const nm=mkMon(BYNAME['Goldgoblin'],free[0],{mcd:1});G.mons.push(nm);settle(nm);}burst(free[0],'#a8743a',10);
     setMsg('Ein Goblin springt aus der Truhe und rennt los! Jage ihn.');floatText(free[0],'!','red');
   }else if(free.length){
-    G.mons.push(mkMon(BYNAME['Mimik'],free[0],{mcd:1}));burst(free[0],'#8a5a2a',10);
+    {const nm=mkMon(BYNAME['Mimik'],free[0],{mcd:1});G.mons.push(nm);settle(nm);}burst(free[0],'#8a5a2a',10);
     setMsg('Die Truhe war eine Mimik!');floatText(free[0],'!','red');sfx('aim');
   }else{G.money+=30;floatText(t,'+30','gold');}
 }
 function onEnter(t){
+  if(fieldAt(t)==='fire'){floatText(t,'Brand','red');sfx('crackle');hurtPlayer(1,null);}
   if(G.spikes.has(t)&&!G.boots){sfx('spike');hurtPlayer(1,null);}
   const it=G.items.get(t);
   if(it){G.items.delete(t);pickup(it,t);}
@@ -2329,7 +2442,7 @@ function goTo(m,c){
   const T=MT[m.type],old=m.pos;
   m.pos=c;
   if(T.trail&&old!==G.exit&&!G.items.has(old)&&!G.spikes.has(old)&&old!==G.pos&&G.spikes.size<14)G.spikes.add(old);
-  if(T.dumb&&G.spikes.has(m.pos))hitMonster(m,1,false);
+  settle(m);
   return true;
 }
 function wander(m){
@@ -2341,14 +2454,14 @@ function wander(m){
 function blink(m,dA){
   const c=SHELL.filter(i=>{const dd=dA.get(i);return dd!==undefined&&dd>=2&&dd<=3&&!G.walls.has(i)&&!monAt(i)&&!G.spikes.has(i)&&i!==G.exit&&i!==G.pos;});
   if(!c.length)return false;
-  pulse(entEls.get(m.id),'blink',450);burst(m.pos,MT[m.type].col,6);m.pos=pick(c);burst(m.pos,MT[m.type].col,8);sfx('blink');
+  pulse(entEls.get(m.id),'blink',450);burst(m.pos,MT[m.type].col,6);m.pos=pick(c);settle(m);burst(m.pos,MT[m.type].col,8);sfx('blink');
   return true;
 }
 function summon(m,type){
   const fr=NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&!G.walls.has(n));
   if(!fr.length)return false;
   const c=pick(fr);
-  G.mons.push(mkMon(type,c,{mcd:1}));
+  {const nm=mkMon(type,c,{mcd:1});G.mons.push(nm);settle(nm);}
   sfx('summon');pulse(entEls.get(m.id),'casting',500);burst(c,MT[type].col,8);floatText(m.pos,'!','red');
   return true;
 }
@@ -2396,7 +2509,7 @@ function fleeAct(m,T,dW){
     const dn=dW.get(n);if(dn===undefined)continue;
     if(dn>bd){bd=dn;best=[n];}else if(dn===bd&&best.length)best.push(n);
   }
-  if(best.length){goTo(m,pick(best));return 1;}
+  if(best.length){goTo(m,pick(best));return G.mons.includes(m)?1:2;}
   if(NB[m.pos].includes(G.pos))return strike(m,T);
   return 0;
 }
@@ -2406,7 +2519,7 @@ function knock(m,steps){
     const T=MT[m.type],dd=bfs(G.pos,null),cur=dd.get(m.pos)||0;
     const c=NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&(T.ghost||!G.walls.has(n))&&(dd.get(n)||0)>cur);
     if(!c.length){if(i<steps){floatText(m.pos,'Aufprall','red');hitMonster(m,2,false);}return;}
-    m.pos=pick(c);
+    m.pos=pick(c);settle(m);
   }
   if(G.mons.includes(m))m.stun=Math.max(m.stun||0,1);
 }
@@ -2435,6 +2548,16 @@ function act(m,dW,dA,d8){
   m.n=(m.n||0)+1;
   if(m.poison>0){m.poison--;if(hitMonster(m,1,false))return 2;}
   if(m.stun>0){m.stun--;return 0;}
+  if(m.lure){
+    if(m.lure.n--<=0)m.lure=null;
+    else{
+      if(m.pos===m.lure.c)return 0;
+      const d=m.lure.d,cur=d.get(m.pos);
+      const c=cur===undefined?[]:NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&(T.ghost||!G.walls.has(n))&&d.get(n)<cur);
+      if(c.length){goTo(m,pick(c));return G.mons.includes(m)?1:2;}
+      return 0;
+    }
+  }
   if(T.sleep&&!m.awake){
     const d0=dA.get(m.pos);
     if(d0!==undefined&&d0<=3){m.awake=true;floatText(m.pos,'!','red');sfx('wake');return 1;}
@@ -2489,9 +2612,11 @@ function act(m,dW,dA,d8){
   let moved=false;
   if(T.rand&&Math.random()<.4)moved=wander(m);
   else moved=stepToward(m,dW,dA,d8);
+  if(!G.mons.includes(m))return 2;
   if(moved&&T.fast){
     if(adj())return strike(m,T);
     stepToward(m,dW,dA,d8);
+    if(!G.mons.includes(m))return 2;
   }
   if(T.slow)m.cd=1;
   return moved?1:0;
@@ -2516,8 +2641,13 @@ async function monsterPhase(){
   if(any)await sleep(90);
 }
 async function endTurn(){
+  try{await endTurnInner();}catch(e){console.error(e);try{render();}catch(e2){}if(G&&!G.over&&G.hp>0)release();}
+}
+async function endTurnInner(){
   G.turns++;
   if(G.regen&&G.hp<G.maxhp&&G.turns%[0,10,7,5][G.regen]===0){G.hp++;floatText(G.pos,'+1','green');}
+  tickFields();
+  if(G.hp<=0){render();die();return;}
   if(G.gears&&G.turns%5===0){floatText(G.pos,'Getriebe','blue');render();release();return;}
   await monsterPhase();
   render();
@@ -2535,7 +2665,7 @@ function faceHero(t){
   const fx=b.col>a.col?1:-1;el._fx=fx;el.style.setProperty('--fx',fx);
 }
 function snap(){
-  const o={pos:G.pos,mons:G.mons.map(m=>({...m})),items:new Map(G.items),spikes:new Set(G.spikes),walls:new Set(G.walls),picks:G.picks,hasKey:G.hasKey,shield:G.shield,freeKills:G.freeKills};
+  const o={pos:G.pos,mons:G.mons.map(m=>({...m})),items:new Map(G.items),spikes:new Set(G.spikes),walls:new Set(G.walls),fields:(G.fields||[]).map(f=>({...f,cells:[...f.cells]})),picks:G.picks,hasKey:G.hasKey,shield:G.shield,freeKills:G.freeKills};
   for(const k of SAVEKEYS){
     if(k==='depth'||k==='won'||k==='endless'||k==='diff')continue;
     o[k]=G[k]===undefined?undefined:JSON.parse(JSON.stringify(G[k]));
@@ -2551,8 +2681,12 @@ async function undoMove(){
   setViewNow(view);floatText(G.pos,'Zurück','blue');
 }
 async function playerAct(t,pref){
+  try{return await playerActInner(t,pref);}catch(e){console.error(e);if(G){G.busy=false;G.path=null;try{render();}catch(e2){}}return false;}
+}
+async function playerActInner(t,pref){
   if(!G||G.over)return false;
   if(G.busy||flipping){pending=()=>playerAct(t,pref);return false;}
+  if(G.aiming){G.aiming=false;}
   if(G.paralyzed>0){G.paralyzed--;floatText(G.pos,'Zittern','blue');return waitTurn();}
   const P=G.pos;
   const m=monAt(t);
@@ -2633,21 +2767,23 @@ function pathTo(target){
 }
 async function autoWalk(target){
   if(!G||G.over)return;
-  if(G.busy||flipping){pending=()=>autoWalk(target);return;}
+  if(G.busy||flipping)return;
   const path=pathTo(target);
-  if(!path||!path.length){setMsg('Dorthin führt kein freier Weg.');return;}
+  if(!path||!path.length){setMsg('Dorthin führt kein freier Weg.');sfx('bump');return;}
   walking=true;walkCancel=false;G.path=new Set(path);render();
-  for(const step of path){
-    if(walkCancel||!G||G.over)break;
-    const hp0=G.hp,d0=G.depth;
-    const ok=await playerAct(step);
-    if(G&&G.path)G.path.delete(step);
-    if(!ok||!G||G.over||G.busy||G.depth!==d0||G.hp<hp0)break;
-    const dA=bfs(G.pos,null);
-    if(G.mons.some(m=>(dA.get(m.pos)===undefined?99:dA.get(m.pos))<=2||m.aim))break;
-  }
-  if(G){G.path=null;render();}
-  walking=false;walkCancel=false;
+  try{
+    for(const step of path){
+      if(walkCancel||!G||G.over)break;
+      const hp0=G.hp,d0=G.depth;
+      const ok=await playerAct(step);
+      if(G&&G.path)G.path.delete(step);
+      if(!ok||!G||G.over||G.busy||G.depth!==d0||G.hp<hp0)break;
+      const dA=bfs(G.pos,null);
+      if(G.mons.some(m=>(dA.get(m.pos)===undefined?99:dA.get(m.pos))<=2||m.aim||m.sa))break;
+      await sleep(70);
+    }
+  }catch(e){console.error(e);if(G)G.busy=false;}
+  finally{if(G){G.path=null;try{render();}catch(e){}}walking=false;walkCancel=false;}
 }
 function tapCell(i){
   if(!G||G.over)return;
@@ -2659,22 +2795,36 @@ function tapCell(i){
   if(adj){playerAct(i);return;}
   if(m){
     if(reachOf()>=2&&lineN(P,i,reachOf())){playerAct(i);return;}
-    setMsg('Zu weit weg für einen Angriff.');return;
+    setMsg('Zu weit weg für einen Angriff.');sfx('bump');floatText(i,'Zu weit','dim');return;
   }
-  if(G.walls.has(i))return;
+  if(G.walls.has(i)){sfx('bump');const el=cellEls.find(c=>+c.dataset.i===i);if(el)pulse(el,'bump',200);return;}
   autoWalk(i);
 }
 async function useBomb(){
-  if(!G||G.busy||G.over||flipping||G.bombs<1)return;
-  const kd=kindOf(G.depth),A=AMMO[kd];
-  const r=A.r+(G.wide?1:0);
-  const dA=bfs(G.pos,null);
-  const targets=G.mons.filter(m=>r===1?reach1(G.pos,m.pos):(dA.get(m.pos)||99)<=r);
-  if(!targets.length){setMsg('Kein Gegner in Reichweite. '+A.name+' wirkt '+(r===1?'nur auf angrenzende Felder.':'im Umkreis von '+r+' Schritten.'));return;}
-  G.busy=true;AU.unlock();G.last=snap();G.bombs--;
-  sfx('boom');boomFx(G.pos,{z:ZKIND.indexOf(kd)});shake();vibe(40);
-  for(const m of targets)if(G.mons.includes(m)){A.hit(m);if(G.sandy&&G.mons.includes(m))m.stun=Math.max(m.stun||0,1);}
-  render();await sleep(260);await endTurn();
+  if(!G||G.busy||G.over||flipping)return;
+  if(G.aiming){cancelAim();return;}
+  if(G.bombs<1){setMsg('Kein Wurf-Item mehr.');return;}
+  const A=AMMO[kindOf(G.depth)];
+  G.aiming=true;AU.unlock();sfx('click');
+  setMsg(A.name+': Tippe ein markiertes Zielfeld (bis '+AIM+' Schritte). '+A.desc+'.');
+  render();
+}
+function cancelAim(){if(G&&G.aiming){G.aiming=false;render();}}
+async function throwAt(t){
+  if(!G||G.busy||G.over||flipping||!G.aiming)return false;
+  const A=AMMO[kindOf(G.depth)];
+  const d=bfs(G.pos,null).get(t);
+  if(d===undefined||d>AIM||G.walls.has(t)||t===G.pos){sfx('bump');floatText(t,d>AIM?'Zu weit':'Nicht hier','dim');return false;}
+  G.aiming=false;G.busy=true;AU.unlock();G.last=snap();G.bombs--;
+  sfx('aim');throwFx(G.pos,t,A.ico);render();
+  try{
+    await sleep(380);
+    const hit=await A.throw(t);
+    if(G.sandy)for(const m of hit||[])if(G.mons.includes(m))m.stun=Math.max(m.stun||0,1);
+  }catch(e){console.error(e);}
+  vibe(40);render();await sleep(200);
+  if(G.hp<=0){die();return true;}
+  await endTurn();return true;
 }
 async function lookDir(d){
   if(!G||G.busy||G.over||flipping)return;
@@ -2925,7 +3075,7 @@ function startLevel(){
   const L=genLevel(G.depth);
   G.freeSteps+=G.tailwind*2;
   if(G.frost)for(const m of L.mons)if(!MT[m.type].boss)m.stun=G.frost;
-  Object.assign(G,{picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
+  Object.assign(G,{fields:[],aiming:false,picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
   for(const [,el] of entEls)el.remove();
   entEls.clear();
   view=findViewFor(G.pos,FACES.F);
@@ -3026,6 +3176,7 @@ stage.addEventListener('pointerup',e=>{
     else lookDir(dy<0?'down':'up');
     return;
   }
+  if(G.aiming){const cell=e.target.closest('.cell');if(cell)throwAt(+cell.dataset.i);else cancelAim();return;}
   const edge=e.target.closest('.edge');
   if(edge&&edge.classList.contains('show')){playerAct(+edge.dataset.t,edge.dataset.d);return;}
   const cell=e.target.closest('.cell');
@@ -3052,7 +3203,7 @@ window.addEventListener('keydown',e=>{
   }
   if(e.key===' '){e.preventDefault();waitTurn();}
   else if(e.key==='b'||e.key==='B')useBomb();
-  else if(e.key==='Escape')openModal('m-pause');
+  else if(e.key==='Escape'){if(G.aiming)cancelAim();else openModal('m-pause');}
 });
 
 $('#b-play').addEventListener('click',()=>{AU.unlock();sfx('click');if(save.seenIntro)openDiff(()=>startGame());else playIntro();});
