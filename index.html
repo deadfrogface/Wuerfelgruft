@@ -280,6 +280,18 @@ svg{display:block}
 .boom.zb{background:radial-gradient(circle,#fff 0,var(--b1) 35%,var(--b2) 60%,transparent 70%)}
 
 /* ===== Zonen: Hintergründe ===== */
+/* ===== Boss-Phasen ===== */
+#bossbar{position:absolute;left:6%;right:6%;top:-9px;height:9px;border-radius:6px;background:#1a1736;box-shadow:0 0 0 2px #17152b;z-index:6;overflow:hidden}
+#bossbar[hidden]{display:none}
+#bossbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#e8553d,#ffb347);transition:width .25s}
+#bossbar.ph2 i{background:linear-gradient(90deg,#c0301d,#ff6a3d);animation:bbp .8s ease-in-out infinite}
+#bossbar.ph3 i{background:linear-gradient(90deg,#8a0a1a,#ff2a2a);animation:bbp .45s ease-in-out infinite}
+@keyframes bbp{50%{filter:brightness(1.5)}}
+#bossbar u{position:absolute;top:0;bottom:0;width:2px;background:#17152b}
+.ent.ph2 .fl{filter:drop-shadow(0 0 5px #ff6a3d)}
+.ent.ph3 .fl{filter:drop-shadow(0 0 8px #ff2a2a);animation:ragejit .25s steps(2) infinite}
+@keyframes ragejit{50%{translate:1.5% 0}}
+
 /* ===== Zonen-Gelände ===== */
 .tr{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .tr::before{content:'';position:absolute;left:50%;top:50%;width:42%;height:42%;border-top:5px solid var(--tc,#fff);border-right:5px solid var(--tc,#fff);transform:translate(-50%,-50%) rotate(calc(var(--rot,0deg) + 45deg));opacity:0;animation:arrowflow 1.2s ease-in-out infinite}
@@ -678,6 +690,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
     <button class="mebtn" id="b-me">Zu mir</button>
     <div class="board-wrap">
       <div class="board-frame" id="frame">
+        <div id="bossbar" hidden><i id="bb-fill"></i><u style="left:33%"></u><u style="left:66%"></u></div>
         <div class="board" id="board">
           <div class="grid" id="grid"></div>
           <div class="layer" id="ents"></div>
@@ -889,7 +902,7 @@ let MID=0;
 const MON_BASE=[2,3,4,5,5,6,6,7,7,8];
 function mkMon(type,pos,extra){
   const T=MT[type];const hm=hpMod();const hp=Math.max(1,T.hp+(T.boss?hm*3:((G&&G.hpb)||0)+(T.z>=6?1:0)+hm));
-  return {id:'m'+(++MID),type,hp,mx:hp,pos,cd:T.slow&&!T.boss?rnd(2):(T.boss?1:0),mcd:rnd(2),aim:false,n:0,...extra};
+  return {id:'m'+(++MID),type,hp,mx:hp,pos,cd:T.slow&&!T.boss?rnd(2):(T.boss?1:0),mcd:rnd(2),aim:false,n:0,ph:1,...extra};
 }
 function zonePool(z,pos){
   if(z>=ZONES.length)return [].concat(...ROSTER);
@@ -1290,7 +1303,7 @@ BOSSRAW.forEach((pair,z)=>{
     if(!r)return 'king';
     const [name,body,main,acc,kind,hp,dmg,f]=r;
     const id='b'+z+'_'+k;BYNAME[name]=id;
-    MT[id]={name,hp,dmg,pts:200+z*100+k*100,col:main,boss:1,z,body,...f};
+    MT[id]={name,hp,dmg,pts:200+z*100+k*100,col:main,boss:1,z,body,bi:k,...f};
     GEN[id]={body,main,acc,kind};return id;
   });
 });
@@ -1298,7 +1311,7 @@ BOSSRAW.forEach((pair,z)=>{
 for(const id of Object.keys(MT)){const T=MT[id];if(typeof T.split==='string')T.split=BYNAME[T.split]||T.split;if(typeof T.summon==='string')T.summon=BYNAME[T.summon]||T.summon;}
 BOSSES[0][0]='king';
 Object.assign(MT.king,{summon:'slime'});
-MT.king.name='Würfelkönig';
+MT.king.name='Würfelkönig';MT.king.bi=0;
 const traitText=T=>Object.keys(TR).filter(k=>T[k]).map(k=>TR[k]).join(', ');
 const zoneOf=d=>Math.floor((d-1)/10);                 /* 0..: Zone der Etage */
 const posOf=d=>((d-1)%10)+1;                          /* Etage innerhalb der Zone */
@@ -1398,6 +1411,30 @@ function tickFields(){
 }
 const ZPICKS={wueste:['p_skarab','p_ankh'],uhrwerk:['p_zahnrad','p_oel'],tiefsee:['p_perle','p_muschel'],wind:['p_windfeder','p_wirbel'],gold:['p_barren','p_kleeblatt','chest','chest'],moor:['p_beere','p_pilz'],eis:['p_kristall','p_schneeherz'],glut:['p_glutkern','p_feder'],leere:['p_splitter','p_mantel']};
 const PICKN={p_skarab:'Skarabäus',p_ankh:'Anch',p_zahnrad:'Zahnrad',p_oel:'Ölkanne',p_perle:'Perle',p_muschel:'Muschel',p_windfeder:'Windfeder',p_wirbel:'Wirbelwind',p_barren:'Goldbarren',p_kleeblatt:'Kleeblatt',chest:'Truhe',p_beere:'Moorbeere',p_pilz:'Glühpilz',p_kristall:'Eiskristall',p_schneeherz:'Schneeherz',p_glutkern:'Glutkern',p_feder:'Aschefeder',p_splitter:'Sternensplitter',p_mantel:'Schattenmantel'};
+const BOSSMV={
+  gruft:[['Schleimsturm','wave',3,'boom'],['Würfelregen','rain',5,'boom']],
+  gruft2:[['Kaiserhieb','ring',1,'boom'],['Würfelsturm','rain',7,'boom']],
+  gold:[['Raubzug','pull',3,'coins'],['Münzsturm','ring',2,'coins']],
+  gold2:[['Drachenatem','line',6,'fire'],['Goldregen','rain',6,'coins']],
+  wueste:[['Sandsturm','stasis',1,'sand'],['Fluch','ring',2,'sand']],
+  wueste2:[['Wurmbiss','pull',3,'sand'],['Aufbruch','rain',5,'sand']],
+  moor:[['Ranken','pull',2,'spore'],['Sporenwolke','ring',2,'spore']],
+  moor2:[['Giftstrahl','line',6,'spore'],['Würgegriff','pull',4,'spore']],
+  wind:[['Orkan','push',3,'wind'],['Windhose','ring',2,'wind']],
+  wind2:[['Donnerschlag','rain',4,'bolt'],['Sturmlinie','line',7,'wind']],
+  uhrwerk:[['Zeitstopp','stasis',2,'steam'],['Dampfstoß','ring',2,'steam']],
+  uhrwerk2:[['Stundenschlag','ring',3,'steam'],['Zeiger','line',7,'bolt']],
+  eis:[['Splitterregen','rain',5,'ice'],['Eiseskälte','stasis',1,'ice']],
+  eis2:[['Eiswelle','line',7,'ice'],['Kristallsturm','rain',7,'ice']],
+  tiefsee:[['Sog','pull',4,'bubble'],['Strudel','ring',2,'bubble']],
+  tiefsee2:[['Flutwelle','line',8,'bubble'],['Verschlingen','pull',5,'bubble']],
+  glut:[['Flammenring','ring',2,'fire'],['Feuerregen','rain',6,'fire']],
+  glut2:[['Feuerodem','line',7,'fire'],['Meteorsturm','rain',8,'fire']],
+  leere:[['Leerensog','pull',4,'void'],['Schattenring','ring',2,'void']],
+  leere2:[['Würfelwurf','chaos',0,'void'],['Weltenende','rain',9,'void']]
+};
+const bossMoves=T=>BOSSMV[ZKIND[T.z||0]+(T.bi===1?'2':'')];
+const BOSSLINE={gruft:'Niemand verlässt die Gruft.',gold:'Alles Gold gehört mir!',wueste:'Der Sand begräbt jeden.',moor:'Der Sumpf holt dich.',wind:'Der Sturm kennt kein Erbarmen.',uhrwerk:'Deine Zeit läuft ab.',eis:'Alles erstarrt unter meinem Blick.',tiefsee:'Die Tiefe verschlingt dich.',glut:'Verbrenne!',leere:'Es gibt kein Entkommen aus dem Nichts.'};
 const AVOIDT=new Set(['lava','quick','vines','chute','rift']);
 const FLY=m=>{const T=MT[m.type];return !!(T.ghost||T.body==='wing'||T.body==='wisp');};
 const terrOf=i=>G.terrain&&G.terrain.get(i);
@@ -1987,7 +2024,7 @@ function hintFor(d,L){
   let h=(p===1&&z>0&&z<ZONES.length?'Neue Zone: '+ZONES[z]+'. Alle Gegner sind neu. ':'');
   if(z===0&&HINTS[d])return HINTS[d];
   if(p===1&&ZTERR[ZKIND[z%ZKIND.length]])h+='Gelände: '+TERR_TIP[ZTERR[ZKIND[z%ZKIND.length]]]+' ';
-  if(L&&L.boss){const T=MT[L.bossType];return h+'Boss: '+T.name+'. '+traitText(T)+'. Mit seinem Tod öffnet sich die Treppe.';}
+  if(L&&L.boss){const T=MT[L.bossType];return h+'Boss: '+T.name+' – „'+(BOSSLINE[ZKIND[T.z||0]]||'')+'“ Wird bei 2/3 und 1/3 Leben wütend. Mit seinem Tod öffnet sich die Treppe.';}
   if(z<ZONES.length){
     const nw=ROSTER[z].filter(id=>MT[id].d===p&&!(z===0&&p===1));
     if(nw.length){
@@ -2077,6 +2114,7 @@ function dangerSet(){
     if(T.shoot)lineWalk(m.pos,i=>{s.add(i);return false;},T.rng||4);
     if(T.lob&&m.aim&&m.tg!==undefined){s.add(m.tg);for(const n of NB[m.tg])s.add(n);}
     if(T.steam&&m.sa){for(const [c,d] of bfs(m.pos,null))if(d<=2)s.add(c);}
+    if(m.bt)for(const c of m.bt.cells)s.add(c);
   }
   for(const f of G.fields||[])if(f.kind==='fire')for(const c of f.cells)s.add(c);
   return s;
@@ -2152,7 +2190,8 @@ function renderEnts(){
     if(e.type==='hero'){el.classList.toggle('shielded',G.shield>0);}
     else{
       el.classList.toggle('ready',!!MT[e.type].slow&&e.cd===0);
-      el.classList.toggle('aim',!!(e.aim||e.sa));
+      el.classList.toggle('aim',!!(e.aim||e.sa||e.bt));
+      el.classList.toggle('ph2',(e.ph||1)===2);el.classList.toggle('ph3',(e.ph||1)>=3);
       el.classList.toggle('asleep',!!(MT[e.type].sleep&&!e.awake));
       el.classList.toggle('carry',!!e.carry);
       const mx=e.mx||MT[e.type].hp;
@@ -2222,7 +2261,15 @@ function renderNet(){
     }
   }
 }
+function renderBossBar(){
+  const bb=$('#bossbar');if(!bb)return;
+  const b=G&&G.mons.find(x=>MT[x.type].boss);
+  bb.hidden=!b;if(!b)return;
+  $('#bb-fill').style.width=Math.max(0,b.hp/b.mx*100)+'%';
+  bb.className='ph'+(b.ph||1);
+}
 function renderHUD(){
+  renderBossBar();
   let h='';
   if(save.settings.num||G.maxhp>10)h=`<span class="hnum">${spr('s-heart')}<b>${G.hp}/${G.maxhp}</b></span>`;
   else for(let i=0;i<G.maxhp;i++)h+=spr('s-heart',i<G.hp?'':'empty');
@@ -2642,14 +2689,82 @@ function pushPlayer(m){
   if(G.spikes.has(G.pos)&&!G.boots){sfx('spike');hurtPlayer(1,null);}
   if(it){G.items.delete(G.pos);pickup(it,G.pos);}
 }
+function dmgOf(m,T){return T.dmg+(T.boss&&(m.ph||1)>=3?1:0);}
+function phaseUp(m){
+  const T=MT[m.type];
+  floatText(m.pos,m.ph>=3?'RASEREI!':'WUT!','red');flash();shake();sfx('boss');
+  setMsg(T.name+': '+(m.ph>=3?'Letzte Phase! ':'Zweite Phase! ')+(bossMoves(T)?'Neue Angriffe. ':'')+(m.ph>=3?'Mehr Schaden.':''));
+  m.cd=0;m.bt=null;burst(m.pos,T.col,18);
+}
+function bossCells(m,pat,arg){
+  const P=G.pos;let cs=new Set();
+  if(pat==='ring'){cs=areaOf(m.pos,arg);cs.delete(m.pos);}
+  else if(pat==='line'){
+    const dd=bfs(P,null);let bd=-1,bv=1e9;
+    DIRS.forEach((d,i)=>{const nx=tstep(m.pos,d);if(nx>=0&&(dd.get(nx)===undefined?99:dd.get(nx))<bv){bv=dd.get(nx);bd=i;}});
+    let cur=m.pos;for(let k=0;k<arg&&bd>=0;k++){const nx=tstep(cur,DIRS[bd]);if(nx<0)break;cs.add(nx);cur=nx;}
+  }else if(pat==='rain'){
+    const dd=bfs(P,null);
+    const cand=shuffle(SHELL.filter(i=>(dd.get(i)||99)<=4&&!G.walls.has(i)&&i!==G.exit&&i!==m.pos&&i!==P));
+    cs.add(P);for(const c of cand.slice(0,arg-1))cs.add(c);
+  }else cs=areaOf(m.pos,1);
+  return cs;
+}
+function execBoss(m,t){
+  const T=MT[m.type],dm=dmgOf(m,T),kz={z:T.z};
+  shake();
+  if(t.pat==='ring'||t.pat==='line'||t.pat==='rain'){
+    sfx(t.fx==='fire'?'fireball':t.fx==='ice'?'shatter':t.fx==='bolt'?'zap':t.fx==='steam'?'steam':t.fx==='sand'?'dust':t.fx==='wind'?'gust':t.fx==='void'?'voidzap':t.fx==='bubble'?'bubble':t.fx==='spore'?'spore':t.fx==='coins'?'coins':'boom');
+    let n=0;for(const c of t.cells){if(n++<10)boomFx(c,kz);}
+    if(t.fx==='fire')addField('fire',t.cells,3,m.pos);
+    if(t.cells.has(G.pos)){
+      floatText(G.pos,t.name,'red');
+      if(hurtPlayer(dm,m)&&(t.fx==='ice'||t.fx==='sand')&&!G.anchor){G.paralyzed=Math.max(G.paralyzed,1);floatText(G.pos,'Gelähmt','blue');}
+    }
+  }else if(t.pat==='pull'){
+    sfx('voidzap');boomFx(m.pos,kz);
+    const dm0=bfs(m.pos,null);
+    for(let i=0;i<t.arg;i++){
+      const cur=dm0.get(G.pos);if(cur===undefined||cur<=1)break;
+      const c=NB[G.pos].filter(n=>!monAt(n)&&!G.walls.has(n)&&(dm0.get(n)||99)<cur);if(!c.length)break;
+      G.pos=pick(c);
+    }
+    floatText(G.pos,t.name,'red');landing(G.pos,undefined,0,false);
+    if(NB[m.pos].includes(G.pos)||reach1(m.pos,G.pos))hurtPlayer(dm,m);
+  }else if(t.pat==='push'){
+    sfx('gust');boomFx(m.pos,kz);for(let i=0;i<t.arg;i++)pushPlayer(m);hurtPlayer(1,m);
+  }else if(t.pat==='stasis'){
+    sfx('steam');boomFx(m.pos,kz);
+    if(!G.anchor){G.paralyzed=Math.max(G.paralyzed,t.arg);floatText(G.pos,t.name,'blue');}else floatText(G.pos,'Anker hält','blue');
+  }else if(t.pat==='wave'){
+    for(let i=0;i<t.arg;i++)summon(m,T.summon);
+  }else if(t.pat==='chaos'){
+    sfx('voidzap');boomFx(m.pos,kz);
+    const dd=bfs(G.pos,null);
+    const cs=shuffle(SHELL.filter(i=>!G.walls.has(i)&&!monAt(i)&&i!==G.exit&&i!==m.pos));
+    for(const o of G.mons.slice()){if(o===m)continue;const c=cs.pop();if(c!==undefined){o.pos=c;settle(o);}}
+    const c=cs.pop();if(c!==undefined){G.pos=c;floatText(G.pos,t.name,'red');landing(G.pos,undefined,0,false);}
+  }
+}
+function bossMove(m){
+  const T=MT[m.type],mv=bossMoves(T);
+  if(!mv||(m.ph||1)<2)return false;
+  if(m.bt){const t=m.bt;m.bt=null;execBoss(m,t);return true;}
+  m.bn=(m.bn||0)+1;
+  if(m.bn%3!==0)return false;
+  const def=(m.ph>=3&&Math.random()<.55)?mv[1]:mv[0];
+  m.bt={name:def[0],pat:def[1],arg:def[2],fx:def[3],cells:bossCells(m,def[1],def[2])};
+  sfx('aim');floatText(m.pos,'!','red');setMsg(T.name+': '+def[0]+'!');
+  return true;
+}
 function strike(m,T){
-  sfx('mhit',ZKIND[T.z||0]);atk(m);mfx(G.pos,T);hurtPlayer(T.dmg,m);
+  sfx('mhit',ZKIND[T.z||0]);atk(m);mfx(G.pos,T);hurtPlayer(dmgOf(m,T),m);
   if(T.steal&&G.bombs>0){G.bombs--;floatText(G.pos,'Bombe weg','red');}
   if(T.drain&&m.hp<(m.mx||T.hp)){m.hp++;floatText(m.pos,'+1','green');}
   if(T.thief&&!m.carry&&!T.boss)stealFrom(m);
   if(T.push&&G.hp>0)pushPlayer(m);
   if(T.shock&&G.hp>0&&!G.anchor){G.paralyzed=1;sfx('zap');floatText(G.pos,'Betäubt','blue');}
-  if(T.slow)m.cd=1;
+  if(T.slow&&(m.ph||1)<2)m.cd=1;
   return 2;
 }
 function act(m,dW,dA,d8){
@@ -2672,11 +2787,13 @@ function act(m,dW,dA,d8){
     if(d0!==undefined&&d0<=3){m.awake=true;floatText(m.pos,'!','red');sfx('wake');return 1;}
     return 0;
   }
-  if(T.slow&&m.cd>0){m.cd--;return 0;}
+  if(T.boss){const ph=m.hp/m.mx>.66?1:m.hp/m.mx>.33?2:3;if(ph>(m.ph||1)){m.ph=ph;phaseUp(m);return 2;}}
+  if(T.slow&&(m.ph||1)<2&&m.cd>0){m.cd--;return 0;}
   if(T.flee||m.carry)return fleeAct(m,T,dW);
   const mx=m.mx||T.hp;
   if(T.regen&&m.hp<mx&&m.n%3===0){m.hp++;floatText(m.pos,'+1','green');}
-  if(T.summon&&m.n%(T.sumN||4)===0&&summon(m,T.summon)){if(T.slow)m.cd=1;return 2;}
+  if(T.boss&&bossMove(m))return 2;
+  if(T.summon&&m.n%Math.max(2,(T.sumN||4)-((m.ph||1)-1))===0&&summon(m,T.summon)){if(T.slow&&(m.ph||1)<2)m.cd=1;return 2;}
   if(T.heal&&m.n%3===0){
     let any=false;
     for(const o of G.mons)if(o!==m&&NB[m.pos].includes(o.pos)&&o.hp<(o.mx||MT[o.type].hp)){o.hp++;floatText(o.pos,'+1','green');any=true;}
@@ -2686,7 +2803,7 @@ function act(m,dW,dA,d8){
     if(m.sa){
       m.sa=false;sfx('steam');boomFx(m.pos,T);
       const d2=dA.get(m.pos);if(d2!==undefined&&d2<=2)hurtPlayer(T.dmg,m);
-      if(T.slow)m.cd=1;return 2;
+      if(T.slow&&(m.ph||1)<2)m.cd=1;return 2;
     }
     if(m.n%4===3){m.sa=true;sfx('aim');floatText(m.pos,'!','red');return 1;}
   }
@@ -2694,7 +2811,7 @@ function act(m,dW,dA,d8){
   if(T.tele&&m.n%3===0&&dd!==undefined&&dd>3&&blink(m,dA))return 1;
   if(T.shoot){
     if(lineClear(m.pos,P,T.rng||4)){
-      if(m.aim){m.aim=false;sfx('shoot',ZKIND[T.z||0]);atk(m);shotFx(m.pos,P,T);hurtPlayer(T.dmg,m);if(T.slow)m.cd=1;return 2;}
+      if(m.aim){m.aim=false;sfx('shoot',ZKIND[T.z||0]);atk(m);shotFx(m.pos,P,T);hurtPlayer(dmgOf(m,T),m);if(T.slow&&(m.ph||1)<2)m.cd=1;return 2;}
       m.aim=true;sfx('aim');floatText(m.pos,'!','red');return 1;
     }
     m.aim=false;
@@ -2727,7 +2844,7 @@ function act(m,dW,dA,d8){
     stepToward(m,dW,dA,d8);
     if(!G.mons.includes(m))return 2;
   }
-  if(T.slow)m.cd=1;
+  if(T.slow&&(m.ph||1)<2)m.cd=1;
   return moved?1:0;
 }
 let pending=null,walking=false,walkCancel=false;
@@ -2761,6 +2878,7 @@ async function endTurnInner(){
   if(G.hp<=0){render();die();return;}
   if(G.gears&&G.turns%5===0){floatText(G.pos,'Getriebe','blue');render();release();return;}
   await monsterPhase();
+  if(G.hp>0&&!viewCoord(view,G.pos)){render();await flipView(findViewFor(G.pos,view));}
   render();
   if(G.hp<=0){die();return;}
   release();
