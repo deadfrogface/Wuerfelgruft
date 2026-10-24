@@ -280,6 +280,23 @@ svg{display:block}
 .boom.zb{background:radial-gradient(circle,#fff 0,var(--b1) 35%,var(--b2) 60%,transparent 70%)}
 
 /* ===== Zonen: Hintergründe ===== */
+/* ===== Sammlung & Sparmodus ===== */
+.dexg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.dx{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--ink3);border-radius:10px;padding:6px 2px;min-width:0}
+.dx .spr{width:44px;height:44px}
+.dx b{font-size:.72rem;line-height:1.1;margin-top:2px;overflow-wrap:anywhere}
+.dx small{color:var(--dim);font-size:.62rem}
+.dx.lock .spr{filter:brightness(0) opacity(.45)}
+.ach{display:flex;flex-direction:column;gap:6px;padding:0;list-style:none}
+.ach li{background:var(--ink3);border-radius:10px;padding:8px 10px;font-size:.9rem;display:block}
+.ach li.lock{opacity:.45}
+.toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:300;background:var(--gold);color:#17152b;font-weight:800;padding:8px 16px;border-radius:99px;box-shadow:0 4px 0 #b47a14;animation:toastin 3.4s ease-out forwards;pointer-events:none;white-space:nowrap}
+@keyframes toastin{0%{opacity:0;transform:translate(-50%,-14px)}8%{opacity:1;transform:translate(-50%,0)}85%{opacity:1}100%{opacity:0}}
+html.lite .zbg>*:nth-child(n+7){display:none}
+html.lite .ember{display:none}
+html.lite .ent .fl{filter:none!important}
+html.lite .ent.ph3 .fl{animation:none}
+
 /* ===== Boss-Phasen ===== */
 #bossbar{position:absolute;left:6%;right:6%;top:-9px;height:9px;border-radius:6px;background:#1a1736;box-shadow:0 0 0 2px #17152b;z-index:6;overflow:hidden}
 #bossbar[hidden]{display:none}
@@ -338,7 +355,7 @@ html.rm .tr,html.rm .tr::before{animation:none}
 .proj.ico{width:11%;height:11%;margin:-5.5% 0 0 -5.5%;border-radius:0;box-shadow:none;image-rendering:pixelated;background-repeat:no-repeat;filter:drop-shadow(0 0 3px rgba(0,0,0,.6))}
 
 /* ===== Schwierigkeit & Einstellungen ===== */
-#app{filter:brightness(var(--bright,1))}
+html.dim #app{filter:brightness(var(--bright,1))}
 html{font-size:calc(100%*var(--ts,1))}
 .rg{width:52%;accent-color:var(--hero);height:28px}
 .seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -658,6 +675,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
       <button class="btn big" id="b-cont" hidden>Fortsetzen</button>
       <button class="btn big" id="b-play">Spielen</button>
       <button class="btn big" id="b-endless" hidden>Endlosmodus</button>
+      <button class="btn ghost" id="b-dex">Sammlung</button>
       <button class="btn ghost" id="b-help">Anleitung</button>
       <button class="btn ghost" id="b-set">Einstellungen</button>
     </div>
@@ -727,6 +745,9 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 <div class="modal" id="m-shop"><div class="panel help"><h2>Händler</h2><p id="shop-sub"></p><div class="cards" id="shop-conv"></div><div class="cards" id="shop-wares"></div><div id="shop-gamble"></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="shop-go">Weiter</button></div></div></div>
 
+<div class="modal" id="m-dex"><div class="panel help"><h2>Sammlung</h2><div class="seg" id="dex-tabs"></div><div id="dex-body"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="x-close">Schließen</button></div></div></div>
+
 <div class="modal" id="m-relics"><div class="panel help"><h2>Deine Verstärkungen</h2><ul id="relic-list"></ul>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="r-close">Schließen</button></div></div></div>
 
@@ -750,6 +771,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
   <h3>Bild</h3>
   <div class="row-set"><div>Helligkeit</div><input class="rg" type="range" min="60" max="130" step="5" data-k="bright" aria-label="Helligkeit"></div>
   <div class="row-set"><div>Textgröße</div><input class="rg" type="range" min="90" max="130" step="10" data-k="ts" aria-label="Textgröße"></div>
+  <div class="row-set"><div>Sparmodus<small>Weniger Hintergrund-Effekte, für schwächere Handys.</small></div><button class="sw" role="switch" data-k="lite" aria-label="Sparmodus"></button></div>
   <div class="row-set"><div>Bildschirm wackelt</div><button class="sw" role="switch" data-k="shake" aria-label="Bildschirm wackelt"></button></div>
   <div class="row-set"><div>Weniger Bewegung<small>Schaltet Hintergrund- und Figuren-Animationen ab.</small></div><button class="sw" role="switch" data-k="rm" aria-label="Weniger Bewegung"></button></div>
   <div class="row-set"><div>Kontrast für Gefahrenfelder<small>Weiß-blaue statt rote Schraffur, für Farbenblindheit.</small></div><button class="sw" role="switch" data-k="cb" aria-label="Kontrast"></button></div>
@@ -902,7 +924,8 @@ let MID=0;
 const MON_BASE=[2,3,4,5,5,6,6,7,7,8];
 function mkMon(type,pos,extra){
   const T=MT[type];const hm=hpMod();const hp=Math.max(1,T.hp+(T.boss?hm*3:((G&&G.hpb)||0)+(T.z>=6?1:0)+hm));
-  return {id:'m'+(++MID),type,hp,mx:hp,pos,cd:T.slow&&!T.boss?rnd(2):(T.boss?1:0),mcd:rnd(2),aim:false,n:0,ph:1,...extra};
+  const mo={id:'m'+(++MID),type,hp,mx:hp,pos,cd:T.slow&&!T.boss?rnd(2):(T.boss?1:0),mcd:rnd(2),aim:false,n:0,ph:1,...extra};
+  noteSeen(type);return mo;
 }
 function zonePool(z,pos){
   if(z>=ZONES.length)return [].concat(...ROSTER);
@@ -1709,7 +1732,7 @@ const fmt=n=>Number(n).toLocaleString('de-DE');
 
 /* ================= Speicher ================= */
 const SAVE_KEY='wuerfelgruft.v1';
-let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false}};
+let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},dex:{},ach:{},stats:{bosses:0,throws:0,rolls:0,turns:0},settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false,lite:false,liteAuto:false}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s)save={...save,...s,settings:{...save.settings,...(s.settings||{})}};}catch(e){}
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
 
@@ -2437,7 +2460,7 @@ function hurtPlayer(n,src){
   if(G.shadow&&src&&(MT[src.type].shoot||MT[src.type].lob)&&Math.random()<.5){floatText(G.pos,'Verweht','blue');sfx('block');return false;}
   if(G.armor&&n>=2)n--;
   if(G.shield>0){G.shield--;floatText(G.pos,'Block','blue');sfx('block');return false;}
-  G.hp=Math.max(0,G.hp-n);
+  G.hp=Math.max(0,G.hp-n);G.lvlLoss=(G.lvlLoss||0)+n;
   sfx('hurt');flash();shake();vibe(60);hurtFx('hero');
   floatText(G.pos,'-'+n,'red');burst(G.pos,'#e8553d',8);
   if(G.thorns&&src&&G.mons.includes(src))hitMonster(src,G.thorns2?2:1,false);
@@ -2455,7 +2478,7 @@ function hitMonster(m,dmg,byPlayer){
   if(m.hp>0){burst(m.pos,'#ffffff',4);return false;}
   G.mons=G.mons.filter(x=>x!==m);
   const pts=Math.round(T.pts*(G.soul?1.5:1));
-  G.kills++;G.score+=pts;G.money+=Math.max(1,Math.round(T.pts/25*(G.loot?1.5:1)*DF().money));G.killCount++;
+  trackKill(m);G.kills++;G.score+=pts;G.money+=Math.max(1,Math.round(T.pts/25*(G.loot?1.5:1)*DF().money));G.killCount++;
   burst(m.pos,T.col,14);sfx('kill',ZKIND[T.z||0]);if(T.z>0)mfx(m.pos,T);
   if(T.boss){G.hasKey=true;setMsg('Der Boss fällt. Die Treppe ist offen.');sfx('key');shake();}
   floatText(m.pos,'+'+pts,'gold');
@@ -2870,7 +2893,7 @@ async function endTurn(){
   try{await endTurnInner();}catch(e){console.error(e);try{render();}catch(e2){}if(G&&!G.over&&G.hp>0)release();}
 }
 async function endTurnInner(){
-  G.turns++;
+  G.turns++;save.stats.turns++;
   if(G.regen&&G.hp<G.maxhp&&G.turns%[0,10,7,5][G.regen]===0){G.hp++;floatText(G.pos,'+1','green');}
   tickFields();
   terrainTick();
@@ -3050,6 +3073,7 @@ async function throwAt(t){
   try{
     await sleep(380);
     const hit=await A.throw(t);
+    save.stats.throws++;if(hit&&hit.length>=3)award('bomber');if(save.stats.throws>=50)award('thrower');
     if(G.sandy)for(const m of hit||[])if(G.mons.includes(m))m.stun=Math.max(m.stun||0,1);
   }catch(e){console.error(e);}
   vibe(40);render();await sleep(200);
@@ -3085,7 +3109,7 @@ function recordBest(){
 function die(){
   if(G.phoenix&&!G.phx){
     G.phx=true;G.hp=Math.ceil(G.maxhp/2);G.shield=Math.max(G.shield,1);
-    sfx('win');flash();floatText(G.pos,'Phönix','gold');burst(G.pos,'#ff8a5c',20);setMsg('Die Phönixfeder verglüht. Du lebst.');
+    award('phoenix');sfx('win');flash();floatText(G.pos,'Phönix','gold');burst(G.pos,'#ff8a5c',20);setMsg('Die Phönixfeder verglüht. Du lebst.');
     render();release();return;
   }
   G.over=true;G.busy=true;
@@ -3099,7 +3123,7 @@ function die(){
   },900);
 }
 async function completeLevel(){
-  G.busy=true;sfx('stairs');
+  G.busy=true;sfx('stairs');trackLevel();
   const bonus=100+G.depth*25+G.hp*10;G.score+=bonus;
   floatText(G.pos,'+'+bonus,'gold');burst(G.pos,'#f4b942',16);
   if(G.rest&&G.hp<G.maxhp){G.hp=Math.min(G.maxhp,G.hp+G.rest*2);setMsg('Am Lagerfeuer erholt.');}
@@ -3128,6 +3152,7 @@ function showUpgrades(){
     b.innerHTML=`${spr(u.ico)}<div><b>${u.name}</b><span>${u.desc}</span>${n?`<em>Du hast ${n}</em>`:''}</div>`;
     b.addEventListener('click',()=>{
       sfx('card');u.apply();G.ups[u.id]=n+1;closeModal('m-up');
+      if(Object.values(G.ups).filter(v=>v>0).length>=10)award('collector');
       afterCard();
     });
     box.appendChild(b);
@@ -3170,6 +3195,98 @@ function buildHelpZone(){
   box.innerHTML=h;
 }
 
+/* ================= Sammlung: Erfolge, Bestiarium, Statistik ================= */
+const ACH=[];
+for(let i=1;i<=10;i++)ACH.push({id:'zone'+i,name:'Zone '+i+' bezwungen',desc:'Schaffe Etage '+(i*10)+' ('+ZONES[i-1]+').'});
+ACH.push(
+ {id:'boss1',name:'Bossbezwinger',desc:'Besiege deinen ersten Boss.'},
+ {id:'boss10',name:'Bossjäger',desc:'Besiege 10 Bosse.'},
+ {id:'goblin',name:'Goblinfänger',desc:'Erwische einen fliehenden Goblin oder Leprechaun.'},
+ {id:'thief',name:'Diebesfänger',desc:'Töte einen Dieb, der deine Beute trägt.'},
+ {id:'lucky',name:'Glückspilz',desc:'Gewinne eine Ware mit den Würfeln.'},
+ {id:'gambler',name:'Spieler',desc:'Würfle 10-mal im Händler.'},
+ {id:'dice10',name:'Würfelsammler',desc:'Besitze alle 10 Zonenwürfel.'},
+ {id:'rich',name:'Reich',desc:'Besitze 1000 Münzen.'},
+ {id:'collector',name:'Sammler',desc:'Habe 10 verschiedene Verstärkungen in einem Lauf.'},
+ {id:'phoenix',name:'Wiedergeboren',desc:'Lass dich von der Phönixfeder wiederbeleben.'},
+ {id:'bomber',name:'Volltreffer',desc:'Triff mit einem Wurf-Item mindestens 3 Gegner.'},
+ {id:'thrower',name:'Werfer',desc:'Wirf 50 Wurf-Items.'},
+ {id:'untouched',name:'Unberührbar',desc:'Schaffe ab Etage 5 eine Etage ohne Schaden.'},
+ {id:'hc30',name:'Hardcore-Held',desc:'Erreiche Etage 30 auf Hardcore.'},
+ {id:'hp10',name:'Ein Leben genügt',desc:'Schaffe Etage 10 auf 1 HP.'},
+ {id:'zoo',name:'Zoologe',desc:'Entdecke alle Gegner einer Zone.'},
+ {id:'zooall',name:'Bestiarium komplett',desc:'Entdecke alle Gegner des Spiels.'},
+ {id:'win',name:'Bezwinger der Gruft',desc:'Schaffe Etage 100.'},
+ {id:'endless',name:'Endlos',desc:'Erreiche Etage 101 im Endlosmodus.'}
+);
+const ACHN={};ACH.forEach(a=>{ACHN[a.id]=a.name;});
+function toast(t){
+  const el=document.createElement('div');el.className='toast';el.textContent=t;
+  const host=$('#app')||document.body;host.appendChild(el);setTimeout(()=>el.remove(),3400);
+}
+function award(id){
+  if(!ACHN[id]||save.ach[id])return;
+  save.ach[id]=Date.now();persist();toast('Erfolg: '+ACHN[id]);sfx('win');
+}
+function noteSeen(type){
+  const d=save.dex[type]||(save.dex[type]={s:0,k:0});
+  if(d.s===0){
+    d.s=1;
+    const T=MT[type];
+    if(T&&T.z!==undefined){
+      const ids=[...ROSTER[T.z],...BOSSES[T.z]];
+      if(ids.every(i=>save.dex[i]&&save.dex[i].s>0))award('zoo');
+      if(ROSTER.every((r,z)=>[...r,...BOSSES[z]].every(i=>save.dex[i]&&save.dex[i].s>0)))award('zooall');
+    }
+  }else d.s++;
+}
+function trackKill(m){
+  const T=MT[m.type],d=save.dex[m.type]||(save.dex[m.type]={s:1,k:0});d.k++;
+  if(T.boss){save.stats.bosses++;award('boss1');if(save.stats.bosses>=10)award('boss10');}
+  if(T.flee)award('goblin');
+  if(m.carry)award('thief');
+}
+function trackLevel(){
+  const d=G.depth;
+  if(d%10===0&&d<=100)award('zone'+(d/10));
+  if(d>=5&&!(G.lvlLoss>0))award('untouched');
+  if(G.money>=1000)award('rich');
+  if(G.diff==='hardcore'&&d>=30)award('hc30');
+  if(G.diff==='1hp'&&d>=10)award('hp10');
+  if(d>=100)award('win');
+  if(d>100)award('endless');
+}
+function openDex(tab){
+  tab=tab||'dex';
+  const seg=$('#dex-tabs');seg.innerHTML='';
+  for(const [k,n] of [['dex','Gegner'],['ach','Erfolge'],['stat','Statistik']]){
+    const b=document.createElement('button');b.textContent=n;b.className=tab===k?'on':'';
+    b.addEventListener('click',()=>{sfx('click');openDex(k);});seg.appendChild(b);
+  }
+  let h='';
+  if(tab==='dex'){
+    let seen=0,tot=0,body='';
+    for(let z=0;z<ZONES.length;z++){
+      body+=`<h3>${ZONES[z]}</h3><div class="dexg">`;
+      for(const id of [...ROSTER[z],...BOSSES[z]]){
+        tot++;const d=save.dex[id],ok=!!(d&&d.s>0);if(ok)seen++;
+        body+=`<div class="dx${ok?'':' lock'}"><span class="ph">${spr(id)}</span><b>${ok?MT[id].name:'???'}</b><small>${ok?d.k+' besiegt':'unbekannt'}</small></div>`;
+      }
+      body+='</div>';
+    }
+    h=`<p>Entdeckt: <b style="color:var(--gold)">${seen} von ${tot}</b></p>`+body;
+  }else if(tab==='ach'){
+    const n=ACH.filter(a=>save.ach[a.id]).length;
+    h=`<p>Erfolge: <b style="color:var(--gold)">${n} von ${ACH.length}</b></p><ul class="ach">`+ACH.map(a=>`<li class="${save.ach[a.id]?'':'lock'}"><span><b>${a.name}</b>: ${a.desc}</span></li>`).join('')+'</ul>';
+  }else{
+    const st=save.stats,dexSeen=Object.values(save.dex).filter(d=>d.s>0).length;
+    const rows=[['Läufe',fmt(save.runs)],['Gegner besiegt',fmt(save.kills)],['Bosse besiegt',fmt(st.bosses)],['Züge gespielt',fmt(st.turns)],['Wurf-Items geworfen',fmt(st.throws)],['Würfelwürfe',fmt(st.rolls)],['Gegner entdeckt',dexSeen+' von '+Object.keys(MT).length],['Erfolge',ACH.filter(a=>save.ach[a.id]).length+' von '+ACH.length]];
+    h='<div class="res">'+rows.map(r=>`<span>${r[0]}</span><b>${r[1]}</b>`).join('')+'</div><h3>Bestwerte</h3><div class="res">'+DIFFK.map(k=>{const b=save.bd[k];return `<span>${DIFFS[k].name}</span><b>${b&&(b.score||b.depth)?fmt(b.score)+' P., Etage '+b.depth:'–'}</b>`;}).join('')+'</div>';
+  }
+  $('#dex-body').innerHTML=h;
+  openModal('m-dex');
+}
+
 /* ================= Händler zwischen den Zonen ================= */
 const DIE={wueste:{fav:3,name:'Wüstenwürfel',col:'#e8c870'},uhrwerk:{fav:4,name:'Uhrwerkwürfel',col:'#c98a4b'},tiefsee:{fav:2,name:'Tiefseewürfel',col:'#4aa0c8'},gruft:{fav:1,name:'Gruftwürfel',col:'#e9dfc8'},gold:{fav:6,name:'Goldwürfel',col:'#f4b942'},moor:{fav:2,name:'Moorwürfel',col:'#8bd450'},wind:{fav:5,name:'Windwürfel',col:'#cfe6ff'},eis:{fav:3,name:'Eiswürfel',col:'#8fd0e8'},glut:{fav:4,name:'Glutwürfel',col:'#ff8a5c'},leere:{fav:6,name:'Leerenwürfel',col:'#b890ff'}};
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
@@ -3180,7 +3297,7 @@ const stakeOf=n=>Math.round(50*n*(1+.4*(n-1))*(1+.25*(shop?shop.rolls:0)));
 function afterCard(){
   if(G.depth%10===0){
     const kd=kindOf(G.depth);let nd=null;
-    if(!G.dice.includes(kd)){G.dice.push(kd);nd=kd;}
+    if(!G.dice.includes(kd)){G.dice.push(kd);nd=kd;if(G.dice.length>=10)award('dice10');}
     openShop(nd);return;
   }
   G.depth++;if(G.master)G.bombs++;G.bombs+=G.sack;G.money+=G.income*10;G.hp=Math.min(G.maxhp,G.hp+G.oasis);startLevel();
@@ -3279,6 +3396,7 @@ async function rollDice(){
   for(const it of won){if(it.can()){it.buy();names.push(it.name);}else{G.money+=Math.round(priceOf(it)/2);names.push(it.name+' (als Münzen)');}}
   shop.stock=shop.stock.filter(it=>!won.includes(it));
   shop.msg=names.length?`Gewonnen: <b style="color:var(--gold)">${names.join(', ')}</b>.`:'Leider nichts. Die Würfel zeigen keine Zahl der Waren.';
+  save.stats.rolls++;if(names.length)award('lucky');if(save.stats.rolls>=10)award('gambler');
   if(names.length)sfx('win');
   shop.busy=false;renderShop();
 }
@@ -3300,13 +3418,24 @@ function newRun(resume,endless){
   startLevel();
   if(sh){shop=restoreShop(sh);renderShop();openModal('m-shop');}
 }
+let fpsChecked=false;
+function checkFps(){
+  if(fpsChecked||save.settings.liteAuto||!window.requestAnimationFrame)return;
+  fpsChecked=true;let n=0;const t0=performance.now();
+  const f=()=>{n++;const t=performance.now()-t0;if(t<2800)requestAnimationFrame(f);else{
+    const fps=n/(t/1000);save.settings.liteAuto=true;
+    if(fps<38&&!save.settings.lite){save.settings.lite=true;applySettings();toast('Sparmodus aktiviert (schwaches Gerät erkannt)');}
+    persist();}};
+  setTimeout(()=>requestAnimationFrame(f),1500);
+}
 function startLevel(){
+  checkFps();
   G.hpb=Math.max(0,zoneOf(G.depth)-(ZONES.length-1));
   if(G.depth%5===0)setTimeout(()=>sfx('boss'),500);
   const L=genLevel(G.depth);
   G.freeSteps+=G.tailwind*2;
   if(G.frost)for(const m of L.mons)if(!MT[m.type].boss)m.stun=G.frost;
-  Object.assign(G,{terrain:L.terrain||new Map(),fields:[],aiming:false,picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
+  Object.assign(G,{lvlLoss:0,terrain:L.terrain||new Map(),fields:[],aiming:false,picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
   for(const [,el] of entEls)el.remove();
   entEls.clear();
   view=findViewFor(G.pos,FACES.F);
@@ -3377,7 +3506,7 @@ function applySettings(){
   const r=document.documentElement,st=save.settings;
   r.style.setProperty('--bright',(st.bright/100).toFixed(2));
   r.style.setProperty('--ts',(st.ts/100).toFixed(2));
-  r.classList.toggle('rm',!!st.rm);r.classList.toggle('cb',!!st.cb);
+  r.classList.toggle('rm',!!st.rm);r.classList.toggle('cb',!!st.cb);r.classList.toggle('lite',!!st.lite);r.classList.toggle('dim',st.bright!==100);
   AU.apply();if(G)renderHUD();
 }
 function openDiff(cb){
@@ -3439,6 +3568,8 @@ window.addEventListener('keydown',e=>{
 
 $('#b-play').addEventListener('click',()=>{AU.unlock();sfx('click');if(save.seenIntro)openDiff(()=>startGame());else playIntro();});
 $('#d-cancel').addEventListener('click',()=>{sfx('click');closeModal('m-diff');if($('#scr-intro').classList.contains('on'))show('scr-title');});
+$('#b-dex').addEventListener('click',()=>{AU.unlock();sfx('click');openDex('dex');});
+$('#x-close').addEventListener('click',()=>{sfx('click');closeModal('m-dex');});
 $('#b-help').addEventListener('click',()=>{AU.unlock();sfx('click');buildHelpZone();openModal('m-help');});
 $('#b-set').addEventListener('click',()=>{AU.unlock();sfx('click');syncSwitches();openModal('m-set');});
 $('#scr-intro').addEventListener('click',e=>{if(e.target.id==='i-skip')return;introNext();});
@@ -3600,7 +3731,7 @@ function buildTitle(){
 }
 
 if(!DIFFS[save.diff])save.diff='normal';
-if(!save.bd)save.bd={};
+if(!save.bd)save.bd={};if(!save.dex)save.dex={};if(!save.ach)save.ach={};if(!save.stats)save.stats={bosses:0,throws:0,rolls:0,turns:0};
 initSprites();fillStatic();applySettings();buildGrid();buildNet();buildTitle();buildDust();updateStats();syncSwitches();
 window.__wg={get G(){return G;}};
 })();
