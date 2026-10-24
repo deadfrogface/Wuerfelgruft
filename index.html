@@ -2348,7 +2348,7 @@ const REVOKE={
   blade:()=>{G.dmg--;},spear:()=>{G.spear=false;},shield:()=>{G.shieldMax--;},thorns:()=>{if(!G.thorns2)G.thorns=false;},leech:()=>{G.leech=false;},chase:()=>{G.chase--;},time:()=>{G.undoBonus--;},
   crit:()=>{G.crit--;},armor:()=>{G.armor=false;},rest:()=>{G.rest--;},sling:()=>{G.sling=false;},boots:()=>{G.boots=false;},wide:()=>{G.wide=false;},
   stun:()=>{G.stun=false;},splash:()=>{G.splash=false;},regen:()=>{G.regen--;},dodge:()=>{G.dodge--;},gold:()=>{G.gold--;},pick:()=>{G.pickN--;},
-  phoenix:()=>{G.phoenix=false;},swift:()=>{G.swift--;},frost:()=>{G.frost--;},poison:()=>{G.poison=false;},soul:()=>{G.soul=false;},thorns2:()=>{G.thorns2=false;},
+  phoenix:()=>{G.phoenix=false;},swift:()=>{G.swift--;},frost:()=>{G.frost--;},poison:()=>{G.poison=false;},soul:()=>{G.soul=false;},thorns2:()=>{G.thorns2=false;if(!(G.ups.thorns>0))G.thorns=false;},
   exec:()=>{G.exec=false;},spark:()=>{G.spark=false;},fang:()=>{G.fang=false;},master:()=>{G.master=false;},
   veil:()=>{G.veil=false;},curse:()=>{G.curse=false;},oasis:()=>{G.oasis--;},maprel:()=>{G.maprel=false;},sandy:()=>{G.sandy=false;},assassin:()=>{G.assassin=false;},gears:()=>{G.gears=false;},rod:()=>{G.rod=false;},torch:()=>{G.torch=false;},spare:()=>{G.spare=false;},lens:()=>{G.lens=false;},chain:()=>{G.chain=false;},pearl:()=>{G.pearl=false;},ink:()=>{G.ink=false;},harpoon:()=>{G.harpoon=false;},feast:()=>{G.feast=false;},volt:()=>{G.volt=false;},anchor:()=>{G.anchor=false;},
   gale:()=>{G.gale=false;},gustshield:()=>{G.gustshield=false;},tailwind:()=>{G.tailwind--;},sack:()=>{G.sack--;},shadow:()=>{G.shadow=false;},fury:()=>{G.fury=false;},
@@ -2526,7 +2526,14 @@ function faceHero(t){
   if(!el||!a||!b||a.col===b.col)return;
   const fx=b.col>a.col?1:-1;el._fx=fx;el.style.setProperty('--fx',fx);
 }
-function snap(){return {pos:G.pos,hp:G.hp,mons:G.mons.map(m=>({...m})),items:new Map(G.items),spikes:new Set(G.spikes),walls:new Set(G.walls),picks:G.picks,steps:G.steps,coins:G.coins,hasKey:G.hasKey,shield:G.shield,bombs:G.bombs,freeKills:G.freeKills,score:G.score,kills:G.kills,killCount:G.killCount,turns:G.turns};}
+function snap(){
+  const o={pos:G.pos,mons:G.mons.map(m=>({...m})),items:new Map(G.items),spikes:new Set(G.spikes),walls:new Set(G.walls),picks:G.picks,hasKey:G.hasKey,shield:G.shield,freeKills:G.freeKills};
+  for(const k of SAVEKEYS){
+    if(k==='depth'||k==='won'||k==='endless'||k==='diff')continue;
+    o[k]=G[k]===undefined?undefined:JSON.parse(JSON.stringify(G[k]));
+  }
+  return o;
+}
 async function undoMove(){
   if(!G||G.over||G.busy||flipping||!G.last||G.undos<1)return;
   const o=G.last;G.last=null;G.undos--;
@@ -2789,14 +2796,31 @@ function afterCard(){
   }
   G.depth++;if(G.master)G.bombs++;G.bombs+=G.sack;G.money+=G.income*10;G.hp=Math.min(G.maxhp,G.hp+G.oasis);startLevel();
 }
+function shopItem(sid,price,num){
+  const NA=AMMO[kindOf(G.depth+1)];
+  let it=null;
+  if(sid.startsWith('up:')){
+    const u=UPS.find(x=>x.id===sid.slice(3));if(!u)return null;
+    it={ico:u.ico,name:u.name,desc:u.desc,can:()=>u.can(),buy(){u.apply();G.ups[u.id]=(G.ups[u.id]||0)+1;}};
+  }else if(sid==='potion')it={ico:'potion',name:'Heiltrank',desc:'Heilt 5 Leben.',can:()=>G.hp<G.maxhp,buy(){G.hp=Math.min(G.maxhp,G.hp+5);}};
+  else if(sid==='ammo')it={ico:NA.ico,name:NA.name+' ×3',desc:'3 Stück: '+NA.desc+'.',can:()=>true,buy(){shop.newAmmo+=3;}};
+  else if(sid==='heart')it={ico:'s-heart',name:'Stählernes Herz',desc:'+2 maximale Leben und heilt 2.',can:()=>G.maxhp<22&&!DF().fixed,buy(){G.maxhp+=2;G.hp=Math.min(G.maxhp,G.hp+2);}};
+  if(!it)return null;
+  it.sid=sid;it.price=price;it.num=num;return it;
+}
+function serializeShop(){
+  return {conv:shop.conv,newAmmo:shop.newAmmo,rolls:shop.rolls,sel:[...shop.sel],res:shop.res,msg:shop.msg,newDie:shop.newDie,stock:shop.stock.map(i=>[i.sid,i.price,i.num])};
+}
+function restoreShop(d){
+  return {conv:d.conv,newAmmo:d.newAmmo,rolls:d.rolls,sel:new Set(d.sel),res:d.res,msg:d.msg,newDie:d.newDie,busy:false,stock:d.stock.map(x=>shopItem(x[0],x[1],x[2])).filter(Boolean)};
+}
 function openShop(newDie){
-  const nk=kindOf(G.depth+1),NA=AMMO[nk],nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
+  const nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
   shop={conv:G.bombs>0,newAmmo:0,stock:[],rolls:0,sel:new Set(),res:null,msg:'',newDie:newDie||null,busy:false};
-  for(const u of shuffle(UPS.filter(u=>u.can()&&u.tier<=nz)).slice(0,3))
-    shop.stock.push({ico:u.ico,name:u.name,desc:u.desc,price:60+u.tier*20+rnd(20),can:()=>u.can(),buy(){u.apply();G.ups[u.id]=(G.ups[u.id]||0)+1;}});
-  if(!DF().fixed)shop.stock.push({ico:'potion',name:'Heiltrank',desc:'Heilt 5 Leben.',price:30,can:()=>G.hp<G.maxhp,buy(){G.hp=Math.min(G.maxhp,G.hp+5);}});
-  shop.stock.push({ico:NA.ico,name:NA.name+' ×3',desc:'3 Stück: '+NA.desc+'.',price:45,can:()=>true,buy(){shop.newAmmo+=3;}});
-  if(!DF().fixed)shop.stock.push({ico:'s-heart',name:'Stählernes Herz',desc:'+2 maximale Leben und heilt 2.',price:90,can:()=>G.maxhp<22&&!DF().fixed,buy(){G.maxhp+=2;G.hp=Math.min(G.maxhp,G.hp+2);}});
+  for(const u of shuffle(UPS.filter(u=>u.can()&&u.tier<=nz)).slice(0,3))shop.stock.push(shopItem('up:'+u.id,60+u.tier*20+rnd(20),0));
+  if(!DF().fixed)shop.stock.push(shopItem('potion',30,0));
+  shop.stock.push(shopItem('ammo',45,0));
+  if(!DF().fixed)shop.stock.push(shopItem('heart',90,0));
   for(const it of shop.stock)it.num=1+rnd(6);
   renderShop();openModal('m-shop');sfx('key');
 }
@@ -2844,6 +2868,7 @@ function renderShop(){
     if(shop.msg){const m=document.createElement('p');m.innerHTML=shop.msg;gm.appendChild(m);}
   }
   $('#shop-go').disabled=shop.conv||shop.busy;
+  if(!shop.busy&&G&&!G.over)saveRun();
 }
 async function rollDice(){
   if(!shop||shop.busy)return;
@@ -2877,11 +2902,14 @@ function leaveShop(){
 
 /* ================= Lauf starten ================= */
 function newRun(resume,endless){
+  shop=null;
   const dk=save.diff||'normal',D0=DIFFS[dk];
   G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,money:0,rage:0,cloak:0,freeSteps:0,lucky:0,veil:false,curse:false,oasis:0,maprel:false,sandy:false,assassin:false,gears:false,rod:false,torch:false,spare:false,lens:false,chain:false,pearl:false,ink:false,harpoon:false,feast:false,volt:false,anchor:false,paralyzed:0,shell:0,gale:false,gustshield:false,tailwind:0,sack:0,shadow:false,fury:false,dice:[],loot:false,haggle:0,income:0,net:false,hunter:false,lockpicks:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false,endless:!!endless,diff:dk};
   G.hp=G.maxhp=D0.hp;G.bombs=1+(D0.ammo||0);G.undoBonus=D0.undo||0;G.undos=D0.noUndo?0:1+G.undoBonus;
-  if(resume&&save.run){Object.assign(G,JSON.parse(JSON.stringify(save.run)));G.over=false;G.busy=false;}
+  let sh=null;
+  if(resume&&save.run){Object.assign(G,JSON.parse(JSON.stringify(save.run)));sh=G.shop||null;delete G.shop;G.over=false;G.busy=false;}
   startLevel();
+  if(sh){shop=restoreShop(sh);renderShop();openModal('m-shop');}
 }
 function startLevel(){
   G.hpb=Math.max(0,zoneOf(G.depth)-(ZONES.length-1));
@@ -3114,9 +3142,11 @@ function applyTheme(){
   const kz=kindOf(G.depth);AU.zm=ZMUS[kz]||ZMUS.gruft;
   AU.trans=G.boss?-5:(kz==='gruft'?TRANS[(G.depth-1)%10]:0);AU.sd=60/(G.boss?AU.zm.bpm+12:AU.zm.bpm)/4;
 }
+const SAVEKEYS=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
 function saveRun(){
-  const keys=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
-  const r={};keys.forEach(k=>{r[k]=G[k];});save.run=r;persist();
+  const r={};SAVEKEYS.forEach(k=>{r[k]=G[k];});
+  r.shop=shop?serializeShop():null;
+  save.run=r;persist();
 }
 function buildDust(){
   const em=$('#dust');
