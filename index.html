@@ -290,8 +290,9 @@ svg{display:block}
 .ach{display:flex;flex-direction:column;gap:6px;padding:0;list-style:none}
 .ach li{background:var(--ink3);border-radius:10px;padding:8px 10px;font-size:.9rem;display:block}
 .ach li.lock{opacity:.45}
-.toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:300;background:var(--gold);color:#17152b;font-weight:800;padding:8px 16px;border-radius:99px;box-shadow:0 4px 0 #b47a14;animation:toastin 3.4s ease-out forwards;pointer-events:none;white-space:nowrap}
+.toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:300;background:var(--gold);color:#17152b;font-weight:800;padding:8px 16px;border-radius:99px;box-shadow:0 4px 0 #b47a14;animation:toastin 3.4s ease-out forwards;pointer-events:none;max-width:92%;white-space:normal;text-align:center}
 @keyframes toastin{0%{opacity:0;transform:translate(-50%,-14px)}8%{opacity:1;transform:translate(-50%,0)}85%{opacity:1}100%{opacity:0}}
+@media (max-width:390px){.act{min-width:52px;padding:4px 2px}.act span{font-size:.74rem}}
 html.lite .zbg>*:nth-child(n+7){display:none}
 html.lite .ember{display:none}
 html.lite .ent .fl{filter:none!important}
