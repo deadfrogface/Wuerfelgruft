@@ -191,7 +191,10 @@ svg{display:block}
 .act:active{transform:translateY(3px);box-shadow:0 1px 0 #1a1736}
 .act svg{width:26px;height:26px}
 .act:disabled{opacity:.35}
-.relics{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+.relics{display:flex;flex-wrap:nowrap;gap:6px;height:30px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;cursor:pointer;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent)}
+.relics::-webkit-scrollbar{display:none}
+.relics .relic{flex:none}
+.hearts{max-height:46px;overflow:hidden}
 .relic{display:flex;align-items:center;gap:1px;font-size:.8rem;font-weight:800;background:var(--ink2);border-radius:8px;padding:1px 5px 1px 2px}
 .relic .spr{width:22px;height:22px}
 
@@ -665,6 +668,9 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 
 <div class="modal" id="m-shop"><div class="panel help"><h2>Händler</h2><p id="shop-sub"></p><div class="cards" id="shop-conv"></div><div class="cards" id="shop-wares"></div><div id="shop-gamble"></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="shop-go">Weiter</button></div></div></div>
+
+<div class="modal" id="m-relics"><div class="panel help"><h2>Deine Verstärkungen</h2><ul id="relic-list"></ul>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="r-close">Schließen</button></div></div></div>
 
 <div class="modal" id="m-over"><div class="panel"><h2>Gefallen</h2><div id="over-new"></div><p id="over-txt">Die Gruft behält dich.</p>
   <div class="res" id="over-res"></div>
@@ -2067,7 +2073,7 @@ function renderNet(){
 }
 function renderHUD(){
   let h='';
-  if(save.settings.num)h=`<span class="hnum">${spr('s-heart')}<b>${G.hp}/${G.maxhp}</b></span>`;
+  if(save.settings.num||G.maxhp>10)h=`<span class="hnum">${spr('s-heart')}<b>${G.hp}/${G.maxhp}</b></span>`;
   else for(let i=0;i<G.maxhp;i++)h+=spr('s-heart',i<G.hp?'':'empty');
   const hearts=$('#hearts');if(hearts._h!==h){hearts.innerHTML=h;hearts._h=h;}
   let c='';
@@ -3056,6 +3062,16 @@ $('#b-set').addEventListener('click',()=>{AU.unlock();sfx('click');syncSwitches(
 $('#scr-intro').addEventListener('click',e=>{if(e.target.id==='i-skip')return;introNext();});
 $('#i-skip').addEventListener('click',endIntro);
 $('#h-close').addEventListener('click',()=>{sfx('click');closeModal('m-help');});
+$('#relics').addEventListener('click',()=>{
+  if(!G)return;
+  const li=(ico,t,d)=>`<li><span class="ph">${spr(ico)}</span><span><b>${t}</b>${d?': '+d:''}</span></li>`;
+  let h='';
+  for(const u of UPS){const n=G.ups[u.id]||0;if(n)h+=li(u.ico,u.name+(n>1?' ×'+n:''),u.desc);}
+  if(G.dmg>1)h+=li('s-blade','Schaden '+G.dmg,'Grundschaden pro Angriff.');
+  $('#relic-list').innerHTML=h||'<li>Noch keine Verstärkungen.</li>';
+  sfx('click');openModal('m-relics');
+});
+$('#r-close').addEventListener('click',()=>{sfx('click');closeModal('m-relics');});
 $('#s-close').addEventListener('click',()=>{sfx('click');closeModal('m-set');});
 $('#s-reset').addEventListener('click',()=>{save.bd={};save.best=0;save.bestDepth=0;save.runs=0;save.kills=0;persist();updateStats();sfx('click');});
 $$('.rg').forEach(r=>{
