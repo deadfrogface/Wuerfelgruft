@@ -421,9 +421,9 @@ svg{display:block}
   <div class="res" id="over-res"></div>
   <div class="stack"><button class="btn big" id="o-again">Nochmal versuchen</button><button class="btn ghost" id="o-title">Zum Titel</button></div></div></div>
 
-<div class="modal" id="m-win"><div class="panel"><h2>Bezwungen</h2><div class="newbest">Alle zehn Etagen geschafft</div><p>Du stehst über dem Würfel. Unter dir wartet er weiter, wenn du willst.</p>
+<div class="modal" id="m-win"><div class="panel"><h2>Bezwungen</h2><div class="newbest">Alle 50 Etagen geschafft</div><p>Du stehst über dem Würfel. Die Gruft hat nichts Neues mehr für dich.</p>
   <div class="res" id="win-res"></div>
-  <div class="stack"><button class="btn big" id="w-go">Tiefer hinab</button><button class="btn ghost" id="w-title">Zum Titel</button></div></div></div>
+  <div class="stack"><button class="btn big" id="w-title">Zum Titel</button></div></div></div>
 
 <div class="modal" id="m-set"><div class="panel"><h2>Einstellungen</h2>
   <div class="row-set"><div>Musik</div><button class="sw" role="switch" data-k="music" aria-label="Musik"></button></div>
@@ -1053,7 +1053,7 @@ function sfx(n){if(!AU.ctx||!save.settings.sfx)return;try{SFX[n]&&SFX[n](AU.ctx.
 const vibe=ms=>{if(save.settings.vib&&navigator.vibrate)try{navigator.vibrate(ms);}catch(e){}};
 
 /* ================= Zustand ================= */
-const GOAL=10;
+const GOAL=ZONES.length*10;   /* letzte Etage = Ende der letzten Zone mit eigenem Inhalt */
 let G=null;
 let view=FACES.F;
 let flipping=false;
@@ -1789,8 +1789,8 @@ async function completeLevel(){
   if(G.rest&&G.hp<G.maxhp){G.hp=Math.min(G.maxhp,G.hp+G.rest*2);setMsg('Am Lagerfeuer erholt.');}
   render();recordBest();
   await sleep(750);
-  if(G.depth>=GOAL&&!G.won){
-    G.won=true;persist();sfx('win');
+  if(G.depth>=GOAL){
+    G.won=true;save.run=null;persist();sfx('win');
     $('#win-res').innerHTML=`<span>Punkte</span><b>${fmt(G.score)}</b><span>Besiegt</span><b>${G.kills}</b><span>Züge</span><b>${G.turns}</b>`;
     openModal('m-win');return;
   }
@@ -1959,7 +1959,6 @@ $('#p-quit').addEventListener('click',()=>{
 $('#b-cont').addEventListener('click',()=>{AU.unlock();sfx('click');show('scr-game');newRun(true);});
 $('#o-again').addEventListener('click',()=>{sfx('click');closeModal('m-over');newRun();});
 $('#o-title').addEventListener('click',()=>{sfx('click');closeModal('m-over');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
-$('#w-go').addEventListener('click',()=>{sfx('click');closeModal('m-win');showUpgrades();});
 $('#w-title').addEventListener('click',()=>{sfx('click');closeModal('m-win');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
 
 /* ================= Theme, Staub, Zurück-Taste ================= */
