@@ -277,6 +277,18 @@ svg{display:block}
 .boom.zb{background:radial-gradient(circle,#fff 0,var(--b1) 35%,var(--b2) 60%,transparent 70%)}
 
 /* ===== Zonen: Hintergründe ===== */
+.ent.k-gold .fl{filter:drop-shadow(0 0 4px #ffd36a)}
+.ent.carry .fl{filter:drop-shadow(0 0 7px #ffe27a) brightness(1.15)}
+.mfx.k-gold i{width:18%;height:18%;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3b0,#f4b942 60%,#b47a14)}
+.mfx.k-gold::after{content:'';position:absolute;inset:15%;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffe27a 35%,rgba(244,185,66,.8) 60%,transparent 72%);animation:mring .4s ease-out forwards}
+.proj.k-gold{width:6%;height:6%;margin:-3% 0 0 -3%;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3b0,#f4b942 60%,#b47a14);box-shadow:0 0 6px #ffd36a}
+#scr-game[data-kind="gold"]{background:linear-gradient(180deg,#2a1a08 0%,#5a3a10 55%,#9a6a18 100%)}
+.zbg .gc{position:absolute;top:-14px;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff3b0,#f4b942 60%,#b47a14);opacity:0;animation:gfall var(--d) linear var(--dl) infinite}
+@keyframes gfall{0%{transform:translate(0,0) scaleX(1);opacity:0}8%{opacity:.95}30%{transform:translate(calc(var(--sx)*.3),34vh) scaleX(.15)}60%{transform:translate(calc(var(--sx)*.6),68vh) scaleX(1)}100%{transform:translate(var(--sx),112vh) scaleX(.2);opacity:.3}}
+.zbg .gs{position:absolute;width:var(--s);height:var(--s);border-radius:50%;background:#fff3b0;box-shadow:0 0 6px 1px #ffe27a;opacity:0;animation:twk var(--d) ease-in-out var(--dl) infinite}
+.zbg .rays{position:absolute;inset:0;background:conic-gradient(from 150deg at 50% -8%,transparent 0,rgba(255,226,122,.2) 5%,transparent 11%,rgba(255,226,122,.14) 18%,transparent 25%,rgba(255,226,122,.18) 31%,transparent 38%);animation:rayp 5s ease-in-out infinite alternate}
+@keyframes rayp{from{opacity:.5}to{opacity:1}}
+
 .zbg{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 #scr-game>*:not(.zbg){position:relative;z-index:1}
 #scr-game>.embers{position:absolute}
@@ -700,7 +712,7 @@ function mkMon(type,pos,extra){
   return {id:'m'+(++MID),type,hp,mx:hp,pos,cd:T.slow&&!T.boss?rnd(2):(T.boss?1:0),mcd:rnd(2),aim:false,n:0,...extra};
 }
 function zonePool(z,pos){
-  if(z>=5)return [].concat(...ROSTER);
+  if(z>=ZONES.length)return [].concat(...ROSTER);
   return ROSTER[z].filter(id=>MT[id].d<=pos);
 }
 function pickType(z,pos,forced){
@@ -745,12 +757,12 @@ function genLevel(depth){
     const sc=depth===1?1:Math.min(2+Math.floor(depth/2),7);
     for(const c of shuffle(free(2)).slice(0,sc)){spikes.add(c);used.add(c);}
     const mons=[];
-    const forced=z<5?ROSTER[z].filter(id=>MT[id].d===pos).slice(0,3):[];
+    const forced=z<ZONES.length?ROSTER[z].filter(id=>MT[id].d===pos).slice(0,3):[];
     let mc=Math.min(MON_BASE[pos-1]+Math.min(z,3),11);
     let mcells=shuffle(free(4));
     let bossType=null;
     if(boss){
-      bossType=z>=5?pick([].concat(...BOSSES)):BOSSES[z][pos===10?1:0];
+      bossType=z>=ZONES.length?pick([].concat(...BOSSES)):BOSSES[z][pos===10?1:0];
       const kc=shuffle(free(6));const kp=kc.length?kc[0]:mcells[0];
       mons.push(mkMon(bossType,kp,{}));
       used.add(kp);mcells=mcells.filter(c=>c!==kp);mc=(pos===5?2:3)+(z>>1);
@@ -811,6 +823,10 @@ function genGrid(body,main,acc,kind){
     const xs=g[y0+1].map((c,x)=>c?x:-1).filter(x=>x>=0);const a=xs[0]+1,b=xs[xs.length-1]-1;
     g[y0][a]=acc;g[y0-1][a-1]=acc;g[y0][b]=acc;g[y0-1][b+1]=acc;
   }
+  if(kind==='sack'){
+    for(const [x,y] of [[12,9],[13,9],[11,10],[12,10],[13,10],[14,10],[11,11],[12,11],[13,11],[14,11],[12,12],[13,12]])g[y][x]='#a8743a';
+    g[8][12]='#c98a4b';g[8][13]='#c98a4b';g[10][12]='#ffe27a';g[11][13]='#f4b942';
+  }
   const o=g.map(r=>r.slice());
   for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!g[y][x]){
     for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy;if(X>=0&&X<16&&Y>=0&&Y<16&&g[Y][X]&&g[Y][X]!=='#17152b'){o[y][x]='#17152b';break;}}
@@ -819,10 +835,10 @@ function genGrid(body,main,acc,kind){
 }
 const GEN={};
 /* Zonen: [Name, Boss 1, Boss 2] */
-const ZONES=['Die Gruft','Der Schlund','Das Glasreich','Die Glutkammern','Das Nichts'];
-const ZKIND=['gruft','moor','eis','glut','leere'];   /* Optik/Effekte hängen am Namen, nicht an der Nummer */
+const ZONES=['Die Gruft','Die Goldkammer','Der Schlund','Das Glasreich','Die Glutkammern','Das Nichts'];
+const ZKIND=['gruft','gold','moor','eis','glut','leere'];   /* Optik/Effekte hängen am Namen, nicht an der Nummer */
 const kindOf=d=>ZKIND[zoneOf(d)%ZKIND.length];
-const TR={ghost:'schwebt durch Wände',shoot:'schießt aus der Ferne',turret:'steht still',slow:'handelt jeden zweiten Zug',fast:'läuft doppelt so schnell',rand:'torkelt',diag:'zieht und schlägt diagonal',armor:'Rüstung (−1 Schaden)',regen:'heilt sich',split:'zerfällt in Kleine',boom:'explodiert im Tod',tele:'springt dir nah',thorny:'verletzt Angreifer',summon:'ruft Verstärkung',heal:'heilt Verbündete',steal:'klaut Bomben',charge:'stürmt in gerader Linie',lob:'wirft Bomben',drain:'saugt Leben',trail:'legt Stacheln',sleep:'schläft bis du nah bist'};
+const TR={ghost:'schwebt durch Wände',shoot:'schießt aus der Ferne',turret:'steht still',slow:'handelt jeden zweiten Zug',fast:'läuft doppelt so schnell',rand:'torkelt',diag:'zieht und schlägt diagonal',armor:'Rüstung (−1 Schaden)',regen:'heilt sich',split:'zerfällt in Kleine',boom:'explodiert im Tod',tele:'springt dir nah',thorny:'verletzt Angreifer',summon:'ruft Verstärkung',heal:'heilt Verbündete',steal:'klaut Bomben',charge:'stürmt in gerader Linie',lob:'wirft Bomben',drain:'saugt Leben',trail:'legt Stacheln',sleep:'schläft bis du nah bist',flee:'rennt mit Beute davon, fang ihn',thief:'stiehlt dir etwas, jage ihn'};
 /* [Name,Körper,Hauptfarbe,Akzent,Muster,hp,dmg,ab Etage,Eigenschaften] */
 const RAW=[
 [
@@ -842,6 +858,27 @@ const RAW=[
  ['Bombenwichtel','beast','#e8553d','#f4b942','horns',1,1,8,{lob:1}],
  ['Totenbeschwörer','human','#6a4a8a','#8a5fa8','',2,1,9,{summon:'Schleim',sumN:4}],
  ['Wächterauge','head','#cdbfff','#e8553d','glow',2,1,9,{turret:1,shoot:1,rng:4}]
+],[
+ ['Goldgoblin','human','#7fb04a','#a8743a','sack',1,1,1,{flee:1,loot:25}],
+ ['Münzkäfer','bug','#e8c030','#a8743a','',2,1,1,{diag:1,loot:6}],
+ ['Taler-Schleim','blob','#f4b942','#ffe27a','spots',2,1,1,{dumb:1,loot:8}],
+ ['Beutelschnitzer','human','#5a4a3a','#c98a4b','',1,1,2,{thief:1,fast:1}],
+ ['Mimik','golem','#8a5a2a','#ffe27a','',3,2,2,{turret:1,loot:12}],
+ ['Goldfliege','wing','#f4d03a','#17152b','stripes',1,1,2,{fast:1,rand:1,loot:4}],
+ ['Schatzmeister','human','#c9a050','#6a4a8a','crown',2,1,3,{summon:'Münzkäfer',sumN:4}],
+ ['Zwergenkrieger','human','#a8743a','#8b93ad','horns',3,1,3,{charge:1,armor:1}],
+ ['Goldschütze','human','#e8c030','#8a5a2a','',2,1,3,{shoot:1,rng:4}],
+ ['Leprechaun','human','#3fa04a','#ffe27a','sack',2,1,4,{flee:1,fast:1,loot:40}],
+ ['Barrengolem','golem','#f4b942','#b47a14','',5,2,4,{slow:1,armor:1,loot:20}],
+ ['Hortauge','head','#ffe27a','#e8553d','glow',3,1,4,{turret:1,shoot:1,rng:5}],
+ ['Goldwelpe','wing','#e8b84a','#e8553d','horns',3,1,5,{shoot:1,rng:4,armor:1}],
+ ['Münzfresser','worm','#c9a050','#ffe27a','stripes',3,1,5,{drain:1,loot:10}],
+ ['Dukatenspinne','bug','#d9a030','#17152b','',2,1,5,{trail:1,loot:6}],
+ ['Straßenräuber','human','#4a3a5a','#e8553d','',2,1,6,{thief:1,fast:1}],
+ ['Funkenimp','beast','#ffb347','#e8553d','horns',2,1,6,{lob:1}],
+ ['Midasstatue','golem','#ffd36a','#ffffff','',6,2,7,{regen:1,slow:1,loot:30}],
+ ['Goldharpyie','wing','#f4d03a','#e8553d','',3,1,7,{charge:1,loot:12}],
+ ['Drachenbrut','blob','#e8b84a','#e8553d','spots',3,1,8,{split:'Münzkäfer',dumb:1}]
 ],[
  ['Sumpfblase','blob','#4fa88a','#b8ffe6','',2,1,1,{dumb:1}],
  ['Moorhund','beast','#6f6a4a','#c9c07a','',2,1,1,{fast:1}],
@@ -930,6 +967,7 @@ const RAW=[
 /* Bosse je Zone: [Etage 5, Etage 10] */
 const BOSSRAW=[
  [null,['Würfelkaiser','human','#8a5fa8','#f4b942','crown',12,2,{slow:1,summon:'Schleim',sumN:3}]],
+ [['Goblinkönig','human','#7fb04a','#ffe27a','crown',14,2,{slow:1,armor:1,summon:'Münzkäfer',sumN:3}],['Drache Aurum','wing','#e8b84a','#e8553d','horns',22,2,{slow:1,shoot:1,rng:5,summon:'Goldwelpe',sumN:3}]],
  [['Moorkönigin','plant','#4a8a5a','#e8a0b0','crown',12,2,{slow:1,summon:'Sumpfblase',sumN:3}],['Schlundwurm','worm','#5a3a4a','#e8a0b0','horns',18,2,{slow:1,drain:1,summon:'Egelwurm',sumN:3}]],
  [['Glasfürst','human','#bfe8ff','#ffffff','crown',14,2,{slow:1,tele:1,summon:'Glassplitter',sumN:3}],['Splittergolem','golem','#a0b8d8','#ff9ae8','horns',22,2,{slow:1,armor:1,summon:'Spiegelgeist',sumN:3}]],
  [['Glutfürst','human','#c0442a','#ffe27a','crown',16,2,{slow:1,summon:'Funke',sumN:3}],['Aschedrache','wing','#4a3a3a','#ff6a3d','horns',24,2,{slow:1,boom:1,summon:'Glutgeist',sumN:3}]],
@@ -975,6 +1013,7 @@ const posOf=d=>((d-1)%10)+1;                          /* Etage innerhalb der Zon
 /* Wurf-Item je Zone (zählt in G.bombs). Beim Zonenwechsel im Händler umtauschbar. */
 const AMMO={
   gruft:{name:'Bombe',ico:'bomb',r:1,desc:'trifft angrenzende Gegner mit 2 Schaden',hit(m){hitMonster(m,G.master?3:2,false);}},
+  gold:{name:'Beutel',ico:'ammo_gold',r:2,desc:'1 Schaden, lenkt Gegner in 2 Schritten ab und gibt Münzen',hit(m){if(hitMonster(m,G.master?2:1,false))return;m.stun=1;G.money+=2;floatText(m.pos,'Gold','gold');}},
   moor:{name:'Sporen',ico:'ammo_moor',r:2,desc:'vergiftet alle Gegner in 2 Schritten',hit(m){m.poison=Math.max(m.poison||0,G.master?4:3);floatText(m.pos,'Gift','green');}},
   eis:{name:'Frost',ico:'ammo_eis',r:2,desc:'1 Schaden und friert Gegner in 2 Schritten ein',hit(m){if(hitMonster(m,G.master?2:1,false))return;m.stun=MT[m.type].boss?1:2;floatText(m.pos,'Eis','blue');}},
   glut:{name:'Fass',ico:'ammo_glut',r:1,desc:'3 Schaden und Brand für angrenzende Gegner',hit(m){if(hitMonster(m,G.master?4:3,false))return;m.poison=2;}},
@@ -985,8 +1024,8 @@ const AMMO={
     if(c.length){burst(m.pos,MT[m.type].col,8);m.pos=pick(c);}
   }}
 };
-const ZPICKS={moor:['p_beere','p_pilz'],eis:['p_kristall','p_schneeherz'],glut:['p_glutkern','p_feder'],leere:['p_splitter','p_mantel']};
-const PICKN={p_beere:'Moorbeere',p_pilz:'Glühpilz',p_kristall:'Eiskristall',p_schneeherz:'Schneeherz',p_glutkern:'Glutkern',p_feder:'Aschefeder',p_splitter:'Sternensplitter',p_mantel:'Schattenmantel'};
+const ZPICKS={gold:['p_barren','p_kleeblatt','chest','chest'],moor:['p_beere','p_pilz'],eis:['p_kristall','p_schneeherz'],glut:['p_glutkern','p_feder'],leere:['p_splitter','p_mantel']};
+const PICKN={p_barren:'Goldbarren',p_kleeblatt:'Kleeblatt',chest:'Truhe',p_beere:'Moorbeere',p_pilz:'Glühpilz',p_kristall:'Eiskristall',p_schneeherz:'Schneeherz',p_glutkern:'Glutkern',p_feder:'Aschefeder',p_splitter:'Sternensplitter',p_mantel:'Schattenmantel'};
 const nearTen=d=>Math.max(10,Math.round(d/10)*10);    /* 33 -> 30 */
 
 /* ================= Symbole der neuen Verstärkungen ================= */
@@ -1051,10 +1090,27 @@ Object.assign(ICONS,{
 });
 for(const k of ['ammo_moor','ammo_eis','ammo_glut','ammo_leere','p_beere','p_pilz','p_kristall','p_schneeherz','p_glutkern','p_feder','p_splitter','p_mantel'])GEN[k]={grid:mkIcon(ICONS[k])};
 
+
+/* ===== Goldzone: Items und Symbole ===== */
+Object.assign(ICONS,{
+  ammo_gold:d=>{d.c(7.5,9.5,4.6,'#a8743a');d.c(6,8,1.2,'#c98a4b');d.r(6,3,4,3,'#c98a4b');d.r(5,5,6,1,'#f4b942');d.c(7.5,10,2.2,'#f4b942');d.c(7.5,10,1,'#ffe27a');},
+  p_barren:d=>{d.r(2,9,12,4,'#f4b942');d.r(4,6,8,3,'#ffe27a');d.r(2,9,12,1,'#ffe27a');d.p(5,7,'#ffffff');d.p(4,10,'#ffffff');d.r(2,12,12,1,'#b47a14');d.p(12,3,'#fff3b0');d.l(12,2,12,4,'#fff3b0');d.l(11,3,13,3,'#fff3b0');},
+  p_kleeblatt:d=>{d.c(5.5,5.5,2.6,'#5aa02c');d.c(10,5.5,2.6,'#5aa02c');d.c(5.5,10,2.6,'#5aa02c');d.c(10,10,2.6,'#5aa02c');d.c(7.8,7.8,1.6,'#8bd450');d.l(8,10,10,14,'#3a6a1c');d.p(4,4,'#c5f285');d.p(9,4,'#c5f285');},
+  chest:d=>{d.r(2,7,12,7,'#8a5a2a');d.r(2,4,12,4,'#a8743a');d.r(2,4,12,1,'#c98a4b');d.r(7,4,2,10,'#f4b942');d.r(7,8,2,3,'#ffe27a');d.p(7,9,'#17152b');d.r(2,13,12,1,'#5a3a1a');d.p(4,5,'#e8c080');},
+  'u-loot':d=>{d.c(5,10,3,'#f4b942');d.c(5,10,1.6,'#ffe27a');d.c(10,8,3,'#f4b942');d.c(10,8,1.6,'#ffe27a');d.c(7.5,4,2.4,'#ffe27a');d.l(13,2,13,5,'#ffffff');d.l(11.5,3.5,14.5,3.5,'#ffffff');},
+  'u-haggle':d=>{d.l(7.5,2,7.5,13,'#c9ba98');d.l(2,5,13,5,'#c9ba98');d.l(2,5,2,9,'#8b93ad');d.l(13,5,13,9,'#8b93ad');d.r(1,9,4,2,'#f4b942');d.r(11,9,4,2,'#f4b942');d.r(5,13,6,2,'#8a5a2a');},
+  'u-income':d=>{d.c(7.5,9,5,'#a8743a');d.r(5,3,6,3,'#c98a4b');d.r(4,5,8,1,'#f4b942');d.c(7.5,10,2.4,'#f4b942');d.c(7.5,10,1.2,'#ffe27a');d.p(11,2,'#ffe27a');d.p(12,3,'#ffe27a');},
+  'u-net':d=>{for(let i=2;i<=13;i+=3){d.l(i,2,i,13,'#c9ba98');d.l(2,i,13,i,'#c9ba98');}d.l(2,2,13,13,'#8b93ad');d.l(13,2,2,13,'#8b93ad');d.c(7.5,7.5,1.6,'#e8553d');},
+  'u-hunter':d=>{d.c(7.5,7.5,5.5,'#17152b');d.o(7.5,7.5,5.4,'#e8553d');d.o(7.5,7.5,2.6,'#e8553d');d.l(7.5,0,7.5,3,'#e8553d');d.l(7.5,12,7.5,15,'#e8553d');d.l(0,7.5,3,7.5,'#e8553d');d.l(12,7.5,15,7.5,'#e8553d');d.p(7,7,'#ffe27a');},
+  'u-lockpick':d=>{d.c(4.5,4.5,2.8,'#f4b942');d.c(4.5,4.5,1.2,'#17152b');d.l(6,6,13,13,'#f4b942');d.l(11,11,11,14,'#f4b942');d.l(13,13,13,15,'#f4b942');d.l(8,4,13,2,'#c9ba98');d.l(13,2,14,3,'#c9ba98');}
+});
+for(const k of ['ammo_gold','p_barren','p_kleeblatt','chest','u-loot','u-haggle','u-income','u-net','u-hunter','u-lockpick'])GEN[k]={grid:mkIcon(ICONS[k])};
+
 /* Zonen-Look des Würfels: Boden, Wände, Stacheln, Treppe, Fundstücke */
 const ZNAMES=['floor0','floor1','floor2','floor3','wall','spike','stairs','lock','coin','key','bomb'];
-const ZURL={gruft:{},moor:{},eis:{},glut:{},leere:{}};
+const ZURL={gruft:{},gold:{},moor:{},eis:{},glut:{},leere:{}};
 const ZPAL={
+ gold:{G:'#5a4220',F:'#4a361c',H:'#2a1c0e',I:'#5c4220',s:'#e8b84a',S:'#b47a14',k:'#2a1a08',a:'#ffe27a',A:'#e8b84a',y:'#f4b942',Y:'#b47a14',z:'#fff3b0',B:'#ffe27a',d:'#3a2208',q:'#8a6a2a',j:'#b8883a'},
  moor:{G:'#587a3a',F:'#3c5a2c',H:'#22381f',I:'#6a9040',s:'#8a9a5a',S:'#5a6a3a',k:'#14230f',a:'#5aa04a',A:'#2e6a2a',y:'#c9d86a',Y:'#8a9a2a',z:'#f0ffb0',B:'#b8c078',d:'#26361c',q:'#58b04a',j:'#c9c93a'},
  eis:{G:'#7a9ac8',F:'#4e6ea0',H:'#2a4072',I:'#6088ba',s:'#b8d8f0',S:'#7aa4d0',k:'#10244a',a:'#e8fbff',A:'#8ab4e0',y:'#bfe8ff',Y:'#5a9ad0',z:'#ffffff',B:'#d8ecff',d:'#26407a',q:'#ffffff',j:'#cfeaff'},
  glut:{G:'#7a3e34',F:'#522a2a',H:'#2c1618',I:'#74342c',s:'#6a4640',S:'#44282c',k:'#1a0c0e',a:'#ffb347',A:'#e8553d',y:'#ff9a3a',Y:'#c0401a',z:'#ffe27a',B:'#a86a50',d:'#2c1618',q:'#ff8a5c',j:'#ffd36a'},
@@ -1070,6 +1126,7 @@ function zdeco(name,A,kd){
       if(name.startsWith('floor')&&c==='F'&&kd!=='moor'&&hash(x,y*3,23)===1)r='j';
       if(name==='wall'){
         if(kd==='moor'&&(c==='S'||c==='s')&&(hash(x,y,9)===0||(y<4&&x%5===2)))r='q';
+        if(kd==='gold'&&(c==='s')&&hash(x,y,6)===0)r='z';
         if(kd==='eis'&&(c==='s')&&hash(x,y,5)===0)r='W';
         if(kd==='glut'&&c==='k'&&y>0&&y<15&&x>0&&x<15&&hash(x,y,3)===0)r='o';
         if(kd==='leere'&&(c==='s'||c==='S')&&hash(x,y,11)===0)r='j';
@@ -1265,30 +1322,36 @@ const UPS=[
   {id:'chase',ico:'s-bolt',tier:0,name:'Nachsetzen',desc:'Der erste Sieg jeder Etage kostet keinen Zug.',can:()=>G.chase<3,apply(){G.chase++;}},
   {id:'bombs',ico:'s-bomb',tier:0,name:'Wurfvorrat',desc:'+2 Wurf-Items der aktuellen Zone.',can:()=>true,apply(){G.bombs+=2;}},
   {id:'time',ico:'undo',tier:0,name:'Zeitriss',desc:'+1 Zurück pro Etage.',can:()=>G.undoBonus<2,apply(){G.undoBonus++;}},
-  {id:'crit',ico:'u-crit',tier:1,name:'Glückstreffer',desc:'+15 % Chance auf doppelten Schaden.',can:()=>G.crit<4,apply(){G.crit++;}},
-  {id:'armor',ico:'u-armor',tier:1,name:'Kettenhemd',desc:'Treffer mit 2 oder mehr Schaden richten 1 weniger an.',can:()=>!G.armor,apply(){G.armor=true;}},
-  {id:'rest',ico:'u-rest',tier:1,name:'Lagerfeuer',desc:'Heilt 2 Leben, wenn du eine Etage schaffst.',can:()=>G.rest<3,apply(){G.rest++;}},
-  {id:'sling',ico:'u-sling',tier:1,name:'Schleuder',desc:'Greife Gegner bis zu drei Felder entfernt an, in gerader Linie.',can:()=>!G.sling,apply(){G.sling=true;}},
-  {id:'boots',ico:'u-boots',tier:1,name:'Lederstiefel',desc:'Stacheln tun dir nichts mehr.',can:()=>!G.boots,apply(){G.boots=true;}},
-  {id:'wide',ico:'u-wide',tier:1,name:'Splitterwurf',desc:'Wurf-Items reichen einen Schritt weiter.',can:()=>!G.wide,apply(){G.wide=true;}},
-  {id:'stun',ico:'u-stun',tier:2,name:'Betäubungsschlag',desc:'Getroffene Gegner setzen einen Zug aus (außer Bosse).',can:()=>!G.stun,apply(){G.stun=true;}},
-  {id:'splash',ico:'u-splash',tier:2,name:'Kettenreaktion',desc:'Besiegte Gegner verletzen ihre Nachbarn um 1.',can:()=>!G.splash,apply(){G.splash=true;}},
-  {id:'regen',ico:'u-regen',tier:2,name:'Regeneration',desc:'Heilt 1 Leben alle 10 Züge, später alle 7 und 5.',can:()=>G.regen<3,apply(){G.regen++;}},
-  {id:'dodge',ico:'u-dodge',tier:2,name:'Schemen',desc:'15 % Chance, einem Treffer auszuweichen.',can:()=>G.dodge<3,apply(){G.dodge++;}},
-  {id:'gold',ico:'u-gold',tier:2,name:'Goldrausch',desc:'Münzen geben mehr Punkte, jede vierte heilt 1 Leben.',can:()=>G.gold<3,apply(){G.gold++;}},
-  {id:'pick',ico:'u-pick',tier:2,name:'Spitzhacke',desc:'Zerschlage 2 Wände pro Etage durch Antippen.',can:()=>G.pickN<3,apply(){G.pickN++;}},
-  {id:'phoenix',ico:'u-phoenix',tier:3,name:'Phönixfeder',desc:'Einmal pro Lauf: Wiederbelebung mit halben Leben.',can:()=>!G.phoenix,apply(){G.phoenix=true;}},
-  {id:'swift',ico:'u-swift',tier:3,name:'Schnellfuß',desc:'Jeder vierte Schritt kostet keinen Zug, später jeder dritte.',can:()=>G.swift<2,apply(){G.swift++;}},
-  {id:'frost',ico:'u-frost',tier:3,name:'Frostblick',desc:'Gegner starten jede Etage erstarrt (Bosse nicht).',can:()=>G.frost<3,apply(){G.frost++;}},
-  {id:'poison',ico:'u-poison',tier:3,name:'Giftklinge',desc:'Getroffene Gegner nehmen 2 Züge lang je 1 Schaden.',can:()=>!G.poison,apply(){G.poison=true;}},
-  {id:'soul',ico:'u-soul',tier:3,name:'Seelenernte',desc:'50 % mehr Punkte für jeden Sieg.',can:()=>!G.soul,apply(){G.soul=true;}},
-  {id:'thorns2',ico:'u-thorns2',tier:3,name:'Stachelpanzer',desc:'Dornen verursachen 2 Schaden.',can:()=>!G.thorns2,apply(){G.thorns2=true;G.thorns=true;}},
-  {id:'exec',ico:'u-exec',tier:4,name:'Henkersbeil',desc:'+1 Schaden gegen Gegner mit höchstens halbem Leben.',can:()=>!G.exec,apply(){G.exec=true;}},
-  {id:'spark',ico:'u-spark',tier:4,name:'Lebensfunke',desc:'Jeder Sieg heilt mit 30 % Chance 1 Leben.',can:()=>!G.spark,apply(){G.spark=true;}},
-  {id:'titan',ico:'u-titan',tier:4,name:'Titanenblut',desc:'+4 maximale Leben und volle Heilung.',can:()=>G.maxhp<22,apply(){G.maxhp+=4;G.hp=G.maxhp;}},
-  {id:'fang',ico:'u-fang',tier:4,name:'Drachenzahn',desc:'+2 Schaden bei jedem Angriff.',can:()=>!G.fang,apply(){G.fang=true;}},
-  {id:'master',ico:'u-master',tier:4,name:'Wurfmeister',desc:'Wurf-Items wirken stärker. +1 Wurf-Item pro Zonenwechsel und Etage.',can:()=>!G.master,apply(){G.master=true;}},
-  {id:'aegis',ico:'u-aegis',tier:4,name:'Ägide',desc:'+2 Blocks pro Etage.',can:()=>G.shieldMax<7,apply(){G.shieldMax+=2;}}
+  {id:'loot',ico:'u-loot',tier:1,name:'Beutegier',desc:'Besiegte Gegner und ihre Beute geben 50 % mehr Münzen.',can:()=>!G.loot,apply(){G.loot=true;}},
+  {id:'haggle',ico:'u-haggle',tier:1,name:'Feilscher',desc:'Händler verlangen 20 % weniger.',can:()=>G.haggle<2,apply(){G.haggle++;}},
+  {id:'income',ico:'u-income',tier:1,name:'Reicher Erbe',desc:'+10 Münzen für jede geschaffte Zone-Etage.',can:()=>G.income<3,apply(){G.income++;}},
+  {id:'net',ico:'u-net',tier:1,name:'Fangnetz',desc:'Flüchtende Gegner und Diebe sind langsamer.',can:()=>!G.net,apply(){G.net=true;}},
+  {id:'hunter',ico:'u-hunter',tier:1,name:'Räuberjäger',desc:'Doppelter Schaden gegen Diebe, Goblins und Gegner mit Beute.',can:()=>!G.hunter,apply(){G.hunter=true;}},
+  {id:'lockpick',ico:'u-lockpick',tier:1,name:'Dietrich',desc:'Öffnet 3 versiegelte Treppen ohne Schlüssel.',can:()=>G.lockpicks<6,apply(){G.lockpicks+=3;}},
+  {id:'crit',ico:'u-crit',tier:2,name:'Glückstreffer',desc:'+15 % Chance auf doppelten Schaden.',can:()=>G.crit<4,apply(){G.crit++;}},
+  {id:'armor',ico:'u-armor',tier:2,name:'Kettenhemd',desc:'Treffer mit 2 oder mehr Schaden richten 1 weniger an.',can:()=>!G.armor,apply(){G.armor=true;}},
+  {id:'rest',ico:'u-rest',tier:2,name:'Lagerfeuer',desc:'Heilt 2 Leben, wenn du eine Etage schaffst.',can:()=>G.rest<3,apply(){G.rest++;}},
+  {id:'sling',ico:'u-sling',tier:2,name:'Schleuder',desc:'Greife Gegner bis zu drei Felder entfernt an, in gerader Linie.',can:()=>!G.sling,apply(){G.sling=true;}},
+  {id:'boots',ico:'u-boots',tier:2,name:'Lederstiefel',desc:'Stacheln tun dir nichts mehr.',can:()=>!G.boots,apply(){G.boots=true;}},
+  {id:'wide',ico:'u-wide',tier:2,name:'Splitterwurf',desc:'Wurf-Items reichen einen Schritt weiter.',can:()=>!G.wide,apply(){G.wide=true;}},
+  {id:'stun',ico:'u-stun',tier:3,name:'Betäubungsschlag',desc:'Getroffene Gegner setzen einen Zug aus (außer Bosse).',can:()=>!G.stun,apply(){G.stun=true;}},
+  {id:'splash',ico:'u-splash',tier:3,name:'Kettenreaktion',desc:'Besiegte Gegner verletzen ihre Nachbarn um 1.',can:()=>!G.splash,apply(){G.splash=true;}},
+  {id:'regen',ico:'u-regen',tier:3,name:'Regeneration',desc:'Heilt 1 Leben alle 10 Züge, später alle 7 und 5.',can:()=>G.regen<3,apply(){G.regen++;}},
+  {id:'dodge',ico:'u-dodge',tier:3,name:'Schemen',desc:'15 % Chance, einem Treffer auszuweichen.',can:()=>G.dodge<3,apply(){G.dodge++;}},
+  {id:'gold',ico:'u-gold',tier:3,name:'Goldrausch',desc:'Münzen geben mehr Punkte, jede vierte heilt 1 Leben.',can:()=>G.gold<3,apply(){G.gold++;}},
+  {id:'pick',ico:'u-pick',tier:3,name:'Spitzhacke',desc:'Zerschlage 2 Wände pro Etage durch Antippen.',can:()=>G.pickN<3,apply(){G.pickN++;}},
+  {id:'phoenix',ico:'u-phoenix',tier:4,name:'Phönixfeder',desc:'Einmal pro Lauf: Wiederbelebung mit halben Leben.',can:()=>!G.phoenix,apply(){G.phoenix=true;}},
+  {id:'swift',ico:'u-swift',tier:4,name:'Schnellfuß',desc:'Jeder vierte Schritt kostet keinen Zug, später jeder dritte.',can:()=>G.swift<2,apply(){G.swift++;}},
+  {id:'frost',ico:'u-frost',tier:4,name:'Frostblick',desc:'Gegner starten jede Etage erstarrt (Bosse nicht).',can:()=>G.frost<3,apply(){G.frost++;}},
+  {id:'poison',ico:'u-poison',tier:4,name:'Giftklinge',desc:'Getroffene Gegner nehmen 2 Züge lang je 1 Schaden.',can:()=>!G.poison,apply(){G.poison=true;}},
+  {id:'soul',ico:'u-soul',tier:4,name:'Seelenernte',desc:'50 % mehr Punkte für jeden Sieg.',can:()=>!G.soul,apply(){G.soul=true;}},
+  {id:'thorns2',ico:'u-thorns2',tier:4,name:'Stachelpanzer',desc:'Dornen verursachen 2 Schaden.',can:()=>!G.thorns2,apply(){G.thorns2=true;G.thorns=true;}},
+  {id:'exec',ico:'u-exec',tier:5,name:'Henkersbeil',desc:'+1 Schaden gegen Gegner mit höchstens halbem Leben.',can:()=>!G.exec,apply(){G.exec=true;}},
+  {id:'spark',ico:'u-spark',tier:5,name:'Lebensfunke',desc:'Jeder Sieg heilt mit 30 % Chance 1 Leben.',can:()=>!G.spark,apply(){G.spark=true;}},
+  {id:'titan',ico:'u-titan',tier:5,name:'Titanenblut',desc:'+4 maximale Leben und volle Heilung.',can:()=>G.maxhp<22,apply(){G.maxhp+=4;G.hp=G.maxhp;}},
+  {id:'fang',ico:'u-fang',tier:5,name:'Drachenzahn',desc:'+2 Schaden bei jedem Angriff.',can:()=>!G.fang,apply(){G.fang=true;}},
+  {id:'master',ico:'u-master',tier:5,name:'Wurfmeister',desc:'Wurf-Items wirken stärker. +1 Wurf-Item pro Zonenwechsel und Etage.',can:()=>!G.master,apply(){G.master=true;}},
+  {id:'aegis',ico:'u-aegis',tier:5,name:'Ägide',desc:'+2 Blocks pro Etage.',can:()=>G.shieldMax<7,apply(){G.shieldMax+=2;}}
 ];
 const NAMES=['Der Abstieg','Feuchte Gänge','Knochenhalle','Dornengarten','Das Echo','Die Schlucht','Schwarze Kammer','Gläserner Gang','Das Herz','Der letzte Stein'];
 const HINTS={
@@ -1303,10 +1366,10 @@ const HINTS={
 const monAt=i=>G.mons.find(m=>m.pos===i);
 function hintFor(d,L){
   const z=zoneOf(d),p=posOf(d);
-  let h=(p===1&&z>0&&z<5?'Neue Zone: '+ZONES[z]+'. Alle Gegner sind neu. ':'');
+  let h=(p===1&&z>0&&z<ZONES.length?'Neue Zone: '+ZONES[z]+'. Alle Gegner sind neu. ':'');
   if(z===0&&HINTS[d])return HINTS[d];
   if(L&&L.boss){const T=MT[L.bossType];return h+'Boss: '+T.name+'. '+traitText(T)+'. Mit seinem Tod öffnet sich die Treppe.';}
-  if(z<5){
+  if(z<ZONES.length){
     const nw=ROSTER[z].filter(id=>MT[id].d===p&&!(z===0&&p===1));
     if(nw.length){
       h+='Neu: '+nw.slice(0,2).map(id=>{const T=MT[id],t=traitText(T);return T.name+(t?' ('+t+')':'');}).join('; ')+(nw.length>2?' u. a':'')+'.';
@@ -1460,6 +1523,7 @@ function renderEnts(){
     else{
       el.classList.toggle('ready',!!MT[e.type].slow&&e.cd===0);
       el.classList.toggle('aim',!!e.aim);
+      el.classList.toggle('carry',!!e.carry);
       const mx=e.mx||MT[e.type].hp;
       const pips=el.querySelector('.pips');
       const h=mx>1?e.hp:0;
@@ -1627,7 +1691,7 @@ function lobFx(a,b){
   const pa=cellPct(a),pb=cellPct(b);if(!pa||!pb)return;
   flyFx(pa,pb,'proj lob',16,420);
 }
-const BOOMCOL={moor:['#d8ff8a','rgba(90,170,60,.7)'],eis:['#dff4ff','rgba(90,170,230,.7)'],glut:['#ffd36a','rgba(232,85,61,.7)'],leere:['#e0c8ff','rgba(120,70,220,.75)']};
+const BOOMCOL={gold:['#fff3b0','rgba(244,185,66,.75)'],moor:['#d8ff8a','rgba(90,170,60,.7)'],eis:['#dff4ff','rgba(90,170,230,.7)'],glut:['#ffd36a','rgba(232,85,61,.7)'],leere:['#e0c8ff','rgba(120,70,220,.75)']};
 function boomFx(i,T){
   const p=cellPct(i);if(!p)return;
   const el=document.createElement('div');el.className='boom';el.style.left=p.x+'%';el.style.top=p.y+'%';
@@ -1683,12 +1747,14 @@ function hitMonster(m,dmg,byPlayer){
   if(m.hp>0){burst(m.pos,'#ffffff',4);return false;}
   G.mons=G.mons.filter(x=>x!==m);
   const pts=Math.round(T.pts*(G.soul?1.5:1));
-  G.kills++;G.score+=pts;G.money+=Math.max(1,Math.round(T.pts/25));G.killCount++;
+  G.kills++;G.score+=pts;G.money+=Math.max(1,Math.round(T.pts/25*(G.loot?1.5:1)));G.killCount++;
   burst(m.pos,T.col,14);sfx('kill');
   if(T.boss){G.hasKey=true;setMsg('Der Boss fällt. Die Treppe ist offen.');sfx('key');shake();}
   floatText(m.pos,'+'+pts,'gold');
   if(G.leech&&G.killCount%3===0&&G.hp<G.maxhp){G.hp++;floatText(G.pos,'+1','green');}
   if(byPlayer&&G.spark&&Math.random()<.3&&G.hp<G.maxhp){G.hp++;floatText(G.pos,'+1','green');}
+  if(T.loot){const n=Math.round(T.loot*(G.loot?1.5:1));G.money+=n;floatText(m.pos,'+'+n,'gold');sfx('coin');}
+  if(m.carry)giveBack(m.carry,m.pos);
   if(byPlayer&&G.splash)for(const o of G.mons.slice())if(NB[m.pos].includes(o.pos))hitMonster(o,1,false);
   if(T.split){
     const fr=shuffle(NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&!G.walls.has(n)));
@@ -1709,6 +1775,9 @@ function pickup(it,t){pickFx(t,it);
   }
   else if(it==='key'){G.hasKey=true;sfx('key');floatText(t,'Schlüssel','gold');setMsg('Schlüssel gefunden. Die Treppe ist jetzt offen.');}
   else if(it==='bomb'){G.bombs++;sfx('bombget');floatText(t,AMMO[kindOf(G.depth)].name,'gold');}
+  else if(it==='p_barren'){G.score+=50;G.money+=50;sfx('coin');floatText(t,'+50','gold');}
+  else if(it==='p_kleeblatt'){G.lucky+=4;sfx('key');floatText(t,'Glück','green');}
+  else if(it==='chest')openChest(t);
   else if(it==='p_beere'){const h=Math.min(2,G.maxhp-G.hp);G.hp+=h;G.shield++;sfx('heart');floatText(t,'Moorbeere','green');}
   else if(it==='p_pilz'){G.freeSteps+=5;sfx('coin');floatText(t,'Flink','blue');}
   else if(it==='p_kristall'){for(const m of G.mons)m.stun=MT[m.type].boss?1:2;sfx('block');floatText(t,'Eiskristall','blue');}
@@ -1717,6 +1786,20 @@ function pickup(it,t){pickFx(t,it);
   else if(it==='p_feder'){G.undos++;sfx('key');floatText(t,'Zurück +1','blue');}
   else if(it==='p_splitter'){G.score+=100;G.money+=25;sfx('coin');floatText(t,'+100','gold');}
   else if(it==='p_mantel'){G.cloak+=2;sfx('aim');floatText(t,'Unsichtbar','blue');}
+}
+function openChest(t){
+  sfx('key');
+  const free=shuffle(NB[t].filter(n=>n!==G.pos&&!monAt(n)&&!G.walls.has(n)&&!G.spikes.has(n)));
+  const r=Math.random();
+  if(r<.4){const n=25+rnd(26);G.money+=n;G.score+=n;floatText(t,'+'+n,'gold');setMsg('Die Truhe war voller Münzen.');}
+  else if(r<.62){const k=pick(['heart','bomb','p_barren']);setMsg('Die Truhe birgt einen Fund.');pickup(k,t);}
+  else if(r<.84&&free.length){
+    G.mons.push(mkMon(BYNAME['Goldgoblin'],free[0],{mcd:1}));burst(free[0],'#a8743a',10);
+    setMsg('Ein Goblin springt aus der Truhe und rennt los! Jage ihn.');floatText(free[0],'!','red');
+  }else if(free.length){
+    G.mons.push(mkMon(BYNAME['Mimik'],free[0],{mcd:1}));burst(free[0],'#8a5a2a',10);
+    setMsg('Die Truhe war eine Mimik!');floatText(free[0],'!','red');sfx('aim');
+  }else{G.money+=30;floatText(t,'+30','gold');}
 }
 function onEnter(t){
   if(G.spikes.has(t)&&!G.boots){sfx('spike');hurtPlayer(1,null);}
@@ -1770,10 +1853,57 @@ function summon(m,type){
   sfx('aim');pulse(entEls.get(m.id),'casting',500);burst(c,MT[type].col,8);floatText(m.pos,'!','red');
   return true;
 }
+const REVOKE={
+  blade:()=>{G.dmg--;},spear:()=>{G.spear=false;},shield:()=>{G.shieldMax--;},thorns:()=>{if(!G.thorns2)G.thorns=false;},leech:()=>{G.leech=false;},chase:()=>{G.chase--;},time:()=>{G.undoBonus--;},
+  crit:()=>{G.crit--;},armor:()=>{G.armor=false;},rest:()=>{G.rest--;},sling:()=>{G.sling=false;},boots:()=>{G.boots=false;},wide:()=>{G.wide=false;},
+  stun:()=>{G.stun=false;},splash:()=>{G.splash=false;},regen:()=>{G.regen--;},dodge:()=>{G.dodge--;},gold:()=>{G.gold--;},pick:()=>{G.pickN--;},
+  phoenix:()=>{G.phoenix=false;},swift:()=>{G.swift--;},frost:()=>{G.frost--;},poison:()=>{G.poison=false;},soul:()=>{G.soul=false;},thorns2:()=>{G.thorns2=false;},
+  exec:()=>{G.exec=false;},spark:()=>{G.spark=false;},fang:()=>{G.fang=false;},master:()=>{G.master=false;},
+  loot:()=>{G.loot=false;},haggle:()=>{G.haggle--;},income:()=>{G.income--;},net:()=>{G.net=false;},hunter:()=>{G.hunter=false;}
+};
+function stealFrom(m){
+  const rel=UPS.filter(u=>REVOKE[u.id]&&(G.ups[u.id]||0)>0);
+  const opts=[];
+  if(rel.length)opts.push('relic','relic');
+  if(G.bombs>0)opts.push('ammo');
+  if(G.money>=20)opts.push('money');
+  if(!opts.length)return;
+  const k=pick(opts);
+  if(k==='relic'){const u=pick(rel);REVOKE[u.id]();G.ups[u.id]--;m.carry={k,id:u.id,name:u.name};}
+  else if(k==='ammo'){m.carry={k,n:G.bombs,name:G.bombs+' Wurf-Items'};G.bombs=0;}
+  else{const n=Math.floor(G.money*.4);G.money-=n;m.carry={k,n,name:n+' Münzen'};}
+  m.esc=30;sfx('hurt');floatText(G.pos,'Geklaut!','red');setMsg('Der Dieb stiehlt: '+m.carry.name+'. Fang ihn, sonst ist es weg!');
+}
+function giveBack(c,pos){
+  if(c.k==='relic'){const u=UPS.find(x=>x.id===c.id);if(u){u.apply();G.ups[c.id]=(G.ups[c.id]||0)+1;}}
+  else if(c.k==='ammo')G.bombs+=c.n;
+  else G.money+=c.n;
+  floatText(pos,c.name,'gold');setMsg('Beute zurück: '+c.name+'.');
+}
+function fleeAct(m,T,dW){
+  m.esc=(m.esc===undefined?36:m.esc)-1;
+  if(m.esc<=0){
+    G.mons=G.mons.filter(x=>x!==m);burst(m.pos,T.col,10);floatText(m.pos,m.carry?'Entkommen!':'Weg','red');
+    if(m.carry)setMsg('Der Dieb ist mit '+m.carry.name+' entkommen.');
+    return 2;
+  }
+  if(m.n%(G.net?2:3)===0)return 0;
+  const cur=dW.get(m.pos);
+  let best=[],bd=cur===undefined?-1:cur;
+  for(const n of NB[m.pos]){
+    if(n===G.pos||monAt(n)||G.walls.has(n)||G.spikes.has(n))continue;
+    const dn=dW.get(n);if(dn===undefined)continue;
+    if(dn>bd){bd=dn;best=[n];}else if(dn===bd&&best.length)best.push(n);
+  }
+  if(best.length){goTo(m,pick(best));return 1;}
+  if(NB[m.pos].includes(G.pos))return strike(m,T);
+  return 0;
+}
 function strike(m,T){
   sfx('mhit');atk(m);mfx(G.pos,T);hurtPlayer(T.dmg,m);
   if(T.steal&&G.bombs>0){G.bombs--;floatText(G.pos,'Bombe weg','red');}
   if(T.drain&&m.hp<(m.mx||T.hp)){m.hp++;floatText(m.pos,'+1','green');}
+  if(T.thief&&!m.carry&&!T.boss)stealFrom(m);
   if(T.slow)m.cd=1;
   return 2;
 }
@@ -1783,6 +1913,7 @@ function act(m,dW,dA,d8){
   if(m.poison>0){m.poison--;if(hitMonster(m,1,false))return 2;}
   if(m.stun>0){m.stun--;return 0;}
   if(T.slow&&m.cd>0){m.cd--;return 0;}
+  if(T.flee||m.carry)return fleeAct(m,T,dW);
   const mx=m.mx||T.hp;
   if(T.regen&&m.hp<mx&&m.n%3===0){m.hp++;floatText(m.pos,'+1','green');}
   if(T.summon&&m.n%(T.sumN||4)===0&&summon(m,T.summon)){if(T.slow)m.cd=1;return 2;}
@@ -1795,7 +1926,7 @@ function act(m,dW,dA,d8){
   if(T.tele&&m.n%3===0&&dd!==undefined&&dd>3&&blink(m,dA))return 1;
   if(T.shoot){
     if(lineClear(m.pos,P,T.rng||4)){
-      if(m.aim){m.aim=false;sfx('shoot');atk(m);shotFx(m.pos,P,T);hurtPlayer(T.dmg,m);return 2;}
+      if(m.aim){m.aim=false;sfx('shoot');atk(m);shotFx(m.pos,P,T);hurtPlayer(T.dmg,m);if(T.slow)m.cd=1;return 2;}
       m.aim=true;sfx('aim');floatText(m.pos,'!','red');return 1;
     }
     m.aim=false;
@@ -1900,6 +2031,8 @@ async function playerAct(t,pref){
     sfx('hit');slash(t);lungeFx(entEls.get('hero'),P,t);
     let dmg=G.dmg+(G.fang?2:0);
     if(G.rage>0){dmg+=2;G.rage--;}
+    if(G.hunter&&(T.flee||T.thief||m.carry))dmg*=2;
+    if(G.lucky>0){G.lucky--;dmg*=2;floatText(t,'Glück','gold');}
     if(G.exec&&m.hp*2<=(m.mx||T.hp))dmg++;
     if(G.crit&&Math.random()*100<G.crit*15){dmg*=2;floatText(t,'Krit','gold');}
     const killed=hitMonster(m,dmg,true);
@@ -1915,6 +2048,7 @@ async function playerAct(t,pref){
     if(G.hp<=0){die();return true;}
     if(t===G.exit){
       if(!G.keyNeeded||G.hasKey){completeLevel();return true;}
+      if(G.lockpicks>0&&!G.boss){G.lockpicks--;floatText(t,'Dietrich','gold');completeLevel();return true;}
       setMsg('Die Treppe ist versiegelt. Finde den Schlüssel.');
     }
     G.steps++;
@@ -2047,8 +2181,8 @@ async function completeLevel(){
 }
 function showUpgrades(){
   $('#up-title').textContent='Etage '+G.depth+' geschafft';
-  const nz=Math.min(4,Math.floor(G.depth/10));
-  $('#up-sub').textContent=G.depth%10===0&&G.depth<50?'Neue Zone, neue Verstärkungen. Wähle eine für den Abstieg.':'Wähle eine Verstärkung für den Abstieg.';
+  const nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
+  $('#up-sub').textContent=G.depth%10===0&&G.depth<GOAL?'Neue Zone, neue Verstärkungen. Wähle eine für den Abstieg.':'Wähle eine Verstärkung für den Abstieg.';
   const avail=UPS.filter(u=>u.can()&&u.tier<=nz);
   const fresh=nz>0?shuffle(avail.filter(u=>u.tier===nz)):[];
   const pool=fresh.slice(0,1);
@@ -2071,10 +2205,10 @@ function showUpgrades(){
 let shop=null;
 function afterCard(){
   if(G.depth%10===0){openShop();return;}
-  G.depth++;if(G.master)G.bombs++;startLevel();
+  G.depth++;if(G.master)G.bombs++;G.money+=G.income*10;startLevel();
 }
 function openShop(){
-  const nk=kindOf(G.depth+1),NA=AMMO[nk],nz=Math.min(4,Math.floor(G.depth/10));
+  const nk=kindOf(G.depth+1),NA=AMMO[nk],nz=Math.min(ZONES.length-1,Math.floor(G.depth/10));
   shop={conv:G.bombs>0,newAmmo:0,stock:[]};
   for(const u of shuffle(UPS.filter(u=>u.can()&&u.tier<=nz)).slice(0,3))
     shop.stock.push({ico:u.ico,name:u.name,desc:u.desc,price:60+u.tier*20+rnd(20),can:()=>u.can(),buy(){u.apply();G.ups[u.id]=(G.ups[u.id]||0)+1;}});
@@ -2083,6 +2217,7 @@ function openShop(){
   shop.stock.push({ico:'s-heart',name:'Stählernes Herz',desc:'+2 maximale Leben und heilt 2.',price:90,can:()=>G.maxhp<22,buy(){G.maxhp+=2;G.hp=Math.min(G.maxhp,G.hp+2);}});
   renderShop();openModal('m-shop');sfx('key');
 }
+const priceOf=it=>Math.max(5,Math.round(it.price*(1-.2*G.haggle)));
 function renderShop(){
   const nk=kindOf(G.depth+1),NA=AMMO[nk],OA=AMMO[kindOf(G.depth)];
   $('#shop-sub').innerHTML=`Du hast <b style="color:var(--gold)">${G.money} Münzen</b>. Hier endet die Zone, die nächste beginnt mit neuen Gegnern.`;
@@ -2097,10 +2232,10 @@ function renderShop(){
   const w=$('#shop-wares');w.innerHTML='';
   for(const it of shop.stock){
     const b=document.createElement('button');b.className='card';
-    const ok=G.money>=it.price&&it.can();
+    const pr=priceOf(it),ok=G.money>=pr&&it.can();
     b.disabled=!ok;if(!ok)b.style.opacity='.5';
-    b.innerHTML=`${spr(it.ico)}<div><b>${it.name}</b><span>${it.desc}</span><em>${it.price} Münzen</em></div>`;
-    b.addEventListener('click',()=>{if(G.money<it.price||!it.can())return;G.money-=it.price;it.buy();sfx('card');shop.stock=shop.stock.filter(x=>x!==it);renderShop();});
+    b.innerHTML=`${spr(it.ico)}<div><b>${it.name}</b><span>${it.desc}</span><em>${pr} Münzen</em></div>`;
+    b.addEventListener('click',()=>{if(G.money<pr||!it.can())return;G.money-=pr;it.buy();sfx('card');shop.stock=shop.stock.filter(x=>x!==it);renderShop();});
     w.appendChild(b);
   }
   $('#shop-go').disabled=shop.conv;
@@ -2109,17 +2244,17 @@ function leaveShop(){
   if(!shop||shop.conv)return;
   sfx('click');closeModal('m-shop');
   G.bombs=shop.newAmmo+1+(G.master?1:0);shop=null;
-  G.depth++;startLevel();
+  G.depth++;G.money+=G.income*10;startLevel();
 }
 
 /* ================= Lauf starten ================= */
 function newRun(resume,endless){
-  G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,money:0,rage:0,cloak:0,freeSteps:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false,endless:!!endless};
+  G={depth:1,score:0,kills:0,turns:0,hp:5,maxhp:5,dmg:1,bombs:1,ups:{},shieldMax:0,shield:0,thorns:false,leech:false,spear:false,chase:0,money:0,rage:0,cloak:0,freeSteps:0,lucky:0,loot:false,haggle:0,income:0,net:false,hunter:false,lockpicks:0,crit:0,armor:false,rest:0,sling:false,boots:false,wide:false,stun:false,splash:false,regen:0,dodge:0,gold:0,pickN:0,phoenix:false,phx:false,swift:0,frost:0,poison:false,soul:false,thorns2:false,exec:false,spark:false,fang:false,master:false,steps:0,coins:0,picks:0,hpb:0,freeKills:0,killCount:0,hasKey:false,over:false,won:false,busy:false,mons:[],walls:new Set(),spikes:new Set(),items:new Map(),exit:0,pos:0,keyNeeded:false,undoBonus:0,undos:1,last:null,boss:false,endless:!!endless};
   if(resume&&save.run){Object.assign(G,JSON.parse(JSON.stringify(save.run)));G.over=false;G.busy=false;}
   startLevel();
 }
 function startLevel(){
-  G.hpb=Math.max(0,zoneOf(G.depth)-4);
+  G.hpb=Math.max(0,zoneOf(G.depth)-(ZONES.length-1));
   const L=genLevel(G.depth);
   if(G.frost)for(const m of L.mons)if(!MT[m.type].boss)m.stun=G.frost;
   Object.assign(G,{picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:1+G.undoBonus,last:null,boss:!!L.boss});
@@ -2129,8 +2264,8 @@ function startLevel(){
   pending=null;walking=false;walkCancel=false;G.path=null;
   setViewNow(view);
   appearBoard();spawnEnts();
-  const z=zoneOf(G.depth),zn=ZONES[Math.min(z,4)];
-  banner('Etage '+G.depth,L.boss?'Boss: '+MT[L.bossType].name:z===0?NAMES[(G.depth-1)%10]:z>=5?'Endlose Tiefe':zn+' · '+posOf(G.depth));
+  const z=zoneOf(G.depth),zn=ZONES[Math.min(z,ZONES.length-1)];
+  banner('Etage '+G.depth,L.boss?'Boss: '+MT[L.bossType].name:z===0?NAMES[(G.depth-1)%10]:z>=ZONES.length?'Endlose Tiefe':zn+' · '+posOf(G.depth));
   setMsg(hintFor(G.depth,L));
   recordBest();applyTheme();saveRun();
 }
@@ -2266,7 +2401,11 @@ function buildZoneBg(kd){
   const bg=$('#zbg');bg.innerHTML='';
   const R=(a,b)=>a+Math.random()*(b-a);
   const add=(cls,n,fn)=>{for(let k=0;k<n;k++){const e=document.createElement('i');e.className=cls;fn(e,k);bg.appendChild(e);}};
-  if(kd==='moor'){
+  if(kd==='gold'){
+    add('rays',1,()=>{});
+    add('gc',16,e=>{e.style.cssText=`left:${R(0,100).toFixed(0)}%;--d:${R(6,11).toFixed(1)}s;--dl:${(-R(0,11)).toFixed(1)}s;--sx:${R(-40,40).toFixed(0)}px`;});
+    add('gs',34,e=>{e.style.cssText=`left:${R(0,100).toFixed(0)}%;top:${R(0,100).toFixed(0)}%;--s:${R(1.5,4).toFixed(1)}px;--d:${R(1.5,4).toFixed(1)}s;--dl:${(-R(0,4)).toFixed(1)}s`;});
+  }else if(kd==='moor'){
     add('vn',8,(e,k)=>{e.style.cssText=`left:${k*13.5-1}%;height:${R(12,34).toFixed(0)}%;--sd:${R(3,6).toFixed(1)}s;--dl:${(-R(0,5)).toFixed(1)}s`;});
     add('lf',18,e=>{e.style.cssText=`left:${R(0,100).toFixed(0)}%;--d:${R(7,13).toFixed(1)}s;--dl:${(-R(0,12)).toFixed(1)}s;--sx:${R(-60,60).toFixed(0)}px;--c:${['#7ac043','#b5c93a','#d9c02f','#4f9a3a'][Math.floor(R(0,4))]}`;});
     add('ff',10,e=>{e.style.cssText=`left:${R(5,95).toFixed(0)}%;top:${R(25,92).toFixed(0)}%;--d:${R(3,6).toFixed(1)}s;--dl:${(-R(0,5)).toFixed(1)}s`;});
@@ -2290,7 +2429,7 @@ function applyZone(){
   $('#scr-game').dataset.kind=kd;
   if(kd!==bgZone){bgZone=kd;buildZoneBg(kd);}
 }
-const ZTINT={moor:'#2d5a2a',eis:'#2a4a7a',glut:'#7a2a1a',leere:'#3a2670'};
+const ZTINT={gold:'#7a5a14',moor:'#2d5a2a',eis:'#2a4a7a',glut:'#7a2a1a',leere:'#3a2670'};
 function applyTheme(){
   applyZone();
   const d=(G.depth-1+zoneOf(G.depth)*3)%10;
@@ -2298,7 +2437,7 @@ function applyTheme(){
   AU.trans=G.boss?-5:TRANS[d];AU.sd=60/(G.boss?100:88)/4;
 }
 function saveRun(){
-  const keys=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','money','rage','cloak','freeSteps','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
+  const keys=['depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','money','rage','cloak','freeSteps','lucky','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
   const r={};keys.forEach(k=>{r[k]=G[k];});save.run=r;persist();
 }
 function buildDust(){
