@@ -365,7 +365,7 @@ html.lite .ent.ph3 .fl{animation:none}
 .tr-gust::before,.tr-belt::before,.tr-current::before{opacity:.85;animation:arrowflow 1s ease-in-out infinite}
 .tr-belt{background:repeating-linear-gradient(calc(var(--rot,0deg) + 90deg),rgba(60,40,20,.55) 0 8px,rgba(150,110,60,.45) 8px 16px);--tc:#ffe27a}
 .tr-current{background:linear-gradient(135deg,rgba(60,160,210,.35),rgba(140,210,240,.3));--tc:#cfeaff}
-.tr-water{background:linear-gradient(180deg,rgba(60,150,215,.5),rgba(20,70,140,.62))}
+.tr-water{background:linear-gradient(180deg,rgba(40,180,225,.78),rgba(20,115,195,.85))}
 .tr-water::before{border:0;width:200%;height:26%;left:-50%;top:30%;transform:none;background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(207,234,255,.5) 9px 13px,transparent 13px 26px);opacity:.75;animation:wave 2.4s linear infinite}
 .tr-water::after{content:'';position:absolute;left:0;right:0;top:62%;height:18%;background:repeating-linear-gradient(90deg,rgba(207,234,255,.3) 0 6px,transparent 6px 20px);animation:wave 3.4s linear infinite reverse}
 @keyframes wave{to{translate:26px 0}}
@@ -536,6 +536,9 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 #scr-game>*:not(.zbg){position:relative;z-index:1}
 #scr-game>.embers{position:absolute}
 #scr-game:not([data-kind="gruft"]) #dust{display:none}
+#scr-game[data-kind="oase"]{background:linear-gradient(180deg,#2aa0b8 0%,#7ad0c8 28%,#f0d890 62%,#e0b860 100%)}
+#scr-game[data-kind="oase"] .msg,#scr-game[data-kind="oase"] .depth{color:#17323a;text-shadow:none}
+#scr-game[data-kind="oase"] .score{color:#7a4a00}
 #scr-game[data-kind="moor"]{background:linear-gradient(180deg,#183a1c 0%,#30561f 52%,#6a6a18 100%)}
 #scr-game[data-kind="eis"]{background:linear-gradient(180deg,#0e2848 0%,#245485 55%,#4a86b6 100%)}
 #scr-game[data-kind="glut"]{background:linear-gradient(180deg,#2a0a0c 0%,#5a1a10 55%,#b0400e 100%)}
@@ -788,8 +791,8 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 <div class="modal" id="m-shop"><div class="panel help"><h2>Händler</h2><p id="shop-sub"></p><div class="cards" id="shop-conv"></div><div class="cards" id="shop-wares"></div><div id="shop-gamble"></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="shop-go">Weiter</button></div></div></div>
 
-<div class="modal" id="m-oasis"><div class="panel help"><h2>Oase</h2><p id="oa-sub"></p><div class="cards" id="oa-free"></div><h3>Wandernder Händler</h3><div class="cards" id="oa-wares"></div>
-  <div class="stack" style="margin-top:14px"><button class="btn big" id="oa-go">Zurück in die Gruft</button></div></div></div>
+<div class="modal" id="m-oasis"><div class="panel help"><h2>Wandernder Händler</h2><p id="oa-sub"></p><div class="cards" id="oa-wares"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="oa-go">Weiter</button></div></div></div>
 
 <div class="modal" id="m-login"><div class="panel"><h2>Täglicher Bonus</h2><p id="login-sub"></p><div class="ldays" id="login-days"></div>
   <div class="stack" style="margin-top:14px"><button class="btn big" id="login-go">Abholen</button></div></div></div>
@@ -1381,6 +1384,8 @@ const BOSSRAW=[
  [['Leerenwächter','golem','#2a2a45','#8a72e0','horns',18,3,{slow:1,summon:'Leerenblob',sumN:3}],['Der Urwürfel','head','#1a1a2f','#ffe27a','crown',28,3,{slow:1,tele:1,summon:'Schattenhund',sumN:3}]]
 ];
 const ROSTER=[];            /* ROSTER[zone] = Typ-IDs */
+GEN.wanderer={body:'human',main:'#d9b45a',acc:'#6a4a8a',kind:'sack'};
+MT.wanderer={name:'Wandernder Händler',hp:99,dmg:0,pts:0,col:'#d9b45a',body:'human',npc:1,z:0};
 const BYNAME={Schleim:'slime',Bogenschütze:'archer',Brocken:'brute',Geist:'ghost'};
 const BOSSES=[];            /* BOSSES[zone] = [id5,id10] */
 for(const k of ['slime','archer','brute','ghost','king'])MT[k].z=0;
@@ -1682,8 +1687,10 @@ for(const k of ['ammo_wueste','ammo_uhrwerk','ammo_tiefsee','p_skarab','p_ankh',
 
 /* Zonen-Look des Würfels: Boden, Wände, Stacheln, Treppe, Fundstücke */
 const ZNAMES=['floor0','floor1','floor2','floor3','wall','spike','stairs','lock','coin','key','bomb'];
-const ZURL={gruft:{},gold:{},wind:{},wueste:{},uhrwerk:{},tiefsee:{},moor:{},eis:{},glut:{},leere:{}};
+const ZURL={oase:{},gruft:{},gold:{},wind:{},wueste:{},uhrwerk:{},tiefsee:{},moor:{},eis:{},glut:{},leere:{}};
+const OASIS_WALL=['FFFFFFFFFFFFFFFF','FFFaAFFFFFFAaFFF','FFaaAAFFFFAAaaFF','FaaAaaAFFAaaAaaF','FFAaaAaaAaaAaaFF','FFFAaaAkkAaaAFFF','FFaAFAaakaaAFAaF','FFFFFFAkdkAFFFFF','FFFFFFFkdkFFFFFF','FFFFFFFkdkFFFFFF','FFFFFFFkddkFFFFF','FFFFFFFkdkFFFFFF','FFFFFFkdkkFFFFFF','FFFFFFkddkFFFFFF','FFFFFkddkkFFFFFF','FFFFFFkkkFFFFFFF'];
 const ZPAL={
+ oase:{G:'#e8d08a',F:'#e0c47a',H:'#b89a50',I:'#ecd690',s:'#d9bd70',S:'#c9a85a',k:'#5a4020',a:'#58b84a',A:'#2f7a2f',y:'#f4b942',Y:'#b47a14',z:'#fff3b0',B:'#e8c870',d:'#7a5230',q:'#f6e4a8',j:'#c9a85a'},
  gold:{G:'#5a4220',F:'#4a361c',H:'#2a1c0e',I:'#5c4220',s:'#e8b84a',S:'#b47a14',k:'#2a1a08',a:'#ffe27a',A:'#e8b84a',y:'#f4b942',Y:'#b47a14',z:'#fff3b0',B:'#ffe27a',d:'#3a2208',q:'#8a6a2a',j:'#b8883a'},
  wind:{G:'#8aa0b8',F:'#6a82a0',H:'#46607e',I:'#5e7694',s:'#e8f0f8',S:'#b0c4d8',k:'#2a3a52',a:'#e8f0f8',A:'#a0b4c8',y:'#e8f0ff',Y:'#8aa4c8',z:'#ffffff',B:'#cfe0f0',d:'#3a5070',q:'#cfe6ff',j:'#e8f0ff'},
  wueste:{G:'#c9a45a',F:'#a8854a',H:'#7a5a2a',I:'#b8944f',s:'#e8c880',S:'#c9a45a',k:'#3a2810',a:'#4a9a4a',A:'#2f6a2f',y:'#f4b942',Y:'#b47a14',z:'#fff3b0',B:'#e8c870',d:'#6a4a1a',q:'#e8c880',j:'#8a6a2a'},
@@ -1694,6 +1701,7 @@ const ZPAL={
  glut:{G:'#7a3e34',F:'#522a2a',H:'#2c1618',I:'#74342c',s:'#6a4640',S:'#44282c',k:'#1a0c0e',a:'#ffb347',A:'#e8553d',y:'#ff9a3a',Y:'#c0401a',z:'#ffe27a',B:'#a86a50',d:'#2c1618',q:'#ff8a5c',j:'#ffd36a'},
  leere:{G:'#4a3a7a',F:'#2c2250',H:'#150f2c',I:'#40346e',s:'#5a4a90',S:'#352a66',k:'#0a0716',a:'#d0b8ff',A:'#8a6ae0',y:'#b890ff',Y:'#6a4ab0',z:'#f0e0ff',B:'#8a7ac0',d:'#1a1238',q:'#cdbfff',j:'#ff9ae8'}};
 function zdeco(name,A,kd){
+  if(kd==='oase'&&name==='wall')return OASIS_WALL;
   const z=ZKIND.indexOf(kd);
   const hash=(x,y,m)=>((x*7+y*13+z*5)%m+m)%m;
   return A.map((row,y)=>{
@@ -1885,6 +1893,7 @@ AU.sched=function(){
 const mfT=n=>mf(n+(AU.trans||0));
 const SC={minp:[0,3,5,7,10],majp:[0,2,4,7,9],phryg:[0,1,4,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],min:[0,2,3,5,7,8,10],whole:[0,2,4,6,8,10]};
 const ZMUS={
+  oase:{root:55,sc:'majp',prog:[0,3,4,3],bpm:86,pad:'sine',padLp:1800,lead:'triangle',leadLp:2400,leadVol:.09,leadDur:3,bass:{type:'sine',lp:600,vol:.22,pat:[0,6,8,14]},stab:[10],stabType:'triangle',drums:'soft'},
   gruft:{root:57,sc:'minp',prog:[0,2,4,3],bpm:112,pad:'sawtooth',padLp:600,lead:'square',leadLp:2400,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:520,vol:.17,pat:[0,3,6,8,11,14]},stab:[6,10],drums:'rock'},
   gold:{root:60,sc:'majp',prog:[0,2,1,3],bpm:128,pad:'triangle',padLp:1500,lead:'triangle',leadLp:3000,leadVol:.1,leadDur:2,bass:{type:'triangle',lp:900,vol:.26,pat:[0,2,4,6,8,10,12,14]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
   wueste:{root:52,sc:'phryg',prog:[0,1,0,4],bpm:104,pad:'sawtooth',padLp:600,lead:'sawtooth',leadLp:1700,leadVol:.045,leadDur:2,bass:{type:'sawtooth',lp:480,vol:.17,pat:[0,3,6,10,13]},stab:[3,10],drums:'tribal',drone:1},
@@ -2325,7 +2334,7 @@ function renderEnts(){
       el.classList.toggle('carry',!!e.carry);
       const mx=e.mx||MT[e.type].hp;
       const pips=el.querySelector('.pips');
-      const h=mx>1?e.hp:0;
+      const h=mx>1&&!MT[e.type].npc?e.hp:0;
       if(pips._h!==h){pips.innerHTML='<i></i>'.repeat(h);pips._h=h;}
     }
   }
@@ -2451,7 +2460,7 @@ function tip(id,text){
 }
 function tipCheck(){
   if(!G||G.daily||G.depth>12)return;
-  const adj=G.mons.some(m=>NB[G.pos].includes(m.pos)||(ND[G.pos].has(m.pos)));
+  const adj=G.mons.some(m=>!MT[m.type].npc&&(NB[G.pos].includes(m.pos)||ND[G.pos].has(m.pos)));
   if(G.turns===1&&tip('goal','Ziel: Schlüssel finden, dann die Treppe nehmen. Der Schlüssel liegt irgendwo auf dem Würfel – auch auf anderen Seiten.'))return;
   if(adj&&tip('atk','Ein Gegner ist neben dir. Läufst du auf ihn zu, greifst du an. Danach sind die Gegner dran.'))return;
   if(G.turns===4&&tip('rot','Würfel drehen: Tippe auf eine Seite im Netz unten, um dort hinzusehen. Das kostet einen Zug (auf Leicht nicht).'))return;
@@ -2610,6 +2619,7 @@ function comboKill(){
 }
 function hitMonster(m,dmg,byPlayer){
   const T=MT[m.type];
+  if(T.npc)return false;
   if(T.armor&&!(byPlayer&&G.torch))dmg=Math.max(1,dmg-T.armor);
   m.hp-=dmg;
   floatText(m.pos,'-'+dmg,dmg>=3?'gold big':'gold');
@@ -2674,40 +2684,82 @@ function pickup(it,t){pickFx(t,it);
   else if(it==='p_mantel'){G.cloak+=2;sfx('aim');floatText(t,'Unsichtbar','blue');}
 }
 let oasis=null;
-function openOasis(t){
-  oasis={free:[
-    {ico:'s-heart',t:'Herzfrüchte',d:'Heilt 3 Leben.',fn(){G.hp=Math.min(G.maxhp,G.hp+3);G.psn=0;}},
-    {ico:'p_muschel',t:'Klare Quelle',d:'Löscht Feuer, heilt Gift und Versteinerung und 1 Leben.',fn(){G.burn=0;G.psn=0;G.stone=0;G.hp=Math.min(G.maxhp,G.hp+1);}},
-    {ico:'s-coin',t:'Verstreute Münzen',d:'Ein paar Münzen im Sand.',fn(){const n=15+rnd(16);G.money+=n;G.score+=n;}}
-  ],wares:[]};
+function openOasisShop(){
   const pr=b=>Math.max(8,Math.round(b*depthPrice()*DF().price));
   const A=AMMO[kindOf(G.depth)];
+  oasis={free:[],wares:[]};
   if(!G.noAmmo)oasis.wares.push({ico:A.ico,t:A.name+' ×2',d:A.desc+'.',p:pr(22),fn(){G.bombs+=2;}});
   if(G.cls==='zauberer')oasis.wares.push({ico:'p_kristall',t:'Manatrank',d:'Füllt 4 Mana auf.',p:pr(26),fn(){G.mana=Math.min(G.manaMax,G.mana+4);}});
   oasis.wares.push({ico:'potion',t:'Heiltrank',d:'Heilt 4 Leben.',p:pr(30),fn(){G.hp=Math.min(G.maxhp,G.hp+4);}});
   oasis.wares.push({ico:'s-shield',t:'Schild',d:'Blockt den nächsten Treffer.',p:pr(35),fn(){G.shield++;}});
-  sfx('heart');renderOasis();openModal('m-oasis');
-  setMsg('Hinter der Truhe verbirgt sich ein Eingang: eine Oase!');
+  sfx('coin');renderOasis();openModal('m-oasis');
 }
 function renderOasis(){
-  $('#oa-sub').innerHTML=`Eine versteckte Oase. Nimm dir, was du brauchst. Du hast <b style="color:var(--gold)">${G.money} Münzen</b>.`;
-  const mk=(box,list,paid)=>{
-    box.innerHTML='';
-    for(const it of list){
-      const b=document.createElement('button');b.className='card';
-      const ok=!paid||G.money>=it.p;b.disabled=!ok;if(!ok)b.style.opacity='.5';
-      b.innerHTML=`${spr(it.ico)}<div><b>${it.t}</b><span>${it.d}</span>${paid?`<em>${it.p} Münzen</em>`:''}</div>`;
-      b.addEventListener('click',()=>{if(paid){if(G.money<it.p)return;G.money-=it.p;}it.fn();sfx('card');floatText(G.pos,it.t,'green');list.splice(list.indexOf(it),1);renderOasis();render();});
-      box.appendChild(b);
-    }
-    if(!list.length){const p=document.createElement('p');p.textContent=paid?'Der Händler ist ausverkauft.':'Du hast alles genommen.';box.appendChild(p);}
-  };
-  mk($('#oa-free'),oasis.free,false);mk($('#oa-wares'),oasis.wares,true);
+  $('#oa-sub').innerHTML=`Der Händler wandert durch die Gruft und rastet hier. Du hast <b style="color:var(--gold)">${G.money} Münzen</b>.`;
+  const box=$('#oa-wares');box.innerHTML='';
+  for(const it of oasis.wares){
+    const b=document.createElement('button');b.className='card';
+    const ok=G.money>=it.p;b.disabled=!ok;if(!ok)b.style.opacity='.5';
+    b.innerHTML=`${spr(it.ico)}<div><b>${it.t}</b><span>${it.d}</span><em>${it.p} Münzen</em></div>`;
+    b.addEventListener('click',()=>{if(G.money<it.p)return;G.money-=it.p;it.fn();sfx('card');floatText(G.pos,it.t,'green');oasis.wares.splice(oasis.wares.indexOf(it),1);renderOasis();render();});
+    box.appendChild(b);
+  }
+  if(!oasis.wares.length){const p=document.createElement('p');p.textContent='Der Händler ist ausverkauft.';box.appendChild(p);}
+}
+function genOasis(){
+  const start=idx(2,2,0),exit=idx(2,2,4),mer=idx(3,2,0);
+  const walls=new Set(),terrain=new Map(),items=new Map();
+  const fixed=new Set([start,exit,mer]);
+  const reach=()=>{const d=bfs(start,walls);return d;};
+  const dist0=bfs(start,null);
+  // Teiche
+  const seeds=shuffle(SHELL.filter(c=>!fixed.has(c)&&(dist0.get(c)||0)>=3)).slice(0,3);
+  for(const c of seeds){
+    const cl=[c];while(cl.length<3+rnd(2)){const fr=shuffle(cl.flatMap(x=>NB[x]).filter(x=>!cl.includes(x)&&!fixed.has(x)&&!terrain.has(x)));if(!fr.length)break;cl.push(fr[0]);}
+    for(const x of cl)terrain.set(x,{k:'water',d:-1});
+  }
+  // Palmen
+  for(const c of shuffle(SHELL.filter(c=>!fixed.has(c)&&!terrain.has(c)&&NB[start].indexOf(c)<0)).slice(0,30)){
+    if(walls.size>=15)break;
+    walls.add(c);
+    const d=reach();
+    if(d.get(exit)===undefined||d.get(mer)===undefined)walls.delete(c);
+  }
+  const d=reach();
+  const free=()=>shuffle(SHELL.filter(c=>!fixed.has(c)&&!walls.has(c)&&!terrain.has(c)&&!items.has(c)&&d.get(c)!==undefined&&d.get(c)>=2));
+  for(const c of free().slice(0,3))items.set(c,'heart');
+  for(const c of free().slice(0,8))items.set(c,'coin');
+  const wm=mkMon('wanderer',mer,{});
+  return {start,exit,walls,terrain,items,mons:[wm]};
+}
+function rebuildScene(){
+  for(const [,el] of entEls)el.remove();
+  entEls.clear();
+  view=findViewFor(G.pos,FACES.F);
+  pending=null;walking=false;walkCancel=false;G.path=null;
+  setViewNow(view);
+  appearBoard();spawnEnts();applyTheme();
+}
+function enterOasis(chest){
+  if(G.inOasis)return;
+  G.stash={terrain:G.terrain,fields:G.fields,walls:G.walls,spikes:G.spikes,items:G.items,exit:G.exit,keyNeeded:G.keyNeeded,hasKey:G.hasKey,mons:G.mons,boss:G.boss,picks:G.picks,shield:G.shield,freeKills:G.freeKills,pos:G.pos};
+  const L=genOasis();
+  Object.assign(G,{inOasis:true,terrain:L.terrain,fields:[],aiming:false,walls:L.walls,spikes:new Set(),items:L.items,exit:L.exit,keyNeeded:false,hasKey:false,mons:L.mons,pos:L.start,boss:false,last:null,drinks:0});
+  rebuildScene();
+  sfx('heart');banner('Oase','Ein stiller Ort in der Gruft');
+  setMsg('Eine Oase! Sammle Herzen und Münzen, trink aus den Teichen und sprich mit dem Händler (tippe ihn an). Die Treppe führt zurück.');
+}
+function leaveOasis(){
+  const S=G.stash;if(!G.inOasis||!S)return;
+  Object.assign(G,{inOasis:false,stash:null,terrain:S.terrain,fields:S.fields,walls:S.walls,spikes:S.spikes,items:S.items,exit:S.exit,keyNeeded:S.keyNeeded,hasKey:S.hasKey,mons:S.mons,boss:S.boss,picks:S.picks,shield:S.shield,freeKills:S.freeKills,pos:S.pos,aiming:false,last:null,busy:false});
+  rebuildScene();
+  sfx('stairs');banner('Etage '+G.depth,'Zurück in der Gruft');setMsg('Zurück in der Gruft. Die Oase ist verschwunden.');
+  release();
 }
 $('#oa-go').addEventListener('click',()=>{sfx('click');closeModal('m-oasis');oasis=null;if(G&&!G.over)render();});
 function openChest(t){
   sfx('chest');
-  if(Math.random()<.07){openOasis(t);return;}
+  if(Math.random()<.07&&!G.inOasis){enterOasis(t);return;}
   const free=shuffle(NB[t].filter(n=>n!==G.pos&&!monAt(n)&&!G.walls.has(n)&&!G.spikes.has(n)));
   const r=Math.random();
   if(r<.4){const n=25+rnd(26);G.money+=n;G.score+=n;floatText(t,'+'+n,'gold');setMsg('Die Truhe war voller Münzen.');}
@@ -2735,6 +2787,7 @@ function terrainEnter(t,from,dep){
     const was=from!==undefined&&terrOf(from)&&terrOf(from).k==='water';
     if(!was){floatText(t,'Platsch','blue');sfx('bubble');burst(t,'#cfeaff',8);}
     if(G.burn>0){G.burn=0;floatText(t,'Gelöscht','blue');}
+    if(G.inOasis&&!was&&(G.drinks||0)<3){G.drinks=(G.drinks||0)+1;G.psn=0;G.stone=0;G.hp=Math.min(G.maxhp,G.hp+1);floatText(G.pos,'+1','green');sfx('heart');}
     return;
   }
   if(tr.k==='slick'){
@@ -2979,6 +3032,7 @@ function strike(m,T){
 }
 function act(m,dW,dA,d8){
   const T=MT[m.type],P=G.pos;
+  if(T.npc)return 0;
   m.n=(m.n||0)+1;
   if(m.poison>0){m.poison--;if(hitMonster(m,1,false))return 2;}
   if(m.stun>0){m.stun--;return 0;}
@@ -3159,6 +3213,7 @@ async function playerActInner(t,pref){
   const adj=reach1(P,t);
   const rng=!adj&&!!m&&reachOf()>=2&&lineN(P,t,reachOf());
   if(!adj&&!rng)return false;
+  if(m&&MT[m.type].npc){openOasisShop();return false;}
   if(m&&G.noMelee){sfx('bump');floatText(t,'Kein Nahkampf','dim');setMsg('Zauberer kämpfen nur mit Zaubern. Tippe unten auf „Zauber“ und dann auf ein Ziel.');return false;}
   if(!m&&G.walls.has(t)){
     if(G.picks>0){
@@ -3199,6 +3254,7 @@ async function playerActInner(t,pref){
     render();await sleep(45);
     if(G.hp<=0){die();return true;}
     if(G.pos===G.exit){
+      if(G.inOasis){leaveOasis();return true;}
       if(!G.keyNeeded||G.hasKey){completeLevel();return true;}
       if(G.lockpicks>0&&!G.boss){G.lockpicks--;floatText(t,'Dietrich','gold');completeLevel();return true;}
       setMsg('Die Treppe ist versiegelt. Finde den Schlüssel.');
@@ -3468,6 +3524,7 @@ function wrapUps(){
   for(const u of UPS){const c=u.can;u.can=()=>c()&&!(G&&CLS_BLOCK[G.cls]&&CLS_BLOCK[G.cls].includes(u.id));}
 }
 function noteSeen(type){
+  if(MT[type]&&MT[type].npc)return;
   const d=save.dex[type]||(save.dex[type]={s:0,k:0});
   if(d.s===0){
     d.s=1;
@@ -3871,7 +3928,7 @@ function startLevel(){
   const L=G.daily?withSeed(G.dday+':'+G.depth,()=>genLevel(G.depth)):genLevel(G.depth);
   G.freeSteps+=G.tailwind*2;
   if(G.frost)for(const m of L.mons)if(!MT[m.type].boss)m.stun=G.frost;
-  Object.assign(G,{lvlLoss:0,terrain:L.terrain||new Map(),fields:[],aiming:false,picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
+  Object.assign(G,{inOasis:false,stash:null,lvlLoss:0,terrain:L.terrain||new Map(),fields:[],aiming:false,picks:G.pickN*2,walls:L.walls,spikes:L.spikes,items:L.items,exit:L.exit,keyNeeded:L.keyCell>=0||L.boss,hasKey:false,mons:L.mons,pos:L.start,shield:G.shieldMax,freeKills:G.chase,busy:false,undos:DF().noUndo?0:1+G.undoBonus,last:null,boss:!!L.boss});
   for(const [,el] of entEls)el.remove();
   entEls.clear();
   view=findViewFor(G.pos,FACES.F);
@@ -4091,7 +4148,11 @@ function buildZoneBg(kd){
   const bg=$('#zbg');bg.innerHTML='';
   const R=(a,b)=>a+Math.random()*(b-a);
   const add=(cls,n,fn)=>{for(let k=0;k<n;k++){const e=document.createElement('i');e.className=cls;fn(e,k);bg.appendChild(e);}};
-    if(kd==='wueste'){
+    if(kd==='oase'){
+    add('sun',1,()=>{});
+    add('cl',3,(e,k)=>{e.style.cssText=`top:${R(2,34).toFixed(0)}%;--w:${R(120,220).toFixed(0)}px;--d:${R(60,100).toFixed(0)}s;--dl:${(-R(0,60)).toFixed(0)}s;opacity:${R(.35,.6).toFixed(2)}`;});
+    add('sg',6,e=>{e.style.cssText=`top:${R(60,100).toFixed(0)}%;--w:${R(60,160).toFixed(0)}px;--d:${R(2,4).toFixed(1)}s;--dl:${(-R(0,3)).toFixed(1)}s`;});
+  }else if(kd==='wueste'){
     add('sun',1,()=>{});
     add('sg',18,e=>{e.style.cssText=`top:${R(0,100).toFixed(0)}%;--w:${R(60,220).toFixed(0)}px;--d:${R(1.4,3.4).toFixed(1)}s;--dl:${(-R(0,3)).toFixed(1)}s`;});
     add('dn',4,(e,k)=>{e.style.cssText=`left:${k*28-10}%;--w:${R(50,80).toFixed(0)}%`;});
@@ -4128,19 +4189,20 @@ function buildZoneBg(kd){
     add('ob',6,e=>{e.style.cssText=`left:${R(5,90).toFixed(0)}%;top:${R(30,95).toFixed(0)}%;--s:${R(24,60).toFixed(0)}px;--d:${R(6,12).toFixed(1)}s;--dl:${(-R(0,6)).toFixed(1)}s;--sx:${R(-40,40).toFixed(0)}px`;});
   }
 }
+const curKind=()=>G.inOasis?'oase':kindOf(G.depth);
 function applyZone(){
-  const kd=kindOf(G.depth);ensureZone(kd);
+  const kd=curKind();ensureZone(kd);
   const root=document.documentElement;
   for(const name of ZNAMES)if(ZURL[kd][name])root.style.setProperty('--sp-'+name,ZURL[kd][name]);
   $('#scr-game').dataset.kind=kd;
   if(kd!==bgZone){bgZone=kd;buildZoneBg(kd);}
 }
-const ZTINT={wueste:'#8a6a2a',uhrwerk:'#6a4a2a',tiefsee:'#1a4a6a',wind:'#3a6a8a',gold:'#7a5a14',moor:'#2d5a2a',eis:'#2a4a7a',glut:'#7a2a1a',leere:'#3a2670'};
+const ZTINT={oase:'#f4d27a',wueste:'#8a6a2a',uhrwerk:'#6a4a2a',tiefsee:'#1a4a6a',wind:'#3a6a8a',gold:'#7a5a14',moor:'#2d5a2a',eis:'#2a4a7a',glut:'#7a2a1a',leere:'#3a2670'};
 function applyTheme(){
   applyZone();
   const d=(G.depth-1+zoneOf(G.depth)*3)%10;
-  document.documentElement.style.setProperty('--tint',G.boss?'#5a1f2a':(ZTINT[kindOf(G.depth)]||TINTS[d]));
-  const kz=kindOf(G.depth);AU.zm=ZMUS[kz]||ZMUS.gruft;AU.motif=MOT[kz]||MOT.gruft;
+  document.documentElement.style.setProperty('--tint',G.boss?'#5a1f2a':(ZTINT[curKind()]||TINTS[d]));
+  const kz=curKind();AU.zm=ZMUS[kz]||ZMUS.gruft;AU.motif=MOT[kz]||MOT.gruft;
   AU.trans=G.boss?-5:(kz==='gruft'?TRANS[(G.depth-1)%10]:0);AU.sd=60/(G.boss?AU.zm.bpm+12:AU.zm.bpm)/4;
 }
 const SAVEKEYS=['cls','noAmmo','noMelee','noHpUp','mana','manaMax','plate','goldMul','psn','burn','stone','depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','daily','rule','dday','bossKills','gsPaid','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
