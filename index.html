@@ -138,6 +138,7 @@ svg{display:block}
 .pips{position:absolute;bottom:1%;left:0;right:0;display:flex;justify-content:center;gap:2px}
 .pips i{width:calc(var(--bs)/62);height:calc(var(--bs)/62);min-width:4px;min-height:4px;border-radius:50%;background:var(--blood);box-shadow:0 0 0 1px var(--ink)}
 .ft{position:absolute;transform:translate(-50%,-50%);font:800 calc(var(--bs)/16)/1 var(--disp);text-shadow:0 2px 0 var(--ink),0 0 6px var(--ink);animation:floatup .9s ease-out forwards;white-space:nowrap}
+.ft.big{font-size:calc(var(--bs)/11);animation-duration:1.1s}
 .ft.red{color:#ff7a66}.ft.gold{color:var(--gold)}.ft.green{color:var(--moss)}.ft.blue{color:#7fb8ff}.ft.dim{color:var(--dim)}
 @keyframes floatup{0%{opacity:0;margin-top:0}15%{opacity:1}100%{opacity:0;margin-top:-34px}}
 .pt{position:absolute;width:6px;height:6px;margin:-3px;background:var(--c);animation:pt .55s ease-out forwards}
@@ -321,6 +322,10 @@ svg{display:block}
 .ach{display:flex;flex-direction:column;gap:6px;padding:0;list-style:none}
 .ach li{background:var(--ink3);border-radius:10px;padding:8px 10px;font-size:.9rem;display:block}
 .ach li.lock{opacity:.45}
+.tip{position:absolute;left:12px;right:12px;top:78px;z-index:250;background:#fff3c4;color:#17152b;font-weight:700;font-size:15px;line-height:1.3;padding:10px 14px 10px 40px;border-radius:14px;box-shadow:0 4px 0 #b47a14;animation:tipin .35s ease-out;max-width:420px;margin:0 auto}
+.tip::before{content:'?';position:absolute;left:10px;top:50%;margin-top:-13px;width:26px;height:26px;border-radius:50%;background:#17152b;color:#ffd36a;display:grid;place-items:center;font-weight:900}
+.tip small{display:block;opacity:.6;font-weight:600;font-size:12px;margin-top:3px}
+@keyframes tipin{from{opacity:0;transform:translateY(10px)}}
 .toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:300;background:var(--gold);color:#17152b;font-weight:800;padding:8px 16px;border-radius:99px;box-shadow:0 4px 0 #b47a14;animation:toastin 3.4s ease-out forwards;pointer-events:none;max-width:92%;white-space:normal;text-align:center}
 @keyframes toastin{0%{opacity:0;transform:translate(-50%,-14px)}8%{opacity:1;transform:translate(-50%,0)}85%{opacity:1}100%{opacity:0}}
 @media (max-height:700px){#scr-title .cast{display:none}}
@@ -803,6 +808,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
   <div class="row-set"><div>Helligkeit</div><input class="rg" type="range" min="60" max="130" step="5" data-k="bright" aria-label="Helligkeit"></div>
   <div class="row-set"><div>Textgröße</div><input class="rg" type="range" min="90" max="130" step="10" data-k="ts" aria-label="Textgröße"></div>
   <div class="row-set"><div>Sparmodus<small>Weniger Hintergrund-Effekte, für schwächere Handys.</small></div><button class="sw" role="switch" data-k="lite" aria-label="Sparmodus"></button></div>
+  <div class="row-set"><div>Spielhinweise</div><button class="sw" role="switch" data-k="tips" aria-label="Spielhinweise"></button></div>
   <div class="row-set"><div>Bildschirm wackelt</div><button class="sw" role="switch" data-k="shake" aria-label="Bildschirm wackelt"></button></div>
   <div class="row-set"><div>Weniger Bewegung<small>Schaltet Hintergrund- und Figuren-Animationen ab.</small></div><button class="sw" role="switch" data-k="rm" aria-label="Weniger Bewegung"></button></div>
   <div class="row-set"><div>Kontrast für Gefahrenfelder<small>Weiß-blaue statt rote Schraffur, für Farbenblindheit.</small></div><button class="sw" role="switch" data-k="cb" aria-label="Kontrast"></button></div>
@@ -1765,7 +1771,7 @@ const fmt=n=>Number(n).toLocaleString('de-DE');
 
 /* ================= Speicher ================= */
 const SAVE_KEY='wuerfelgruft.v1';
-let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},dex:{},ach:{},stats:{bosses:0,throws:0,rolls:0,turns:0},gs:0,meta:{},daily:{day:'',best:0,done:false,streak:0,last:''},login:{last:'',streak:0,claimed:''},q:{day:'',list:[],prog:{},done:{}},wq:{week:'',t:'',n:0,r:0,prog:0,done:false},achPaid:false,settings:{music:true,sfx:true,vib:true,shake:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false,lite:false,liteAuto:false}};
+let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},dex:{},ach:{},stats:{bosses:0,throws:0,rolls:0,turns:0},gs:0,meta:{},daily:{day:'',best:0,done:false,streak:0,last:''},login:{last:'',streak:0,claimed:''},q:{day:'',list:[],prog:{},done:{}},wq:{week:'',t:'',n:0,r:0,prog:0,done:false},achPaid:false,settings:{music:true,sfx:true,vib:true,shake:true,tips:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false,lite:false,liteAuto:false}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s)save={...save,...s,settings:{...save.settings,...(s.settings||{})}};}catch(e){}
 let persistT=null;
 function flushSave(){if(persistT){clearTimeout(persistT);persistT=null;}try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
@@ -2376,6 +2382,27 @@ function render(){
   let md=99;for(const m of G.mons){const d=dA.get(m.pos);if(d!==undefined&&d<md)md=d;}
   AU.setIntensity(G.over?0:(G.hp<=2||md<=3)?2:1);
 }
+let tipEl=null,tipTimer=0;
+function tip(id,text){
+  if(!save.tips)save.tips={};if(save.tips[id]||!save.settings.tips)return false;
+  if(anyModal())return false;
+  save.tips[id]=1;persist();
+  if(tipEl)tipEl.remove();
+  const el=document.createElement('div');el.className='tip';el.innerHTML=text+'<small>Tippen zum Schließen</small>';
+  el.addEventListener('click',()=>{el.remove();if(tipEl===el)tipEl=null;});
+  ($('#app')||document.body).appendChild(el);tipEl=el;
+  clearTimeout(tipTimer);tipTimer=setTimeout(()=>{if(tipEl===el){el.remove();tipEl=null;}},9000);
+  return true;
+}
+function tipCheck(){
+  if(!G||G.daily||G.depth>12)return;
+  const adj=G.mons.some(m=>NB[G.pos].includes(m.pos)||(ND[G.pos].some(([n])=>n===m.pos)));
+  if(G.turns===1&&tip('goal','Ziel: Schlüssel finden, dann die Treppe nehmen. Der Schlüssel liegt irgendwo auf dem Würfel – auch auf anderen Seiten.'))return;
+  if(adj&&tip('atk','Ein Gegner ist neben dir. Läufst du auf ihn zu, greifst du an. Danach sind die Gegner dran.'))return;
+  if(G.turns===4&&tip('rot','Würfel drehen: Tippe auf eine Seite im Netz unten, um dort hinzusehen. Das kostet einen Zug (auf Leicht nicht).'))return;
+  if(G.bombs>0&&G.turns>=6&&tip('throw','Du hast ein Wurf-Item. Tippe unten darauf und dann auf ein Zielfeld in Reichweite.'))return;
+  if(G.hp<G.maxhp&&tip('hp','Verlierst du alle Herzen, endet der Lauf. Herzen liegen auf dem Boden, nach Bossen gibt es mehr.'))return;
+}
 function setMsg(t){$('#msg').textContent=t;}
 
 function setViewNow(nv){
@@ -2518,12 +2545,17 @@ function hurtPlayer(n,src){
   if(G.ink&&Math.random()<.5)G.cloak=Math.max(G.cloak,1);
   return true;
 }
+function comboKill(){
+  G.combo=(G.lastKillTurn!=null&&G.turns-G.lastKillTurn<=1)?(G.combo||1)+1:1;G.lastKillTurn=G.turns;
+  if(G.combo>=3){const b=G.combo*5;G.score+=b;floatText(G.pos,'Kombo x'+G.combo+'  +'+b,'gold big');sfx('key');if(G.combo>=5)shake();}
+}
 function hitMonster(m,dmg,byPlayer){
   const T=MT[m.type];
   if(T.armor&&!(byPlayer&&G.torch))dmg=Math.max(1,dmg-T.armor);
   m.hp-=dmg;
-  floatText(m.pos,'-'+dmg,'gold');
+  floatText(m.pos,'-'+dmg,dmg>=3?'gold big':'gold');
   hurtFx(m.id);
+  if(T.boss||dmg>=3)shake();
   if(m.hp>0){burst(m.pos,'#ffffff',4);return false;}
   G.mons=G.mons.filter(x=>x!==m);
   const pts=Math.round(T.pts*(G.soul?1.5:1));
@@ -2531,6 +2563,7 @@ function hitMonster(m,dmg,byPlayer){
   burst(m.pos,T.col,14);sfx('kill',ZKIND[T.z||0]);if(T.z>0)mfx(m.pos,T);
   if(T.boss){G.hasKey=true;setMsg('Der Boss fällt. Die Treppe ist offen.');sfx('key');shake();}
   floatText(m.pos,'+'+pts,'gold');
+  comboKill();
   if(G.leech&&G.killCount%3===0&&G.hp<G.maxhp){G.hp++;floatText(G.pos,'+1','green');}
   if(byPlayer&&G.spark&&Math.random()<.3&&G.hp<G.maxhp){G.hp++;floatText(G.pos,'+1','green');}
   if(T.loot){const n=Math.round(T.loot*(G.loot?1.5:1));G.money+=n;floatText(m.pos,'+'+n,'gold');sfx('coin');}
@@ -2942,7 +2975,7 @@ async function endTurn(){
   try{await endTurnInner();}catch(e){console.error(e);try{render();}catch(e2){}if(G&&!G.over&&G.hp>0)release();}
 }
 async function endTurnInner(){
-  G.turns++;save.stats.turns++;
+  G.turns++;save.stats.turns++;tipCheck();
   if(G.regen&&G.hp<G.maxhp&&G.turns%[0,10,7,5][G.regen]===0){G.hp++;floatText(G.pos,'+1','green');}
   tickFields();
   terrainTick();
@@ -3676,6 +3709,7 @@ function startLevel(){
   const z=zoneOf(G.depth),zn=ZONES[Math.min(z,ZONES.length-1)];
   banner('Etage '+G.depth,L.boss?'Boss: '+MT[L.bossType].name:z===0?NAMES[(G.depth-1)%10]:z>=ZONES.length?'Endlose Tiefe':zn+' · '+posOf(G.depth));
   setMsg(hintFor(G.depth,L));
+  if(G.depth===1&&!G.daily)setTimeout(()=>tip('move','Tippe auf ein Nachbarfeld, um zu laufen. Auch diagonal geht. Tippst du weiter weg, läufst du den Weg automatisch.'),900);
   recordBest();applyTheme();saveRun();
 }
 
