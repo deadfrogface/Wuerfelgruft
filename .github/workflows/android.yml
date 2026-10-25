@@ -50,6 +50,9 @@ jobs:
           grep -n "versionCode\|versionName" android/app/build.gradle
           grep -n "screenOrientation" android/app/src/main/AndroidManifest.xml
 
+      - name: Ziel-API anzeigen
+        run: grep -n "SdkVersion" android/variables.gradle || true
+
       - name: Release-APK bauen
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
