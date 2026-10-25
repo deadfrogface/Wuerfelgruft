@@ -17,4 +17,4 @@ Descend floor by floor into the Dice Crypt. Every floor is a six-sided cube: the
 • Permanent crypt stones to unlock upgrades at the forge
 • Fully offline: no ads, no purchases, no account
 
-Note: the game text is currently German only.
+The game is available in English and German (follows the device language, switchable in Settings).

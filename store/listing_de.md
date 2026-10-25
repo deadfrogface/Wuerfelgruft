@@ -19,6 +19,7 @@ Steige Etage für Etage in die Würfelgruft hinab. Jede Etage ist ein Würfel mi
 
 **Kategorie:** Spiele › Rollenspiel (Roguelike)
 **Inhaltseinstufung:** ab 12 (Fantasy-Gewalt, gezeichnet)
+**Sprachen:** Deutsch, Englisch (folgt der Gerätesprache)
 **Preis:** kostenlos, keine Werbung, keine In-App-Käufe
 
 ## Screenshots (Vorschlag, 1080×1920)
