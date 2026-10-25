@@ -3007,11 +3007,11 @@ async function endTurnInner(){
   if(G.regen&&G.hp<G.maxhp&&G.turns%[0,10,7,5][G.regen]===0){G.hp++;floatText(G.pos,'+1','green');}
   tickFields();
   terrainTick();
-  if(G.hp>0&&!viewCoord(view,G.pos)){render();await flipView(findViewFor(G.pos,view));}
+  if(G.hp>0&&!viewCoord(view,G.pos)&&lookPos!==G.pos){render();await flipView(findViewFor(G.pos,view));}
   if(G.hp<=0){render();die();return;}
   if(G.gears&&G.turns%5===0){floatText(G.pos,'Getriebe','blue');render();release();return;}
   await monsterPhase();
-  if(G.hp>0&&!viewCoord(view,G.pos)){render();await flipView(findViewFor(G.pos,view));}
+  if(G.hp>0&&!viewCoord(view,G.pos)&&lookPos!==G.pos){render();await flipView(findViewFor(G.pos,view));}
   render();
   if(G.hp<=0){die();return;}
   release();
@@ -3090,7 +3090,7 @@ async function playerActInner(t,pref){
     G.pos=t;sfx('step');
     if(!viewCoord(view,t)){render();await flipView(findViewFor(t,view,pref),pref);}
     onEnter(t,P);
-    if(G.hp>0&&!viewCoord(view,G.pos)){render();await flipView(findViewFor(G.pos,view));}
+    if(G.hp>0&&!viewCoord(view,G.pos)&&lookPos!==G.pos){render();await flipView(findViewFor(G.pos,view));}
     render();await sleep(45);
     if(G.hp<=0){die();return true;}
     if(G.pos===G.exit){
@@ -3191,19 +3191,23 @@ async function throwAt(t){
   if(G.hp<=0){die();return true;}
   await endTurn();return true;
 }
+let lookPos=-1;
 async function lookDir(d){
   if(!G||G.busy||G.over||flipping)return;
   await flipView(rotView(view,d),d);
+  lookPos=viewCoord(view,G.pos)?-1:G.pos;
   if(!DF().rotFree){G.busy=true;await endTurn();}
 }
 async function lookFace(k){
   if(!G||G.busy||G.over||flipping)return;
   const nv=FACES[k];if(sameN(nv,view)&&sameView(nv,view))return;
   await flipView(nv);
+  lookPos=viewCoord(view,G.pos)?-1:G.pos;
   if(!DF().rotFree){G.busy=true;await endTurn();}
 }
 async function centerMe(){
   if(!G||G.over||flipping)return;
+  lookPos=-1;
   if(viewCoord(view,G.pos))return;
   await flipView(findViewFor(G.pos,view));
 }
@@ -3723,6 +3727,7 @@ function checkFps(){
   setTimeout(()=>requestAnimationFrame(f),1500);
 }
 function startLevel(){
+  lookPos=-1;
   checkFps();
   G.hpb=Math.max(0,zoneOf(G.depth)-(ZONES.length-1));
   if(G.depth%5===0)setTimeout(()=>sfx('boss'),500);
