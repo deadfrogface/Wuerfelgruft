@@ -1786,7 +1786,12 @@ const DIFFS={
   hardcore:{name:'Hardcore',hp:4,mhp:1,hpAt:6,monAt:[4,10],mon:2,price:1.4,money:1,undo:0,ammo:0,heart:1,noUndo:true,fixed:false,bossMon:0,col:'#e8302d',desc:'4 Leben, mehr Gegner ab Etage 4 und 10, kein Zurück, Herzen heilen nur 1, Waren 40 % teurer.'},
   '1hp':{name:'1 HP',hp:1,mhp:1,hpAt:6,monAt:[5,12],mon:2,price:1.4,money:1,undo:0,ammo:0,heart:0,noUndo:true,fixed:true,bossMon:1,col:'#7a1a2a',desc:'Ein Leben. Ein Fehler. Herzen und Heiltränke wirken nicht. Bosse bringen mehr Gegner mit.'}
 };
-const heroId=k=>(!k||k==='normal')?'hero':'hero_'+k;
+const ART_CLS={
+  zauberer:['................','.......kk.......','......ktTk......','.....kttTk......','....kttuTTk.....','...kktttTTkk....','..kttttttTTTk...','...kkkkkkkkk.yyy','...kkykkkykk.yyy','..kttttttTTTk.h.','.kttuttttTTTTkh.','.kttttttttTTTkh.','kttttttttttTTTkh','kttttttttttTTTkh','kTTTTTTTTTTTTTkh','.kkkkkkkkkkkkk.h'],
+  schatz:['................','....kkkkkkk.....','...khhhhhhhk....','..khhhhhhhhhk...','.kkkkkkkkkkkkk..','...kkkkkkkkk....','...kkykkkykk....','...kkkkkkkk.....','..kttttttTTk.kk.','.kttuttttTTkkssk','.kttttttTTTksssk','.kttttttTTTkssyk','.kttttttTTTkksskk','..kTTTTTTTkkkkk.','..kkTTkkTTkk....','...kk.kk.kk.....'],
+  waechter:['....kkkkkk......','...kaaAAaak.....','..kaaaaAAAak....','..kaaaaaaAAk....','..kakkyykkak....','..kaaaaaaAak....','.kkkAaaaaAkkk...','.kkkkkkttTTkk...','kNNNNNkttttTk...','kNNWNNkttttTk...','kNWWWNktttTTk...','kNNWNNktttTTk...','.kNNNkkTTTTTk...','..kNkkkTTTTkk...','...k.kkkTTkk....','.........kk.k...']
+};
+const heroId=(k,c)=>{const d=(!k||k==='normal')?'':k;if(!c||c==='krieger')return d?'hero_'+d:'hero';return 'hero_'+c+(d?'_'+d:'');};
 const HEROPAL={
   leicht:{t:'#ff8ab8',T:'#d8608f',u:'#ffc6dc'},
   schwer:{t:'#ff8a3d',T:'#c0561a',u:'#ffb870'},
@@ -1803,12 +1808,23 @@ const HEROFL={
   hardcore:[[[3,0,'#ff8a3d'],[4,0,'#ffe27a'],[10,0,'#ffe27a'],[11,0,'#ff8a3d']],[[3,0,'#ffe27a'],[4,0,'#e8553d'],[10,0,'#ff8a3d'],[11,0,'#ffe27a']],[[3,0,'#e8553d'],[4,0,'#ff8a3d'],[10,0,'#e8553d'],[11,0,'#ff8a3d']],[[3,0,'#ff8a3d'],[4,0,'#ffe27a'],[10,0,'#ff8a3d'],[11,0,'#e8553d']]],
   '1hp':[[[3,0,'#ff8a3d'],[4,0,'#ffe27a'],[11,0,'#ffe27a'],[10,0,'#ff8a3d'],[7,0,'#ff5a2a']],[[3,0,'#ffe27a'],[4,0,'#e8553d'],[11,0,'#ff8a3d'],[10,0,'#ffe27a'],[8,0,'#ff8a3d']],[[3,0,'#e8553d'],[4,0,'#ff8a3d'],[11,0,'#e8553d'],[10,0,'#ff8a3d'],[7,0,'#ffe27a']],[[3,0,'#ff8a3d'],[4,0,'#ffe27a'],[11,0,'#ff8a3d'],[10,0,'#e8553d'],[8,0,'#ff5a2a']]]
 };
-function heroFrames(k){
-  const P=HEROPAL[k]||{},frames=[];
+const HORNS={
+  zauberer:{l:[[2,5],[1,4],[1,3]],r:[[13,5],[14,4],[14,3]],tips:[[1,2],[14,2]]},
+  schatz:{l:[[1,3],[0,2],[0,1]],r:[[13,3],[14,2],[14,1]],tips:[[0,0],[14,0]]},
+  waechter:{l:[[2,2],[1,1],[1,0]],r:[[11,2],[12,1],[12,0]],tips:[]}
+};
+const HORNFL=['#ff8a3d','#ffe27a','#e8553d','#ffcf6a'];
+function heroFrames(k,cls){
+  const P=HEROPAL[k]||{},frames=[],art=cls&&ART_CLS[cls]?ART_CLS[cls]:ART.hero,own=!!(cls&&ART_CLS[cls]);
   for(let f=0;f<4;f++){
-    const g=ART.hero.map(row=>row.split('').map(c=>c==='.'?null:(P[c]||PALJ[c]||null)));
-    for(const [x,y,c] of HEROOV[k]||[])if(x>=0&&x<16&&y>=0&&y<16)g[y][x]=c;
-    for(const [x,y,c] of ((HEROFL[k]||[])[f])||[])if(x>=0&&x<16&&y>=0&&y<16)g[y][x]=c;
+    const g=art.map(row=>row.split('').map(c=>c==='.'?null:(P[c]||PALJ[c]||null)));
+    if(own&&(k==='hardcore'||k==='1hp')&&HORNS[cls]){
+      const H=HORNS[cls],col=['#8a1a1a','#c8302d','#e8553d'];
+      for(const side of [H.l,H.r])side.forEach(([x,y],n)=>{if(x>=0&&x<16&&y>=0&&y<16)g[y][x]=col[n];});
+      H.tips.forEach(([x,y],n)=>{g[y][x]=HORNFL[(f+n)%4];});
+    }
+    if(!own)for(const [x,y,c] of HEROOV[k]||[])if(x>=0&&x<16&&y>=0&&y<16)g[y][x]=c;
+    if(!own)for(const [x,y,c] of ((HEROFL[k]||[])[f])||[])if(x>=0&&x<16&&y>=0&&y<16)g[y][x]=c;
     const o=g.map(r=>r.slice());
     for(let y=0;y<16;y++)for(let x=0;x<16;x++)if(!g[y][x])for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const X=x+dx,Y=y+dy;if(X>=0&&X<16&&Y>=0&&Y<16&&g[Y][X]&&g[Y][X]!=='#17152b'){o[y][x]='#17152b';break;}}
     frames.push(o);
@@ -1817,6 +1833,7 @@ function heroFrames(k){
   return [frames[0],[E,...frames[1].slice(0,9),...frames[1].slice(10)],frames[2],[...frames[3].slice(1,10),frames[3][9],...frames[3].slice(10)]];
 }
 for(const k of DIFFK)if(k!=='normal')GEN['hero_'+k]={frames:heroFrames(k)};
+for(const c of Object.keys(ART_CLS))for(const k of DIFFK)GEN[heroId(k,c)]={frames:heroFrames(k==='normal'?'':k,c)};
 const DF=()=>(G&&G.dailyD)||DIFFS[(G&&G.diff)||save.diff||'normal'];
 /* Härte wächst mit der Etage: Anfang bleibt fair */
 const hpMod=()=>{const D=DF();return D.mhp<0?D.mhp:(G&&G.depth>=(D.hpAt||1)?D.mhp:0);};
@@ -2399,7 +2416,7 @@ function mkEnt(e){
   const an=AN.find(a=>T[a[0]])||(e.type==='hero'?null:['',BF[T.body]||'breath']);
   el.className='ent '+e.type+(e.type==='hero'?' d-'+(G.diff||'normal'):' k-'+ZKIND[T.z||0]+(an?' an-'+an[1]:'')+(T.boss?' isboss':''));
   el.style.setProperty('--bd',(-Math.random()*1.6).toFixed(2)+'s');
-  el.innerHTML=`<div class="fl"><div class="body">${spr(e.type==='hero'?heroId(G.diff):e.type)}</div></div><i class="bd"></i><b class="pips"></b>`;
+  el.innerHTML=`<div class="fl"><div class="body">${spr(e.type==='hero'?heroId(G.diff,G.cls):e.type)}</div></div><i class="bd"></i><b class="pips"></b>`;
   entLayer.appendChild(el);entEls.set(e.id,el);return el;
 }
 function renderEnts(){
@@ -2727,12 +2744,12 @@ function deathFx(m,T){
   if(d==='bones'){if(Math.random()<.3&&!G.items.has(c)&&!G.walls.has(c)){G.items.set(c,'heart');floatText(c,'Herz','green');}}
   else if(d==='coins'){const fr=shuffle(NB[c].filter(n=>!G.items.has(n)&&!G.walls.has(n)&&n!==G.pos&&!G.spikes.has(n))).slice(0,2);for(const n of fr)G.items.set(n,'coin');if(fr.length){sfx('coins');floatText(c,'Münzen','gold');}}
   else if(d==='sand'){if(!G.terrain.has(c)&&!G.walls.has(c)&&c!==G.exit){G.terrain.set(c,{k:'quick',d:-1});floatText(c,'Treibsand','red');}}
-  else if(d==='spore'){addField('cloud',areaOf(c,1),3,c);floatText(c,'Sporen','green');sfx('spore');}
+  else if(d==='spore'){addField('cloud',[...areaOf(c,1)].filter(x=>x!==G.pos),3,c);floatText(c,'Sporen','green');sfx('spore');}
   else if(d==='gale'){sfx('gust');floatText(c,'Windstoß','blue');for(const o of adjM)if(!MT[o.type].boss)knock(o,2);if(heroNear)pushPlayer({pos:c});}
   else if(d==='gear'){G.freeSteps+=2;floatText(G.pos,'+2 Schritte','blue');sfx('key');}
   else if(d==='frost'){sfx('ice');for(const o of adjM)if(!MT[o.type].boss)o.stun=Math.max(o.stun||0,2);floatText(c,'Frost','blue');addField('ice',areaOf(c,1),2,c);}
   else if(d==='wave'){sfx('bubble');floatText(c,'Welle','blue');for(const o of adjM)if(!MT[o.type].boss)knock(o,1);if(G.burn>0){G.burn=0;floatText(G.pos,'Gelöscht','blue');}}
-  else if(d==='ember'){addField('fire',areaOf(c,1),3,c);floatText(c,'Flammen','red');sfx('crackle');}
+  else if(d==='ember'){addField('fire',[...areaOf(c,1)].filter(x=>x!==G.pos),3,c);floatText(c,'Flammen','red');sfx('crackle');}
   else if(d==='void'){
     if(heroNear&&!G.anchor){
       const dd=bfs(G.pos,G.walls);
@@ -2767,7 +2784,7 @@ function hitMonster(m,dmg,byPlayer){
   if(T.dies)deathFx(m,T);
   if(T.split){
     const fr=shuffle(NB[m.pos].filter(n=>n!==G.pos&&!monAt(n)&&!G.walls.has(n)));
-    for(const c of fr.slice(0,2)){const nm=mkMon(T.split,c,{mcd:1});G.mons.push(nm);settle(nm);}
+    for(const c of fr.slice(0,2)){const nm=mkMon(T.split,c,{mcd:1,stun:1});G.mons.push(nm);settle(nm);}
     if(fr.length){burst(m.pos,T.col,8);sfx('split');}
   }
   if(T.boom){
@@ -3386,7 +3403,7 @@ async function playerActInner(t,pref){
     const killed=hitMonster(m,dmg,true);
     if(!killed){if(G.stun&&!T.boss)m.stun=1;if(G.poison)m.poison=2;if(G.gale&&!T.boss)knock(m,1);if(G.curse)m.cursed=true;if(rng&&G.harpoon)pull(m,1);}
     if(G.volt)for(const o of G.mons.slice())if(o!==m&&NB[m.pos].includes(o.pos))hitMonster(o,1,false);
-    if(T.thorny&&adj)hurtPlayer(1,null);
+    if(T.thorny&&adj&&!killed)hurtPlayer(1,null);
     if(killed&&G.freeKills>0){G.freeKills--;free=true;setMsg('Nachgesetzt. Dieser Zug war gratis.');}
     render();await sleep(killed?95:70);
   }else{
@@ -4202,7 +4219,7 @@ function openDiff(cb){
   for(const k of DIFFK){
     const D=DIFFS[k],b=document.createElement('button');b.className='card diff d-'+k+(save.diff===k?' cur':'');
     const best=save.bd[k];
-    b.innerHTML=`${spr(heroId(k))}<div><b>${D.name}</b><span>${D.desc}</span><em>${best&&(best.score||best.depth)?'Bestwert '+fmt(best.score)+' Punkte, Etage '+best.depth:'Noch nicht gespielt'}</em></div>`;
+    b.innerHTML=`${spr(heroId(k,save.cls))}<div><b>${D.name}</b><span>${D.desc}</span><em>${best&&(best.score||best.depth)?'Bestwert '+fmt(best.score)+' Punkte, Etage '+best.depth:'Noch nicht gespielt'}</em></div>`;
     b.addEventListener('click',()=>{sfx('card');save.diff=k;persist();closeModal('m-diff');updateStats();openClass(()=>cb(k));});
     box.appendChild(b);
   }
@@ -4226,7 +4243,7 @@ function openClass(cb){
   const box=$('#class-cards');box.innerHTML='';
   for(const k of CLSK){
     const C=CLASSES[k],ok=clsOpen(k),b=document.createElement('button');b.className='card diff'+(save.cls===k?' cur':'');b.disabled=!ok;
-    b.innerHTML=`${spr(C.ico)}<div><b>${C.name}</b><span>${ok?C.desc:'Gesperrt: erreiche Etage '+C.need+' (aktuell '+(save.bestDepth||0)+').'}</span></div>`;
+    b.innerHTML=`${spr(heroId(save.diff,k))}<div><b>${C.name}</b><span>${ok?C.desc:'Gesperrt: erreiche Etage '+C.need+' (aktuell '+(save.bestDepth||0)+').'}</span></div>`;
     b.addEventListener('click',()=>{sfx('card');save.cls=k;persist();closeModal('m-class');cb();});
     box.appendChild(b);
   }
