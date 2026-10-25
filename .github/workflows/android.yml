@@ -71,6 +71,22 @@ jobs:
           $BT/apksigner verify --verbose Wuerfelgruft.apk | head -5
           ls -la Wuerfelgruft.apk
 
+      - name: Play-Store-Bundle (AAB) bauen
+        continue-on-error: true
+        working-directory: android
+        run: |
+          ./gradlew bundleRelease --no-daemon
+          KS=$RUNNER_TEMP/release.p12
+          AAB=$(ls app/build/outputs/bundle/release/*.aab | head -1)
+          jarsigner -keystore $KS -storetype PKCS12 -storepass wuerfelgruft -keypass wuerfelgruft -signedjar ../Wuerfelgruft.aab "$AAB" wuerfelgruft
+          ls -la ../Wuerfelgruft.aab
+
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: Wuerfelgruft-AAB
+          path: Wuerfelgruft.aab
+
       - uses: actions/upload-artifact@v4
         with:
           name: Wuerfelgruft-APK
