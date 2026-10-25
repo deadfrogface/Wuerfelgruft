@@ -105,6 +105,8 @@ svg{display:block}
 /* ---------- Brett ---------- */
 .stage{flex:1;display:grid;place-items:center;min-height:0;touch-action:none}
 .board-wrap{padding:var(--pad)}
+.board-frame.turning::after{content:'';position:absolute;inset:-3px;border-radius:12px;pointer-events:none;box-shadow:0 0 0 3px rgba(255,226,122,.55),0 0 26px rgba(255,226,122,.35);animation:turnglow .45s ease-out forwards}
+@keyframes turnglow{to{opacity:0}}
 .board-frame{position:relative;width:var(--bs);height:var(--bs);perspective:900px}
 .board{position:absolute;inset:0;border-radius:10px;overflow:hidden;background:var(--ink);box-shadow:0 0 0 3px var(--ink3),0 0 0 6px var(--stone),0 16px 40px rgba(0,0,0,.55);touch-action:none}
 .grid{position:absolute;inset:0;display:grid;grid-template:repeat(5,1fr)/repeat(5,1fr)}
@@ -357,6 +359,12 @@ html.lite .ent.ph3 .fl{animation:none}
 .tr-gust::before,.tr-belt::before,.tr-current::before{opacity:.85;animation:arrowflow 1s ease-in-out infinite}
 .tr-belt{background:repeating-linear-gradient(calc(var(--rot,0deg) + 90deg),rgba(60,40,20,.55) 0 8px,rgba(150,110,60,.45) 8px 16px);--tc:#ffe27a}
 .tr-current{background:linear-gradient(135deg,rgba(60,160,210,.35),rgba(140,210,240,.3));--tc:#cfeaff}
+.tr-water{background:linear-gradient(180deg,rgba(60,150,215,.5),rgba(20,70,140,.62))}
+.tr-water::before{border:0;width:200%;height:26%;left:-50%;top:30%;transform:none;background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(207,234,255,.5) 9px 13px,transparent 13px 26px);opacity:.75;animation:wave 2.4s linear infinite}
+.tr-water::after{content:'';position:absolute;left:0;right:0;top:62%;height:18%;background:repeating-linear-gradient(90deg,rgba(207,234,255,.3) 0 6px,transparent 6px 20px);animation:wave 3.4s linear infinite reverse}
+@keyframes wave{to{translate:26px 0}}
+.ent.hero.swim .fl{clip-path:inset(0 0 34% 0);animation:bob 1.1s ease-in-out infinite}
+@keyframes bob{50%{translate:0 4%}}
 .tr-slick{background:linear-gradient(135deg,rgba(235,250,255,.6),rgba(150,205,235,.4) 55%,rgba(235,250,255,.55));animation:tsheen 2.4s ease-in-out infinite}
 .tr-slick::before{display:none}
 @keyframes tsheen{50%{filter:brightness(1.25)}}
@@ -1031,6 +1039,15 @@ function genLevel(depth){
       else if(tk==='chute'||tk==='rift'){for(let k=0;k<1+(pos>=6?1:0);k++){const a=pick(freeT());if(a===undefined)continue;const da=bfs(a,walls);
         const b=pick(freeT().filter(x=>x!==a&&(da.get(x)||0)>=4));if(b===undefined)continue;put(a,{pair:b});put(b,{pair:a});}}
     }
+    if(kindOf(depth)==='tiefsee'){
+      const freeW=()=>free(2).filter(i=>!terrain.has(i)&&!keep.has(i));
+      for(let k=0;k<2+(pos>=5?1:0);k++){
+        const c0=pick(freeW());if(c0===undefined)break;const cl=[c0],seen=new Set(cl);
+        const want=4+rnd(3);
+        while(cl.length<want){const fr=shuffle(cl.flatMap(c=>NB[c]).filter(x=>!seen.has(x)&&!walls.has(x)&&!used.has(x)&&!keep.has(x)&&!terrain.has(x)&&(dist.get(x)||0)>=2));if(!fr.length)break;cl.push(fr[0]);seen.add(fr[0]);}
+        for(const c of cl){terrain.set(c,{k:'water',d:-1});used.add(c);}
+      }
+    }
     const mons=[];
     const forced=z<ZONES.length?ROSTER[z].filter(id=>MT[id].d===pos).slice(0,3):[];
     let mc=Math.min(MON_BASE[pos-1]+Math.min(z,3),11);
@@ -1116,7 +1133,7 @@ const ZONES=['Die Gruft','Die Goldkammer','Die Sandsturmwüste','Der Schlund','D
 const ZKIND=['gruft','gold','wueste','moor','wind','uhrwerk','eis','tiefsee','glut','leere'];   /* Optik/Effekte hängen am Namen, nicht an der Nummer */
 const kindOf=d=>ZKIND[zoneOf(d)%ZKIND.length];
 const ZTERR={gold:'chute',wueste:'quick',moor:'vines',wind:'gust',uhrwerk:'belt',eis:'slick',tiefsee:'current',glut:'lava',leere:'rift'};
-const TERR_TIP={chute:'Goldrutschen kommen paarweise: wer hineintritt, landet an der Schwesterrutsche.',quick:'Treibsand hält dich und Gegner fest: du setzt einen Zug aus.',vines:'Ranken verheddern dich: du setzt einen Zug aus. Gegner meiden sie.',gust:'Windböen schieben dich ein Feld in Pfeilrichtung.',belt:'Fließbänder tragen dich am Zugende ein Feld in Pfeilrichtung.',slick:'Glatteis: du rutschst in Laufrichtung weiter, bis das Eis endet.',current:'Strömung trägt dich am Zugende ein Feld mit. Alle 3 Züge dreht sie um.',lava:'Lava verbrennt: 1 Schaden für dich, 2 für Gegner. Fliegende Gegner sind immun.',rift:'Risse kommen paarweise: wer hineintritt, landet am Schwesterriss.'};
+const TERR_TIP={chute:'Goldrutschen kommen paarweise: wer hineintritt, landet an der Schwesterrutsche.',quick:'Treibsand hält dich und Gegner fest: du setzt einen Zug aus.',vines:'Ranken verheddern dich: du setzt einen Zug aus. Gegner meiden sie.',gust:'Windböen schieben dich ein Feld in Pfeilrichtung.',belt:'Fließbänder tragen dich am Zugende ein Feld in Pfeilrichtung.',slick:'Glatteis: du rutschst in Laufrichtung weiter, bis das Eis endet.',current:'Strömung trägt dich am Zugende ein Feld mit. Alle 3 Züge dreht sie um.',water:'Wasser: Du schwimmst hindurch, Gegner an Land meiden es. Im Wasser kannst du nichts werfen.',lava:'Lava verbrennt: 1 Schaden für dich, 2 für Gegner. Fliegende Gegner sind immun.',rift:'Risse kommen paarweise: wer hineintritt, landet am Schwesterriss.'};
 const TR={ghost:'schwebt durch Wände',shoot:'schießt aus der Ferne',turret:'steht still',slow:'handelt jeden zweiten Zug',fast:'läuft doppelt so schnell',rand:'torkelt',diag:'zieht und schlägt diagonal',armor:'Rüstung (−1 Schaden)',regen:'heilt sich',split:'zerfällt in Kleine',boom:'explodiert im Tod',tele:'springt dir nah',thorny:'verletzt Angreifer',summon:'ruft Verstärkung',heal:'heilt Verbündete',steal:'klaut Bomben',charge:'stürmt in gerader Linie',lob:'wirft Bomben',drain:'saugt Leben',trail:'legt Stacheln',sleep:'schläft bis du nah bist',push:'schleudert dich zurück',steam:'stößt alle paar Züge Dampf aus (Felder in 2 Schritten)',shock:'betäubt dich einen Zug',flee:'rennt mit Beute davon, fang ihn',thief:'stiehlt dir etwas, jage ihn'};
 /* [Name,Körper,Hauptfarbe,Akzent,Muster,hp,dmg,ab Etage,Eigenschaften] */
 const RAW=[
@@ -1498,7 +1515,7 @@ const BOSSMV={
 };
 const bossMoves=T=>BOSSMV[ZKIND[T.z||0]+(T.bi===1?'2':'')];
 const BOSSLINE={gruft:'Niemand verlässt die Gruft.',gold:'Alles Gold gehört mir!',wueste:'Der Sand begräbt jeden.',moor:'Der Sumpf holt dich.',wind:'Der Sturm kennt kein Erbarmen.',uhrwerk:'Deine Zeit läuft ab.',eis:'Alles erstarrt unter meinem Blick.',tiefsee:'Die Tiefe verschlingt dich.',glut:'Verbrenne!',leere:'Es gibt kein Entkommen aus dem Nichts.'};
-const AVOIDT=new Set(['lava','quick','vines','chute','rift']);
+const AVOIDT=new Set(['lava','quick','vines','chute','rift','water']);
 const FLY=m=>{const T=MT[m.type];return !!(T.ghost||T.body==='wing'||T.body==='wisp');};
 const terrOf=i=>G.terrain&&G.terrain.get(i);
 function tstep(c,d,walls){const [x,y,z]=xyz(c);const a=x+d[0],b=y+d[1],e=z+d[2];if(!isShell(a,b,e))return -1;const n=idx(a,b,e);return (walls||G.walls).has(n)?-1:n;}
@@ -2268,7 +2285,8 @@ function renderEnts(){
       if(moved)pulse(el,e.type==='hero'?'hop':'mv-'+(MT[e.type].body||'human'),230);
     }
     el._pos=e.pos;
-    if(e.type==='hero'){el.classList.toggle('shielded',G.shield>0);}
+    if(e.type==='hero'){el.classList.toggle('shielded',G.shield>0);const wt=terrOf(e.pos);el.classList.toggle('swim',!!wt&&wt.k==='water');}
+    else if(false){}
     else{
       el.classList.toggle('ready',!!MT[e.type].slow&&e.cd===0);
       el.classList.toggle('aim',!!(e.aim||e.sa||e.bt));
@@ -2399,7 +2417,7 @@ function tip(id,text){
 }
 function tipCheck(){
   if(!G||G.daily||G.depth>12)return;
-  const adj=G.mons.some(m=>NB[G.pos].includes(m.pos)||(ND[G.pos].some(([n])=>n===m.pos)));
+  const adj=G.mons.some(m=>NB[G.pos].includes(m.pos)||(ND[G.pos].has(m.pos)));
   if(G.turns===1&&tip('goal','Ziel: Schlüssel finden, dann die Treppe nehmen. Der Schlüssel liegt irgendwo auf dem Würfel – auch auf anderen Seiten.'))return;
   if(adj&&tip('atk','Ein Gegner ist neben dir. Läufst du auf ihn zu, greifst du an. Danach sind die Gegner dran.'))return;
   if(G.turns===4&&tip('rot','Würfel drehen: Tippe auf eine Seite im Netz unten, um dort hinzusehen. Das kostet einen Zug (auf Leicht nicht).'))return;
@@ -2422,14 +2440,16 @@ async function flipView(nv,dir){
   if(!dir)dir=['right','left','up','down'].find(d=>sameN(rotView(view,d),nv))||'right';
   flipping=true;sfx('flip');
   const axis=(dir==='left'||dir==='right')?'rotateY':'rotateX';
-  const out=(dir==='right'||dir==='up')?-78:78;
-  const dur=reduceMotion?1:90;
+  const out=(dir==='right'||dir==='up')?-90:90;
+  const dur=reduceMotion?1:150;
+  if(!reduceMotion)frame.classList.add('turning');
   try{
-    await board.animate([{transform:`${axis}(0deg)`,opacity:1},{transform:`${axis}(${out}deg)`,opacity:.15}],{duration:dur,easing:'ease-in',fill:'forwards'}).finished;
+    await board.animate([{transform:`translateZ(0) ${axis}(0deg) scale(1)`,opacity:1},{transform:`translateZ(-60px) ${axis}(${out}deg) scale(.9)`,opacity:.05}],{duration:dur,easing:'cubic-bezier(.5,0,.9,.6)',fill:'forwards'}).finished;
     setViewNow(nv);
-    await board.animate([{transform:`${axis}(${-out}deg)`,opacity:.15},{transform:`${axis}(0deg)`,opacity:1}],{duration:dur*1.2,easing:'ease-out',fill:'forwards'}).finished;
+    await board.animate([{transform:`translateZ(-60px) ${axis}(${-out}deg) scale(.9)`,opacity:.05},{transform:`translateZ(0) ${axis}(0deg) scale(1)`,opacity:1}],{duration:dur*1.25,easing:'cubic-bezier(.1,.7,.3,1.15)',fill:'forwards'}).finished;
   }catch(e){setViewNow(nv);}
   if(board.getAnimations)board.getAnimations().forEach(a=>a.cancel());
+  frame.classList.remove('turning');
   flipping=false;flush();
 }
 
@@ -2638,6 +2658,11 @@ function onEnter(t,from){landing(t,from,0,false);}
 function terrainEnter(t,from,dep){
   const tr=terrOf(t);if(!tr||G.hp<=0)return;
   const d=tdir(tr);
+  if(tr.k==='water'){
+    const was=from!==undefined&&terrOf(from)&&terrOf(from).k==='water';
+    if(!was){floatText(t,'Platsch','blue');sfx('bubble');burst(t,'#cfeaff',8);}
+    return;
+  }
   if(tr.k==='slick'){
     const dd=from!==undefined?dirBetween(from,t):-1;
     if(dd>=0){
@@ -3142,6 +3167,7 @@ async function useBomb(){
   if(!G||G.busy||G.over||flipping)return;
   if(G.aiming){cancelAim();return;}
   if(G.bombs<1){setMsg('Kein Wurf-Item mehr.');return;}
+  if(terrOf(G.pos)&&terrOf(G.pos).k==='water'){setMsg('Im Wasser kannst du nichts werfen. Schwimm erst ans Ufer.');toast('Zu nass zum Werfen');return;}
   const A=AMMO[kindOf(G.depth)];
   G.aiming=true;AU.unlock();sfx('click');
   setMsg(A.name+': Tippe ein markiertes Zielfeld (bis '+AIM+' Schritte). '+A.desc+'.');
