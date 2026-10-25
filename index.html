@@ -798,6 +798,9 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 <div class="modal" id="m-diff"><div class="panel help"><h2>Schwierigkeit</h2><p>Wähle, wie hart die Gruft sein soll.</p><div class="cards" id="diff-cards"></div>
   <div class="stack" style="margin-top:14px"><button class="btn ghost" id="d-cancel">Zurück</button></div></div></div>
 
+<div class="modal" id="m-class"><div class="panel help"><h2>Klasse</h2><p>Jede Klasse startet anders. Weitere schaltest du durch tiefe Etagen frei.</p><div class="cards" id="class-cards"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn ghost" id="c-cancel">Zurück</button></div></div></div>
+
 <div class="modal" id="m-set"><div class="panel help"><h2>Einstellungen</h2>
   <h3>Ton</h3>
   <div class="row-set"><div>Musik</div><button class="sw" role="switch" data-k="music" aria-label="Musik"></button></div>
@@ -3675,6 +3678,7 @@ function newRun(resume,endless,daily){
       if(M.edge)G.dmg+=1;
       if(!D0.noUndo){G.undoBonus+=M.undo||0;G.undos=1+G.undoBonus;}
       if(M.dice)G.dice=['gruft'];
+      const C=CLASSES[clsOpen(save.cls||'krieger')?(save.cls||'krieger'):'krieger'];if(C.apply)C.apply(D0);
     }
   }
   let sh=null;
@@ -3783,12 +3787,33 @@ function openDiff(cb){
     const D=DIFFS[k],b=document.createElement('button');b.className='card diff d-'+k+(save.diff===k?' cur':'');
     const best=save.bd[k];
     b.innerHTML=`${spr(heroId(k))}<div><b>${D.name}</b><span>${D.desc}</span><em>${best&&(best.score||best.depth)?'Bestwert '+fmt(best.score)+' Punkte, Etage '+best.depth:'Noch nicht gespielt'}</em></div>`;
-    b.addEventListener('click',()=>{sfx('card');save.diff=k;persist();closeModal('m-diff');updateStats();cb(k);});
+    b.addEventListener('click',()=>{sfx('card');save.diff=k;persist();closeModal('m-diff');updateStats();openClass(()=>cb(k));});
     box.appendChild(b);
   }
   diffBack=null;openModal('m-diff');
 }
 let diffBack=null;
+const CLASSES={
+  krieger:{name:'Krieger',ico:'s-blade',need:0,desc:'Ausgewogen. Keine Besonderheit, keine Schwäche.'},
+  zauberer:{name:'Zauberer',ico:'s-bolt',need:10,desc:'Startet mit 2 Wurf-Items mehr und größerer Wurfwirkung, aber 1 Leben weniger.',apply(D0){G.bombs+=2;G.wide=true;if(!D0.fixed&&G.maxhp>2){G.maxhp--;G.hp=G.maxhp;}}},
+  schatz:{name:'Schatzjäger',ico:'s-coin',need:20,desc:'Mehr Beute, 30 Münzen Startgeld und gratis Schritte, aber kein Wurf-Item am Anfang.',apply(){G.loot=true;G.money+=30;G.tailwind+=1;G.bombs=0;}},
+  waechter:{name:'Wächter',ico:'s-shield',need:30,desc:'Rüstung dämpft starke Treffer und ein Schild pro Etage, dafür gibt es keinen Zurück-Bonus.',apply(){G.armor=true;G.shieldMax+=1;G.undoBonus=0;G.undos=Math.min(G.undos,1);}}
+};
+const CLSK=Object.keys(CLASSES);
+const clsOpen=k=>(save.bestDepth||0)>=CLASSES[k].need;
+function openClass(cb){
+  const open=CLSK.filter(clsOpen);
+  if(open.length<2){save.cls='krieger';cb();return;}
+  const box=$('#class-cards');box.innerHTML='';
+  for(const k of CLSK){
+    const C=CLASSES[k],ok=clsOpen(k),b=document.createElement('button');b.className='card diff'+(save.cls===k?' cur':'');b.disabled=!ok;
+    b.innerHTML=`${spr(C.ico)}<div><b>${C.name}</b><span>${ok?C.desc:'Gesperrt: erreiche Etage '+C.need+' (aktuell '+(save.bestDepth||0)+').'}</span></div>`;
+    b.addEventListener('click',()=>{sfx('card');save.cls=k;persist();closeModal('m-class');cb();});
+    box.appendChild(b);
+  }
+  openModal('m-class');
+}
+$('#c-cancel').addEventListener('click',()=>{sfx('click');closeModal('m-class');});
 
 /* ================= Eingaben ================= */
 const stage=$('#stage');let ptr=null;
