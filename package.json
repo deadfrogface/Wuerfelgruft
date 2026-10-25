@@ -4,12 +4,12 @@
   "private": true,
   "description": "Würfelgruft – ein Mini-Roguelike auf einem Würfel",
   "dependencies": {
-    "@capacitor/android": "^6.2.0",
-    "@capacitor/app": "^6.0.2",
-    "@capacitor/core": "^6.2.0",
-    "@capacitor/status-bar": "^6.0.2"
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/status-bar": "^8.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.0"
+    "@capacitor/cli": "^8.5.0"
   }
 }

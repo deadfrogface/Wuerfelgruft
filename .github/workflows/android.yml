@@ -16,12 +16,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - name: Abhaengigkeiten installieren
         run: |
@@ -54,20 +54,37 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
 
+      - name: Schluessel bereitstellen
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KS_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          KS=$RUNNER_TEMP/release.p12
+          if [ -n "$KS_B64" ] && [ -n "$KS_PASS" ] && [ -n "$KS_ALIAS" ]; then
+            echo "$KS_B64" | base64 -d > $KS
+            echo "Eigener Schluessel aus den Secrets"
+            echo "KS_PASS_USE=$KS_PASS" >> $GITHUB_ENV
+            echo "KS_ALIAS_USE=$KS_ALIAS" >> $GITHUB_ENV
+          else
+            base64 -d keystore.b64 > $KS 2>/dev/null || true
+            if ! keytool -list -keystore $KS -storetype PKCS12 -storepass wuerfelgruft >/dev/null 2>&1; then
+              echo "Schluessel unlesbar, erzeuge neuen Hobby-Schluessel"
+              rm -f $KS
+              keytool -genkeypair -keystore $KS -storetype PKCS12 -alias wuerfelgruft -keyalg RSA -keysize 2048 -validity 36500 -storepass wuerfelgruft -keypass wuerfelgruft -dname "CN=Wuerfelgruft, O=Wuerfelgruft, C=DE"
+            fi
+            echo "KS_PASS_USE=wuerfelgruft" >> $GITHUB_ENV
+            echo "KS_ALIAS_USE=wuerfelgruft" >> $GITHUB_ENV
+          fi
+
       - name: APK ausrichten und signieren
         run: |
           BT=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -1)
           echo "build-tools: $BT"
           KS=$RUNNER_TEMP/release.p12
-          base64 -d keystore.b64 > $KS 2>/dev/null || true
-          if ! keytool -list -keystore $KS -storetype PKCS12 -storepass wuerfelgruft >/dev/null 2>&1; then
-            echo "Schluessel unlesbar, erzeuge neuen"
-            rm -f $KS
-            keytool -genkeypair -keystore $KS -storetype PKCS12 -alias wuerfelgruft -keyalg RSA -keysize 2048 -validity 36500 -storepass wuerfelgruft -keypass wuerfelgruft -dname "CN=Wuerfelgruft, O=Wuerfelgruft, C=DE"
-          fi
           IN=$(ls android/app/build/outputs/apk/release/*.apk | head -1)
           $BT/zipalign -p -f 4 "$IN" $RUNNER_TEMP/aligned.apk
-          $BT/apksigner sign --ks $KS --ks-type PKCS12 --ks-pass pass:wuerfelgruft --key-pass pass:wuerfelgruft --out Wuerfelgruft.apk $RUNNER_TEMP/aligned.apk
+          $BT/apksigner sign --ks $KS --ks-type PKCS12 --ks-pass pass:$KS_PASS_USE --key-pass pass:$KS_PASS_USE --out Wuerfelgruft.apk $RUNNER_TEMP/aligned.apk
           $BT/apksigner verify --verbose Wuerfelgruft.apk | head -5
           ls -la Wuerfelgruft.apk
 
@@ -78,14 +95,8 @@ jobs:
           ./gradlew bundleRelease --no-daemon
           KS=$RUNNER_TEMP/release.p12
           AAB=$(ls app/build/outputs/bundle/release/*.aab | head -1)
-          jarsigner -keystore $KS -storetype PKCS12 -storepass wuerfelgruft -keypass wuerfelgruft -signedjar ../Wuerfelgruft.aab "$AAB" wuerfelgruft
+          jarsigner -keystore $KS -storetype PKCS12 -storepass "$KS_PASS_USE" -keypass "$KS_PASS_USE" -signedjar ../Wuerfelgruft.aab "$AAB" "$KS_ALIAS_USE"
           ls -la ../Wuerfelgruft.aab
-
-      - uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: Wuerfelgruft-AAB
-          path: Wuerfelgruft.aab
 
       - uses: actions/upload-artifact@v4
         with:
@@ -93,6 +104,7 @@ jobs:
           path: Wuerfelgruft.apk
 
       - name: Release veroeffentlichen
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
