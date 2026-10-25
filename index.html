@@ -2776,7 +2776,8 @@ function hitMonster(m,dmg,byPlayer){
   }
   return true;
 }
-function pickup(it,t){pickFx(t,it);
+function pickup(it,t){
+  if(typeof it==='string'&&(it.startsWith('p_')||it==='chest'))markEx('finds',it);pickFx(t,it);
   if(it==='heart'){G.psn=0;const per=DF().heart,h=Math.min(per>0?per+(G.spare?1:0):0,G.maxhp-G.hp);G.hp+=h;sfx('heart');floatText(t,h?'+'+h:'Voll','green');}
   else if(it==='coin'){
     questEvent('coins',1);G.coins=(G.coins||0)+1;const v=15+G.gold*10,mo=Math.round((5+G.gold*2)*(G.pearl?2:1)*(G.goldMul||1)*DF().money*(1+.1*metaMul('greed')));G.score+=v;G.money+=mo;sfx('coin');floatText(t,'+'+mo,'gold');
@@ -2908,6 +2909,7 @@ function landing(t,from,dep,noTerr){
 function onEnter(t,from){landing(t,from,0,false);}
 function terrainEnter(t,from,dep){
   const tr=terrOf(t);if(!tr||G.hp<=0)return;
+  markEx('terr',tr.k);
   const d=tdir(tr);
   if(tr.k==='water'){
     const was=from!==undefined&&terrOf(from)&&terrOf(from).k==='water';
@@ -3143,6 +3145,8 @@ function bossMove(m){
   sfx('aim');floatText(m.pos,'!','red');setMsg(T.name+': '+def[0]+'!');
   return true;
 }
+function markEx(cat,id){if(!save.ex)save.ex={};const c=save.ex[cat]||(save.ex[cat]={});if(!c[id]){c[id]=1;persist();}}
+const hasEx=(cat,id)=>!!(save.ex&&save.ex[cat]&&save.ex[cat][id]);
 function noteState(k){if(!save.st)save.st={};if(!save.st[k]){save.st[k]=1;persist();}}
 function setBurn(){noteState('brand');if(G.hp<=0||G.burn>0)return;G.burn=3;floatText(G.pos,'Feuer!','red');sfx('crackle');}
 function setPoison(){noteState('gift');if(G.hp<=0)return;G.psn=Math.max(G.psn||0,3);floatText(G.pos,'Vergiftet','green');sfx('squelch');}
@@ -3501,7 +3505,7 @@ async function throwAt(t){
   const A=wiz?{ico:'s-bolt',throw:castSpell}:AMMO[kindOf(G.depth)];
   const d=bfs(G.pos,null).get(t);
   if(d===undefined||d>AIM||G.walls.has(t)||t===G.pos){sfx('bump');floatText(t,d>AIM?'Zu weit':'Nicht hier','dim');return false;}
-  G.aiming=false;G.busy=true;AU.unlock();G.last=snap();if(wiz)G.mana-=2;else G.bombs--;
+  G.aiming=false;G.busy=true;AU.unlock();G.last=snap();if(wiz)G.mana-=2;else{G.bombs--;markEx('ammo',kindOf(G.depth));}
   sfx('aim');throwFx(G.pos,t,A.ico);render();
   try{
     await sleep(380);
@@ -3627,12 +3631,14 @@ function buildHelpStates(){
 function buildHelpZone(){
   buildHelpStates();
   const box=$('#h-zone');if(!box)return;
-  const z=G?zoneOf(G.depth)%ZONES.length:0,kd=ZKIND[z],A=AMMO[kd];
+  if(!G){box.innerHTML='';return;}
+  const z=zoneOf(G.depth)%ZONES.length,kd=ZKIND[z],A=AMMO[kd];
   const first=z*10+1;
   const li=(ico,t,d)=>`<li><span class="ph">${spr(ico)}</span><span><b>${t}</b>${d?': '+d:''}</span></li>`;
   const endl=G&&zoneOf(G.depth)>=ZONES.length;
   let h=`<h3>${ZONES[z]} (${endl?'Endlosmodus, Gegner wiederholen sich':'Etage '+first+'–'+(first+9)})</h3><p>${ZINFO[kd]}</p>`;
-  if(ZTERR[kd])h+='<h3>Gelände</h3><ul>'+li('s-spike','Gelände dieser Zone',TERR_TIP[ZTERR[kd]])+'</ul>';
+  const tk=[ZTERR[kd],kd==='tiefsee'?'water':null].filter(k=>k&&hasEx('terr',k));
+  if(tk.length)h+='<h3>Gelände</h3><ul>'+tk.map(k=>li('s-spike','Gelände dieser Zone',TERR_TIP[k])).join('')+'</ul>';
   const metIt=id=>!!(save.dex[id]&&save.dex[id].s>0);
   const allIds=[...ROSTER[z],...BOSSES[z]],metIds=allIds.filter(metIt);
   if(metIds.length)h+='<h3>Gegner dieser Zone</h3><ul>';
@@ -3641,10 +3647,11 @@ function buildHelpZone(){
   for(const id of BOSSES[z].filter(metIt)){const T=MT[id];h+=li(id,'Boss '+T.name,(OLD_DESC[id]||traitText(T))+' Etage '+(first+(id===BOSSES[z][0]?4:9))+'.');}
   if(metIds.length)h+='</ul>';
   if(metIds.length<allIds.length)h+='<p style="opacity:.7">Weitere Gegner warten noch unentdeckt.</p>';
-  h+='<h3>Wurf-Item</h3><ul>'+li(A.ico,A.name,A.desc+'. Beim Zonenwechsel tauschst du übrige Stücke im Händler.')+'</ul>';
+  if(hasEx('ammo',kd))h+='<h3>Wurf-Item</h3><ul>'+li(A.ico,A.name,A.desc+'. Beim Zonenwechsel tauschst du übrige Stücke im Händler.')+'</ul>';
   const pk=ZPICKS[kd];
-  if(pk){h+='<h3>Fundstücke dieser Zone</h3><ul>'+[...new Set(pk)].map(k=>li(k,PICKN[k],PDESC[k])).join('')+'</ul>';}
-  const ups=UPS.filter(u=>u.tier===z);
+  const fk=pk?[...new Set(pk)].filter(k=>hasEx('finds',k)):[];
+  if(fk.length)h+='<h3>Fundstücke dieser Zone</h3><ul>'+fk.map(k=>li(k,PICKN[k],PDESC[k])).join('')+'</ul>';
+  const ups=UPS.filter(u=>u.tier===z&&hasEx('ups',u.id));
   if(ups.length)h+='<h3>Neue Verstärkungen</h3><ul>'+ups.map(u=>li(u.ico,u.name,u.desc)).join('')+'</ul>';
   box.innerHTML=h;
 }
@@ -3686,7 +3693,7 @@ function award(id){
 let upsWrapped=false;
 function wrapUps(){
   if(upsWrapped)return;upsWrapped=true;
-  for(const u of UPS){const c=u.can;u.can=()=>c()&&!(G&&CLS_BLOCK[G.cls]&&CLS_BLOCK[G.cls].includes(u.id));}
+  for(const u of UPS){const c=u.can;u.can=()=>c()&&!(G&&CLS_BLOCK[G.cls]&&CLS_BLOCK[G.cls].includes(u.id));const ap=u.apply;u.apply=function(){const r=ap.apply(this,arguments);markEx('ups',u.id);return r;};}
 }
 function noteSeen(type){
   if(MT[type]&&MT[type].npc)return;
