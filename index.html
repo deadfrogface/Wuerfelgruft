@@ -1384,7 +1384,30 @@ const BOSSRAW=[
  [['Leerenwächter','golem','#2a2a45','#8a72e0','horns',18,3,{slow:1,summon:'Leerenblob',sumN:3}],['Der Urwürfel','head','#1a1a2f','#ffe27a','crown',28,3,{slow:1,tele:1,summon:'Schattenhund',sumN:3}]]
 ];
 const ROSTER=[];            /* ROSTER[zone] = Typ-IDs */
-GEN.wanderer={body:'human',main:'#d9b45a',acc:'#6a4a8a',kind:'sack'};
+function caravanFrames(){
+  const K='#2a1a0c',R='#c0442a',C='#f4efe0',W='#8a5a2a',L='#b8803a',T='#d9a860',D='#a8743a',P='#6a4a8a',F='#e8b890',G='#f4b942',U='#4a2e14';
+  const mk=(bob,leg)=>{
+    const g=Array.from({length:16},()=>Array(16).fill(null));
+    const px=(x,y,c)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&x<16&&y>=0&&y<16)g[y][x]=c;};
+    const r=(x,y,w,h,c)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)px(x+i,y+j,c);};
+    // Wagen: Plane, Händler, Ladefläche, Rad
+    r(0,1,9,1,K);for(let i=0;i<9;i++){px(i,2,i%2?C:R);px(i,3,i%2?R:C);}r(0,4,9,1,K);
+    r(3,4,3,1,P);r(3,5,3,2,F);px(3,5,K);px(5,5,K);r(3,7,3,2,P);
+    r(0,9,9,3,W);r(0,9,9,1,L);r(0,12,9,1,K);r(0,9,1,4,K);r(8,9,1,4,K);
+    px(2,10,G);px(5,10,G);px(6,11,G);
+    r(2,12,5,1,U);for(const [x,y] of [[3,13],[4,13],[5,13],[2,14],[6,14],[3,15],[4,15],[5,15]])px(x,y,K);px(4,14,D);
+    // Strang
+    r(9,10,2,1,K);
+    // Kamel
+    const by=bob;
+    r(10,8+by,6,3,T);r(10,8+by,6,1,D);r(11,6+by,2,2,T);px(11,6+by,D);
+    r(14,4+by,2,5,T);r(14,3+by,2,2,T);r(13,3+by,1,2,D);px(15,3+by,K);px(15,5+by,D);
+    r(10,11+by,1,3-bob+leg,D);r(12,11+by,1,3-bob,D);r(14,11+by,1,3-bob+leg,D);r(15,11+by,1,3-bob,T);
+    return g;
+  };
+  return [mk(0,0),mk(1,0),mk(0,1),mk(1,1)];
+}
+GEN.wanderer={frames:caravanFrames()};
 MT.wanderer={name:'Wandernder Händler',hp:99,dmg:0,pts:0,col:'#d9b45a',body:'human',npc:1,z:0};
 const BYNAME={Schleim:'slime',Bogenschütze:'archer',Brocken:'brute',Geist:'ghost'};
 const BOSSES=[];            /* BOSSES[zone] = [id5,id10] */
