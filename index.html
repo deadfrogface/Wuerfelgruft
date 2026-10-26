@@ -2150,10 +2150,10 @@ AU.startMusic=function(){
 };
 AU.sched=function(){
   const c=this.ctx;if(!c)return;
-  while(this.next<c.currentTime+.16){this.play(this.step,this.next);this.next+=this.sd;this.step=(this.step+1)%64;}
+  while(this.next<c.currentTime+.16){this.play(this.step,this.next);this.next+=this.sd;this.step=(this.step+1)%256;}
 };
 const mfT=n=>mf(n+(AU.trans||0));
-const SC={minp:[0,3,5,7,10],majp:[0,2,4,7,9],phryg:[0,1,4,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],min:[0,2,3,5,7,8,10],whole:[0,2,4,6,8,10]};
+const SC={minp:[0,3,5,7,10],majp:[0,2,4,7,9],phryg:[0,1,4,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],min:[0,2,3,5,7,8,10],hung:[0,2,3,6,7,8,11],whole:[0,2,4,6,8,10]};
 const ZMUS={
   oase:{root:55,sc:'majp',prog:[0,3,4,3],bpm:86,pad:'sine',padLp:1800,lead:'triangle',leadLp:2400,leadVol:.09,leadDur:3,bass:{type:'sine',lp:600,vol:.22,pat:[0,6,8,14]},stab:[10],stabType:'triangle',drums:'soft'},
   gruft:{root:57,sc:'minp',prog:[0,2,4,3],bpm:112,pad:'sawtooth',padLp:600,lead:'square',leadLp:2400,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:520,vol:.17,pat:[0,3,6,8,11,14]},stab:[6,10],drums:'rock'},
@@ -2165,26 +2165,46 @@ const ZMUS={
   eis:{root:50,sc:'min',prog:[0,5,2,6],bpm:100,pad:'sine',padLp:1400,lead:'triangle',leadLp:1500,leadVol:.085,leadDur:3,bass:{type:'sine',lp:600,vol:.3,pat:[0,6,8,14]},stab:[6,14],stabType:'triangle',drums:'soft',soft:1},
   tiefsee:{root:45,sc:'min',prog:[0,3,4,0],bpm:92,pad:'triangle',padLp:420,lead:'sine',leadLp:1200,leadVol:.12,leadDur:3,bass:{type:'sine',lp:500,vol:.34,pat:[0,6,8,14]},stab:[],drums:'bubble'},
   glut:{root:52,sc:'phryg',prog:[0,1,3,4],bpm:134,pad:'sawtooth',padLp:700,lead:'sawtooth',leadLp:1900,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:560,vol:.2,pat:[0,2,3,6,8,10,11,14]},stab:[3,6,11],drums:'heavy'},
-  leere:{root:48,sc:'whole',prog:[0,2,4,1],bpm:86,pad:'sawtooth',padLp:420,lead:'sine',leadLp:1400,leadVol:.1,leadDur:4,bass:{type:'sine',lp:400,vol:.3,pat:[0,8]},stab:[],drums:'void',sparse:.65,drone:1}
+  leere:{root:48,sc:'whole',prog:[0,2,4,1],bpm:86,pad:'sawtooth',padLp:420,lead:'sine',leadLp:1400,leadVol:.1,leadDur:4,bass:{type:'sine',lp:400,vol:.3,pat:[0,8]},stab:[],drums:'void',sparse:.65,drone:1},
+  ev_halloween:{root:45,sc:'min',prog:[0,5,3,4],bpm:104,pad:'sawtooth',padLp:420,lead:'sine',leadLp:1800,leadVol:.11,leadDur:3,bass:{type:'sine',lp:500,vol:.3,pat:[0,6,8,14]},stab:[6,14],stabType:'triangle',drums:'void',sparse:.6,drone:1},
+  ev_xmas:{root:62,sc:'majp',prog:[0,3,4,3],bpm:100,pad:'sine',padLp:1800,lead:'sine',leadLp:4200,leadVol:.1,leadDur:2,bass:{type:'sine',lp:700,vol:.22,pat:[0,8]},stab:[4,12],stabType:'triangle',drums:'bells'},
+  ev_easter:{root:60,sc:'majp',prog:[0,2,3,4],bpm:124,pad:'triangle',padLp:1600,lead:'triangle',leadLp:3200,leadVol:.1,leadDur:1,bass:{type:'triangle',lp:900,vol:.24,pat:[0,4,8,12]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
+  ev_valentine:{root:57,sc:'majp',prog:[0,3,1,4],bpm:76,pad:'sine',padLp:1500,lead:'sine',leadLp:2200,leadVol:.12,leadDur:4,bass:{type:'sine',lp:600,vol:.24,pat:[0,8]},stab:[4,12],stabType:'triangle',drums:'soft',soft:1},
+  ev_italy:{root:55,sc:'min',prog:[0,3,4,0],bpm:146,pad:'triangle',padLp:900,lead:'square',leadLp:3000,leadVol:.05,leadDur:1,bass:{type:'triangle',lp:700,vol:.26,pat:[0,8]},stab:[4,12],stabType:'triangle',drums:'oompah'},
+  ev_hungary:{root:52,sc:'hung',prog:[0,3,4,0],bpm:128,pad:'sawtooth',padLp:700,lead:'sawtooth',leadLp:2200,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:560,vol:.2,pat:[0,3,6,8,11,14]},stab:[2,6,10,14],drums:'tribal'},
+  ev_birthday:{root:60,sc:'majp',prog:[0,2,3,4],bpm:132,pad:'triangle',padLp:1800,lead:'triangle',leadLp:3200,leadVol:.11,leadDur:1,bass:{type:'triangle',lp:900,vol:.26,pat:[0,2,4,6,8,10,12,14]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
+  ev_vegas:{root:50,sc:'dor',prog:[0,3,4,3],bpm:112,pad:'sine',padLp:1400,lead:'triangle',leadLp:2400,leadVol:.1,leadDur:2,bass:{type:'triangle',lp:800,vol:.28,pat:[0,4,8,12]},stab:[6,14],stabType:'triangle',drums:'swing'}
 };
 const noteOf=(zm,deg)=>{const sc=SC[zm.sc];const o=Math.floor(deg/sc.length);return zm.root+sc[((deg%sc.length)+sc.length)%sc.length]+12*o;};
-function mkMotif(kind,zm){
-  let a=2166136261;for(let i=0;i<kind.length;i++){a^=kind.charCodeAt(i);a=Math.imul(a,16777619);}
-  const R=()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296;};
-  const RH=[[0,3,6,8,10,12,14],[0,2,3,6,8,11,12,14],[0,4,6,8,10,13,14],[0,3,4,7,8,12,14],[0,2,6,8,10,14]];
+function mkRng(kind){let a=2166136261;for(let i=0;i<kind.length;i++){a^=kind.charCodeAt(i);a=Math.imul(a,16777619);}return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296;};}
+function mkMotif(kind,zm,pr){
+  const R=mkRng(kind);
+  const RH=[[0,3,6,8,10,12,14],[0,2,3,6,8,11,12,14],[0,4,6,8,10,13,14],[0,3,4,7,8,12,14],[0,2,6,8,10,14],[0,2,4,6,8,10,12,14],[0,6,8,12,14]];
   const rA=RH[Math.floor(R()*RH.length)],rB=RH[Math.floor(R()*RH.length)];
   const walk=(rh,base)=>{const seq=[];let c=base;for(const st of rh){const m=R();c+=m<.18?-2:m<.42?-1:m<.52?0:m<.78?1:2;c=Math.max(base-3,Math.min(base+4,c));seq.push([st,c]);}return seq;};
-  const A=walk(rA,zm.prog[0]+2),B=walk(rB,zm.prog[1]+2);
-  const B2=B.map((x,i)=>i===B.length-1?[x[0],zm.prog[0]]:x);
+  const A=walk(rA,pr[0]+2),B=walk(rB,pr[1]+2);
+  const B2=B.map((x,i)=>i===B.length-1?[x[0],pr[0]]:x);
   const mot=Array(64).fill(null);
   [A,B,A,B2].forEach((bar,bi)=>{for(const [st,deg] of bar)mot[bi*16+st]=deg;});
   return mot;
 }
-const MOT={};for(const k of Object.keys(ZMUS))MOT[k]=mkMotif(k,ZMUS[k]);
-AU.zm=ZMUS.gruft;AU.motif=MOT.gruft;
+function mkProgs(kind,zm){
+  const R=mkRng(kind+'p'),pick=a=>a[Math.floor(R()*a.length)];
+  const P0=zm.prog.slice();
+  const P1=[P0[0],pick([1,2,5]),pick([3,4]),pick([4,3,1])];
+  const P2=[pick([3,5]),pick([4,2]),P0[0],pick([4,1])];
+  const P3=[5,3,1,4].map(d=>(d+Math.floor(R()*2))%6);
+  return [P0,P1,P2,P3];
+}
+const MOT={},PROGS={};
+for(const k of Object.keys(ZMUS)){PROGS[k]=mkProgs(k,ZMUS[k]);MOT[k]=PROGS[k].map((pr,i)=>mkMotif(k+i,ZMUS[k],pr));}
+AU.zm=ZMUS.gruft;AU.mots=MOT.gruft;AU.progs=PROGS.gruft;AU.var=0;
 AU.play=function(step,t){
-  const zm=this.zm||ZMUS.gruft,I=this.intensity,sd=this.sd,bar=Math.floor(step/16),s=step%16;
-  const sc=SC[zm.sc],rd=zm.prog[bar];
+  const zm=this.zm||ZMUS.gruft,sd=this.sd,bar=Math.floor(step/16)%16,s=step%16;
+  if(s===0&&bar%4===0&&this.pvar!==undefined){this.var=this.pvar;}
+  const sec=(Math.floor(bar/4)+(this.var||0))%4,bi4=bar%4;
+  const I=sec===3?0:Math.min(2,this.intensity+(sec===2?1:0));
+  const sc=SC[zm.sc],rd=(this.progs||PROGS.gruft)[sec][bi4];
   const nt=d=>mfT(noteOf(zm,d));
   const tn=o=>{o.t=t;o.dest=this.mus;this.tone(o);},ns=o=>{o.t=t;o.dest=this.mus;this.noise(o);};
   const kick=v=>tn({f:140,to:45,dur:.18,type:'sine',vol:v||.38});
@@ -2201,9 +2221,14 @@ AU.play=function(step,t){
   // Akkord-Stöße
   if(I>=1&&zm.stab.includes(s))for(const d of [0,2,4])tn({f:nt(rd+d),dur:sd*1.2,type:zm.stabType||'triangle',vol:.032,lp:1700});
   // Melodie
-  const m=(this.motif||MOT.gruft)[bar*16+s];
+  const m=(this.mots||MOT.gruft)[sec][bi4*16+s];
   if(m!==null&&m!==undefined&&(!zm.sparse||Math.random()<zm.sparse))
-    tn({f:nt(m+sc.length),dur:sd*(zm.leadDur||2),type:zm.lead,vol:(zm.leadVol||.07)*(I>=2?1.15:1),lp:zm.leadLp,attack:.012,send:true});
+    {tn({f:nt(m+sc.length),dur:sd*(zm.leadDur||2)*(sec===3?1.6:1),type:zm.lead,vol:(zm.leadVol||.07)*(I>=2?1.15:1)*(sec===3?.8:1),lp:zm.leadLp,attack:.012,send:true});
+     if(sec===2&&I>=1)tn({f:nt(m+sc.length-2),dur:sd*(zm.leadDur||2),type:zm.lead,vol:(zm.leadVol||.07)*.45,lp:zm.leadLp,attack:.02,send:true});}
+  // Arpeggio in Abschnitt 2 und 3 der Form
+  if((sec===1||sec===2)&&I>=1&&s%2===0)tn({f:nt(rd+[0,2,4,2][(s/2)%4]+sc.length),dur:sd*1.5,type:'triangle',vol:.018,lp:2400,send:true});
+  // Fill am Ende jedes vierten Takts
+  if(bi4===3&&I>=1&&zm.drums!=='void'&&(s===14||s===15))snare(.07);
   // Schlagzeug
   switch(zm.drums){
     case 'rock':
@@ -2234,6 +2259,17 @@ AU.play=function(step,t){
       if(s%4===0||(I>=1&&(s===3||s===11)))kick(.4);
       if(s===4||s===12)snare(.18);
       if(s%2===0)hat(.05);if(I>=2&&s%2===1)hat(.035);break;
+    case 'swing':
+      if(s===0||s===8)kick(.22);
+      if(I>=1&&(s===4||s===12))ns({f:2400,dur:.09,vol:.08,q:.6});
+      if(s%4===0)hat(.04);if(s%4===3&&I>=1)hat(.03);break;
+    case 'bells':
+      if(s===0)kick(.22);
+      if(s%2===0)ns({f:7500,ft:'highpass',dur:.03,vol:.05});
+      if(I>=1&&s%4===0)tn({f:nt(rd+4+sc.length*2),dur:.25,type:'sine',vol:.025,send:true});break;
+    case 'oompah':
+      if(s===0||s===8)kick(.3);if(s===4||s===12)snare(.1);
+      if(I>=1&&s%2===0)hat(.04);break;
     case 'void':
       if(s===0&&bar%2===0)tn({f:nt(rd)/4,dur:sd*16,type:'sine',vol:.2,attack:1});
       if(I>=1&&s===8)kick(.3);
@@ -4654,7 +4690,7 @@ function updateStats(){
   rollQuests();dailyRoll();
   $('#b-daily').textContent='Tageslauf: '+DAILY_RULES[ruleOf()].name;
   $('#q-dot').hidden=!loginPending();
-  const ev=activeEvent();$('#b-event').hidden=!ev;if(ev)$('#b-event').textContent=EVENTS[ev].name;
+  const ev=activeEvent();$('#b-event').hidden=!ev;if(MUSIC_EV[ev]){AU.zm=ZMUS[MUSIC_EV[ev]];AU.mots=MOT[MUSIC_EV[ev]];AU.progs=PROGS[MUSIC_EV[ev]];AU.sd=60/AU.zm.bpm/4;AU.trans=0;}if(ev)$('#b-event').textContent=EVENTS[ev].name;
 }
 function startGame(endless,daily){
   show('scr-game');
@@ -4866,6 +4902,7 @@ $('#w-title').addEventListener('click',()=>{sfx('click');closeModal('m-win');G=n
 /* ================= Theme, Staub, Zurück-Taste ================= */
 const TINTS=['#2b2650','#1f3a4d','#3d2a55','#4d2b30','#2a4a3f','#3a2f66','#4a3a22','#22364d','#4d2a45','#2d2d4d'];
 const TRANS=[0,2,-2,3,-1,5,0,-3,2,0];
+const MUSIC_EV={vegas:'ev_vegas',halloween:'ev_halloween',xmas:'ev_xmas',easter:'ev_easter',valentine:'ev_valentine',italy:'ev_italy',hungary:'ev_hungary',birthday:'ev_birthday'};
 let bgZone='';
 function buildZoneBg(kd){
   const bg=$('#zbg');bg.innerHTML='';
@@ -4925,8 +4962,11 @@ function applyTheme(){
   applyZone();
   const d=(G.depth-1+zoneOf(G.depth)*3)%10;
   document.documentElement.style.setProperty('--tint',G.boss?'#5a1f2a':(ZTINT[curKind()]||TINTS[d]));
-  const kz=curKind();AU.zm=ZMUS[kz]||ZMUS.gruft;AU.motif=MOT[kz]||MOT.gruft;
-  AU.trans=G.boss?-5:(kz==='gruft'?TRANS[(G.depth-1)%10]:0);AU.sd=60/(G.boss?AU.zm.bpm+12:AU.zm.bpm)/4;
+  const ev=activeEvent(),kz=ev&&!G.boss&&MUSIC_EV[ev]?MUSIC_EV[ev]:curKind();
+  AU.zm=ZMUS[kz]||ZMUS.gruft;AU.mots=MOT[kz]||MOT.gruft;AU.progs=PROGS[kz]||PROGS.gruft;
+  AU.pvar=(G.depth*5+Math.floor(G.depth/10))%4;
+  AU.trans=G.boss?-5:TRANS[(G.depth-1)%10]*(kz==='oase'?0:1);
+  AU.sd=60/((G.boss?AU.zm.bpm+12:AU.zm.bpm)+((G.depth%4)-1.5)*3)/4;
 }
 const SAVEKEYS=['seen','limbo','temps','ink','cls','noAmmo','noMelee','noHpUp','mana','manaMax','plate','goldMul','psn','burn','stone','depth','score','kills','turns','hp','maxhp','dmg','bombs','ups','shieldMax','thorns','leech','spear','chase','killCount','undoBonus','won','endless','diff','daily','rule','dday','bossKills','gsPaid','money','rage','cloak','freeSteps','lucky','veil','curse','oasis','maprel','sandy','assassin','gears','rod','torch','spare','lens','chain','pearl','ink','harpoon','feast','volt','anchor','paralyzed','shell','gale','gustshield','tailwind','sack','shadow','fury','dice','loot','haggle','income','net','hunter','lockpicks','crit','armor','rest','sling','boots','wide','stun','splash','regen','dodge','gold','pickN','phoenix','phx','swift','frost','poison','soul','thorns2','exec','spark','fang','master','steps','coins'];
 function saveRun(){
