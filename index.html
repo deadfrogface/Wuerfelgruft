@@ -2127,7 +2127,6 @@ AU.tone=function(o){
   const t=o.t!==undefined?o.t:c.currentTime;
   const osc=c.createOscillator(),g=c.createGain();
   osc.type=o.type||'sine';osc.frequency.setValueAtTime(o.f,t);
-  if(o.vib){const lf=c.createOscillator(),lg=c.createGain();lf.frequency.value=5.2;lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(o.f*o.vib*.000578,t+Math.min(.35,o.dur*.5));lf.connect(lg);lg.connect(osc.frequency);lf.start(t);lf.stop(t+o.dur+.05);}
   if(o.to)osc.frequency.exponentialRampToValueAtTime(Math.max(1,o.to),t+o.dur);
   const a=o.attack||.005;
   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.2,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+o.dur);
@@ -2156,118 +2155,11 @@ AU.sched=function(){
 };
 const mfT=n=>mf(n+(AU.trans||0));
 const SC={minp:[0,3,5,7,10],majp:[0,2,4,7,9],phryg:[0,1,4,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],min:[0,2,3,5,7,8,10],hung:[0,2,3,6,7,8,11],whole:[0,2,4,6,8,10]};
-/* ---- Komponierte Stücke (Events, Wüste): feste Melodien, Akkorde und Klangfarben ---- */
-const NOTEI={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
-const nm=s=>{const m=/^([A-G])([#b]?)(-?\d)$/.exec(s);return 12*(+m[3]+1)+NOTEI[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0);};
-const parseMel=str=>{const o={};for(const t of str.split(' ')){if(!t)continue;const m=/^([A-G][#b]?\d)@(\d+)\/(\d+)$/.exec(t);o[+m[2]]=[nm(m[1]),+m[3]];}return o;};
-const prepSong=sg=>{sg.P=sg.secs.map(S=>({ch:S.ch.map(c=>c.split(' ').map(nm)),mel:S.mel.map(parseMel)}));return sg;};
-const SONGS={
-  /* Vegas: Rock'n'Roll im Swing, Boogie-Bass, Gitarre und Bläser (A-Dur) */
-  vegas:prepSong({swing:.8,drums:'rock',
-    lead:{type:'sawtooth',lp:2800,vol:.07,dur:.9},
-    bass:{pat:'boogie',type:'triangle',vol:.26,lp:900,dur:1.5},
-    comp:{steps:[6,14],type:'sawtooth',vol:.03,lp:1700,dur:1.2},
-    pad:{type:'sine',vol:.02,lp:1200},
-    secs:[
-      {ch:['A2 A3 C#4 E4','A2 A3 C#4 E4','A2 A3 C#4 E4','A2 G3 C#4 E4'],
-       mel:['A4@0/2 C5@2/2 C#5@4/2 E5@6/2 A5@8/6','G5@0/2 E5@2/2 C#5@4/2 C5@6/2 A4@8/6','A4@0/2 C5@2/2 C#5@4/2 E5@6/2 F#5@8/4 E5@12/4','C#5@0/4 A4@4/4 E4@8/2 G#4@10/2 B4@12/4']},
-      {ch:['D2 D4 F#4 A4','D2 D4 F#4 A4','A2 A3 C#4 E4','A2 A3 C#4 E4'],
-       mel:['D5@0/2 D5@2/2 F#5@4/2 A5@6/6 F#5@12/4','D5@0/2 D5@2/2 F#5@4/2 A5@6/6 G5@12/4','E5@0/4 C#5@4/4 A4@8/8','E5@0/2 C#5@2/2 A4@4/2 E4@6/2 A4@8/8']},
-      {ch:['E2 D4 G#4 B4','D2 D4 F#4 A4','A2 A3 C#4 E4','E2 D4 G#4 B4'],
-       mel:['B4@0/2 B4@2/2 D5@4/2 E5@6/2 G#5@8/8','A5@0/4 F#5@4/4 D5@8/4 A4@12/4','C#5@0/2 E5@2/2 A5@4/4 E5@8/4 C#5@12/4','B4@0/4 G#4@4/4 E4@8/2 G#4@10/2 B4@12/4']},
-      {ch:['A2 A3 C#4 E4','D2 D4 F#4 A4','A2 A3 C#4 E4','E2 D4 G#4 B4'],
-       mel:['A5@0/8 E5@8/8','D5@0/8 F#5@8/8','C#5@0/8 E5@8/8','B4@0/4 G#4@4/4 E4@8/8']}]}),
-  /* Weihnachten: Jingle Bells (gemeinfrei) mit Glocken, Schellen und Stille Nacht als Ruhepart */
-  xmas:prepSong({drums:'sleigh',
-    lead:{type:'sine',lp:3600,vol:.12,dur:.95,dbl:{n:12,type:'triangle',v:.4},dblAll:true},
-    bass:{pat:'root',type:'sine',vol:.2,lp:600,dur:3},
-    pad:{type:'sine',vol:.025,lp:1500},
-    comp:{steps:[4,12],type:'triangle',vol:.022,lp:2400,dur:.8},
-    secs:[
-      {ch:['C3 C4 E4 G4','C3 C4 E4 G4','C3 C4 E4 G4','C3 C4 E4 G4'],
-       mel:['E5@0/4 E5@4/4 E5@8/8','E5@0/4 E5@4/4 E5@8/8','E5@0/4 G5@4/4 C5@8/6 D5@14/2','E5@0/16']},
-      {ch:['F2 F3 A3 C4','C3 C4 E4 G4','C3 C4 E4 G4','G2 G3 B3 D4'],
-       mel:['F5@0/4 F5@4/4 F5@8/6 F5@14/2','F5@0/4 E5@4/4 E5@8/4 E5@12/2 E5@14/2','E5@0/4 D5@4/4 D5@8/4 E5@12/4','D5@0/8 G5@8/8']},
-      {ch:['C3 C4 E4 G4','C3 C4 E4 G4','C3 C4 E4 G4','C3 C4 E4 G4'],
-       mel:['E5@0/4 E5@4/4 E5@8/8','E5@0/4 E5@4/4 E5@8/8','E5@0/4 G5@4/4 C5@8/6 D5@14/2','E5@0/12 C5@12/4']},
-      {ch:['C3 C4 E4 G4','C3 C4 E4 G4','G2 G3 B3 D4','C3 C4 E4 G4'],
-       mel:['G4@0/6 A4@6/2 G4@8/4 E4@12/4','G4@0/6 A4@6/2 G4@8/4 E4@12/4','D5@0/4 D5@4/4 B4@8/8','C5@0/4 C5@4/4 G4@8/8']}]}),
-  /* Ostern: leichter, hüpfender Frühling in G-Dur mit Flöte, Glockenspiel und Zupfbass */
-  easter:prepSong({drums:'spring',
-    lead:{type:'triangle',lp:3200,vol:.1,dur:.55,dbl:{n:12,type:'sine',v:.35},dblAll:true},
-    bass:{pat:'hop',type:'sine',vol:.24,lp:700,dur:.9},
-    comp:{steps:[2,6,10,14],type:'triangle',vol:.022,lp:2200,dur:.45},
-    secs:[
-      {ch:['G2 G3 B3 D4','C3 C4 E4 G4','G2 G3 B3 D4','D2 D3 F#3 A3'],
-       mel:['D5@0/2 G5@2/2 G5@4/2 B5@6/2 A5@8/4 G5@12/4','E5@0/2 G5@2/2 G5@4/2 C6@6/2 B5@8/4 G5@12/4','D5@0/2 G5@2/2 B5@4/2 D6@6/2 C6@8/4 A5@12/4','B5@0/4 A5@4/4 F#5@8/4 D5@12/4']},
-      {ch:['E2 E3 G3 B3','C3 C4 E4 G4','D2 D3 F#3 A3','G2 G3 B3 D4'],
-       mel:['E5@0/2 B5@2/2 B5@4/2 G5@6/2 E5@8/4 G5@12/4','E5@0/2 G5@2/2 C6@4/2 G5@6/2 E5@8/8','F#5@0/2 A5@2/2 D6@4/2 A5@6/2 F#5@8/4 D5@12/4','G5@0/4 B5@4/4 D6@8/8']},
-      {ch:['G2 G3 B3 D4','C3 C4 E4 G4','G2 G3 B3 D4','D2 D3 F#3 A3'],
-       mel:['D5@0/2 G5@2/2 G5@4/2 B5@6/2 A5@8/4 G5@12/4','E5@0/2 G5@2/2 G5@4/2 C6@6/2 B5@8/4 G5@12/4','D5@0/2 G5@2/2 B5@4/2 D6@6/2 C6@8/4 A5@12/4','B5@0/2 A5@2/2 G5@4/2 F#5@6/2 G5@8/8']},
-      {ch:['G2 G3 B3 D4','C3 C4 E4 G4','G2 G3 B3 D4','D2 D3 F#3 A3'],
-       mel:['G5@0/8 D5@8/8','E5@0/8 C5@8/8','B5@0/8 G5@8/8','A5@0/4 F#5@4/4 D5@8/8']}]}),
-  /* Geburtstag: Happy Birthday (gemeinfrei) als Party-Polka mit Blech und Konfetti */
-  birthday:prepSong({drums:'polka',party:true,
-    lead:{type:'sawtooth',lp:2300,vol:.06,dur:.9,dbl:{n:12,type:'triangle',v:.5}},
-    bass:{pat:'oompah',type:'triangle',vol:.27,lp:800,dur:1.2},
-    comp:{steps:[4,12],type:'sawtooth',vol:.024,lp:1500,dur:.7},
-    secs:[
-      {ch:['C3 C4 E4 G4','G2 G3 B3 D4','G2 G3 B3 D4','C3 C4 E4 G4'],
-       mel:['G4@0/3 G4@3/1 A4@4/4 G4@8/4 C5@12/4','B4@0/8','G4@0/3 G4@3/1 A4@4/4 G4@8/4 D5@12/4','C5@0/8']},
-      {ch:['C3 C4 E4 G4','G2 G3 B3 D4','F2 F3 A3 C4','C3 C4 E4 G4'],
-       mel:['G4@0/3 G4@3/1 G5@4/4 E5@8/4 C5@12/4','B4@0/6 A4@8/8','F5@0/3 F5@3/1 E5@4/4 C5@8/4 D5@12/4','C5@0/8']},
-      {ch:['C3 C4 E4 G4','G2 G3 B3 D4','G2 G3 B3 D4','C3 C4 E4 G4'],
-       mel:['G4@0/3 G4@3/1 A4@4/4 G4@8/4 C5@12/4','B4@0/8','G4@0/3 G4@3/1 A4@4/4 G4@8/4 D5@12/4','C5@0/8']},
-      {ch:['C3 C4 E4 G4','G2 G3 B3 D4','F2 F3 A3 C4','C3 C4 E4 G4'],
-       mel:['C5@0/4 E5@4/4 G5@8/8','B4@0/4 D5@4/4 G5@8/8','A4@0/4 C5@4/4 F5@8/8','E5@0/4 G5@4/4 C6@8/8']}]}),
-  /* Italien: Tarantella in a-Moll mit Mandoline (Tremolo), Akkordeon und Schellenkranz */
-  italy:prepSong({swing:.6,drums:'tar',
-    lead:{type:'square',lp:3600,vol:.045,trem:1},
-    bass:{pat:'tar',type:'triangle',vol:.26,lp:750,dur:1.1},
-    comp:{steps:[4,12],type:'sawtooth',vol:.026,lp:1300,dur:.9},
-    secs:[
-      {ch:['A2 A3 C4 E4','A2 A3 C4 E4','E2 E3 G#3 B3','A2 A3 C4 E4'],
-       mel:['A4@0/2 C5@2/2 E5@4/2 A5@6/2 E5@8/2 C5@10/2 A4@12/4','C5@0/2 E5@2/2 A5@4/2 E5@6/2 C5@8/2 B4@10/2 A4@12/4','G#4@0/2 B4@2/2 E5@4/2 G#5@6/2 F5@8/2 D5@10/2 B4@12/4','A4@0/4 E5@4/4 C5@8/4 A4@12/4']},
-      {ch:['C3 C4 E4 G4','G2 G3 B3 D4','C3 C4 E4 G4','E2 E3 G#3 B3'],
-       mel:['E5@0/2 G5@2/2 C6@4/2 G5@6/2 E5@8/4 G5@12/4','D5@0/2 G5@2/2 B5@4/2 G5@6/2 D5@8/4 B4@12/4','E5@0/2 G5@2/2 C6@4/2 B5@6/2 A5@8/2 G5@10/2 E5@12/4','D5@0/2 B4@2/2 G#4@4/2 B4@6/2 E5@8/8']},
-      {ch:['A2 A3 C4 E4','D2 D3 F3 A3','E2 E3 G#3 B3','A2 A3 C4 E4'],
-       mel:['A5@0/2 E5@2/2 C5@4/2 E5@6/2 A5@8/2 C6@10/2 B5@12/4','A5@0/2 F5@2/2 D5@4/2 F5@6/2 A5@8/4 F5@12/4','G#5@0/2 E5@2/2 B4@4/2 E5@6/2 G#5@8/2 B5@10/2 E5@12/4','A5@0/2 E5@2/2 C5@4/2 A4@6/2 A4@8/8']},
-      {ch:['A2 A3 C4 E4','D2 D3 F3 A3','E2 E3 G#3 B3','A2 A3 C4 E4'],
-       mel:['A4@0/8 C5@8/8','D5@0/8 F5@8/8','E5@0/8 G#4@8/8','A4@0/16']}]}),
-  /* Ungarn: Csárdás in d-Moll (ungarische Skala) mit Geige, Cimbalom und Betonung auf den Nachschlägen */
-  hungary:prepSong({drums:'csardas',
-    lead:{type:'sawtooth',lp:2400,vol:.06,dur:1,vib:14,attack:.04},
-    bass:{pat:'oompah',type:'sawtooth',vol:.17,lp:520,dur:1},
-    comp:{steps:[4,12],type:'sawtooth',vol:.026,lp:1500,dur:.8},
-    arp:{every:2,minI:1,type:'triangle',vol:.03,dur:.8,oct:12,lp:3200},
-    secs:[
-      {ch:['D2 D3 F3 A3','A2 G3 C#4 E4','D2 D3 F3 A3','A2 G3 C#4 E4'],
-       mel:['D5@0/6 E5@6/2 F5@8/4 G#5@12/4','A5@0/6 G#5@6/2 F5@8/4 E5@12/4','D5@0/4 F5@4/2 E5@6/2 D5@8/4 Bb4@12/4','C#5@0/4 D5@4/4 E5@8/8']},
-      {ch:['G2 G3 Bb3 D4','D2 D3 F3 A3','A2 G3 C#4 E4','D2 D3 F3 A3'],
-       mel:['Bb4@0/4 D5@4/4 G5@8/4 Bb5@12/4','A5@0/6 F5@6/2 D5@8/8','E5@0/2 F5@2/2 G#5@4/2 A5@6/2 G#5@8/2 F5@10/2 E5@12/4','D5@0/8 A4@8/8']},
-      {ch:['D2 D3 F3 A3','D2 D3 F3 A3','A2 G3 C#4 E4','D2 D3 F3 A3'],
-       mel:['D5@0/2 F5@2/2 A5@4/2 F5@6/2 D5@8/2 F5@10/2 A5@12/2 D6@14/2','C#6@0/2 A5@2/2 F5@4/2 A5@6/2 C#6@8/2 A5@10/2 E5@12/4','E5@0/2 G#5@2/2 A5@4/2 Bb5@6/2 A5@8/2 G#5@10/2 E5@12/4','D5@0/2 F5@2/2 A5@4/2 D6@6/2 D6@8/8']},
-      {ch:['D2 D3 F3 A3','A2 G3 C#4 E4','D2 D3 F3 A3','A2 G3 C#4 E4'],
-       mel:['D5@0/4 F5@4/4 A5@8/4 F5@12/4','E5@0/4 G#5@4/4 A5@8/8','D5@0/4 F5@4/4 A5@8/4 F5@12/4','C#5@0/4 E5@4/4 D5@8/8']}]}),
-  /* Wüste: arabisch/ägyptisch, Hijaz-Tonleiter (d eb f# g a bb c), Ney, Oud, Bordun und Darbuka (Maqsum) */
-  desert:prepSong({drums:'darbuka',drone:['D2','A2'],
-    lead:{type:'sine',lp:2600,vol:.1,dur:1.05,vib:22,attack:.05},
-    bass:{pat:'root',type:'triangle',vol:.2,lp:500,dur:2},
-    arp:{every:3,minI:0,type:'triangle',vol:.05,dur:1.1,oct:0,lp:2000},
-    secs:[
-      {ch:['D2 D3 F#3 A3','D2 D3 F#3 A3','D2 D3 F#3 A3','D2 D3 F#3 A3'],
-       mel:['D5@0/4 Eb5@4/2 F#5@6/2 G5@8/4 F#5@12/2 Eb5@14/2','D5@0/6 C5@6/2 Bb4@8/4 A4@12/4','A4@0/2 Bb4@2/2 C5@4/2 D5@6/2 Eb5@8/4 D5@12/4','C5@0/4 Bb4@4/4 A4@8/8']},
-      {ch:['D2 D3 F#3 A3','Eb2 Eb3 G3 Bb3','D2 D3 F#3 A3','D2 D3 F#3 A3'],
-       mel:['A5@0/4 G5@4/2 F#5@6/2 G5@8/4 A5@12/4','Bb5@0/6 A5@6/2 G5@8/4 F#5@12/2 Eb5@14/2','D5@0/2 Eb5@2/2 F#5@4/2 G5@6/2 A5@8/8','G5@0/4 F#5@4/2 Eb5@6/2 D5@8/8']},
-      {ch:['D2 D3 F#3 A3','D2 D3 F#3 A3','C3 C4 Eb4 G4','D2 D3 F#3 A3'],
-       mel:['D5@0/1 Eb5@1/1 D5@2/1 Eb5@3/1 F#5@4/4 G5@8/2 A5@10/2 Bb5@12/4','A5@0/2 G5@2/2 F#5@4/2 G5@6/2 A5@8/4 D6@12/4','C6@0/2 Bb5@2/2 A5@4/2 G5@6/2 F#5@8/2 G5@10/2 Eb5@12/4','D5@0/2 Eb5@2/2 F#5@4/2 Eb5@6/2 D5@8/8']},
-      {ch:['D2 D3 F#3 A3','D2 D3 F#3 A3','D2 D3 F#3 A3','D2 D3 F#3 A3'],
-       mel:['D5@0/8 A4@8/8','Eb5@0/8 F#5@8/8','G5@0/8 F#5@8/8','Eb5@0/4 D5@4/12']}]})
-};
 const ZMUS={
   oase:{root:55,sc:'majp',prog:[0,3,4,3],bpm:86,pad:'sine',padLp:1800,lead:'triangle',leadLp:2400,leadVol:.09,leadDur:3,bass:{type:'sine',lp:600,vol:.22,pat:[0,6,8,14]},stab:[10],stabType:'triangle',drums:'soft'},
   gruft:{root:57,sc:'minp',prog:[0,2,4,3],bpm:112,pad:'sawtooth',padLp:600,lead:'square',leadLp:2400,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:520,vol:.17,pat:[0,3,6,8,11,14]},stab:[6,10],drums:'rock'},
   gold:{root:60,sc:'majp',prog:[0,2,1,3],bpm:128,pad:'triangle',padLp:1500,lead:'triangle',leadLp:3000,leadVol:.1,leadDur:2,bass:{type:'triangle',lp:900,vol:.26,pat:[0,2,4,6,8,10,12,14]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
+  wueste:{root:52,sc:'phryg',prog:[0,1,0,4],bpm:104,pad:'sawtooth',padLp:600,lead:'sawtooth',leadLp:1700,leadVol:.045,leadDur:2,bass:{type:'sawtooth',lp:480,vol:.17,pat:[0,3,6,10,13]},stab:[3,10],drums:'tribal',drone:1},
   moor:{root:50,sc:'dor',prog:[0,3,4,2],bpm:98,pad:'triangle',padLp:600,lead:'triangle',leadLp:1500,leadVol:.1,leadDur:3,bass:{type:'sine',lp:700,vol:.3,pat:[0,6,8,14]},stab:[10],drums:'soft'},
   wind:{root:53,sc:'lyd',prog:[0,1,0,4],bpm:118,pad:'sine',padLp:2000,lead:'triangle',leadLp:2600,leadVol:.09,leadDur:3,bass:{type:'triangle',lp:800,vol:.24,pat:[0,4,8,12]},stab:[4,12],stabType:'triangle',drums:'rock',wash:1},
   uhrwerk:{root:52,sc:'min',prog:[0,5,3,4],bpm:124,pad:'sawtooth',padLp:600,lead:'square',leadLp:2000,leadVol:.045,leadDur:1,bass:{type:'sawtooth',lp:520,vol:.15,pat:[0,2,4,6,8,10,12,14]},stab:[4,12],drums:'tick'},
@@ -2275,15 +2167,14 @@ const ZMUS={
   tiefsee:{root:45,sc:'min',prog:[0,3,4,0],bpm:92,pad:'triangle',padLp:420,lead:'sine',leadLp:1200,leadVol:.12,leadDur:3,bass:{type:'sine',lp:500,vol:.34,pat:[0,6,8,14]},stab:[],drums:'bubble'},
   glut:{root:52,sc:'phryg',prog:[0,1,3,4],bpm:134,pad:'sawtooth',padLp:700,lead:'sawtooth',leadLp:1900,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:560,vol:.2,pat:[0,2,3,6,8,10,11,14]},stab:[3,6,11],drums:'heavy'},
   leere:{root:48,sc:'whole',prog:[0,2,4,1],bpm:86,pad:'sawtooth',padLp:420,lead:'sine',leadLp:1400,leadVol:.1,leadDur:4,bass:{type:'sine',lp:400,vol:.3,pat:[0,8]},stab:[],drums:'void',sparse:.65,drone:1},
-  wueste:{bpm:108,song:SONGS.desert},
   ev_halloween:{root:45,sc:'min',prog:[0,5,3,4],bpm:104,pad:'sawtooth',padLp:420,lead:'sine',leadLp:1800,leadVol:.11,leadDur:3,bass:{type:'sine',lp:500,vol:.3,pat:[0,6,8,14]},stab:[6,14],stabType:'triangle',drums:'void',sparse:.6,drone:1},
-  ev_xmas:{bpm:104,song:SONGS.xmas},
-  ev_easter:{bpm:116,song:SONGS.easter},
+  ev_xmas:{root:62,sc:'majp',prog:[0,3,4,3],bpm:100,pad:'sine',padLp:1800,lead:'sine',leadLp:4200,leadVol:.1,leadDur:2,bass:{type:'sine',lp:700,vol:.22,pat:[0,8]},stab:[4,12],stabType:'triangle',drums:'bells'},
+  ev_easter:{root:60,sc:'majp',prog:[0,2,3,4],bpm:124,pad:'triangle',padLp:1600,lead:'triangle',leadLp:3200,leadVol:.1,leadDur:1,bass:{type:'triangle',lp:900,vol:.24,pat:[0,4,8,12]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
   ev_valentine:{root:57,sc:'majp',prog:[0,3,1,4],bpm:76,pad:'sine',padLp:1500,lead:'sine',leadLp:2200,leadVol:.12,leadDur:4,bass:{type:'sine',lp:600,vol:.24,pat:[0,8]},stab:[4,12],stabType:'triangle',drums:'soft',soft:1},
-  ev_italy:{bpm:152,song:SONGS.italy},
-  ev_hungary:{bpm:132,song:SONGS.hungary},
-  ev_birthday:{bpm:118,song:SONGS.birthday},
-  ev_vegas:{bpm:126,song:SONGS.vegas}
+  ev_italy:{root:55,sc:'min',prog:[0,3,4,0],bpm:146,pad:'triangle',padLp:900,lead:'square',leadLp:3000,leadVol:.05,leadDur:1,bass:{type:'triangle',lp:700,vol:.26,pat:[0,8]},stab:[4,12],stabType:'triangle',drums:'oompah'},
+  ev_hungary:{root:52,sc:'hung',prog:[0,3,4,0],bpm:128,pad:'sawtooth',padLp:700,lead:'sawtooth',leadLp:2200,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:560,vol:.2,pat:[0,3,6,8,11,14]},stab:[2,6,10,14],drums:'tribal'},
+  ev_birthday:{root:60,sc:'majp',prog:[0,2,3,4],bpm:132,pad:'triangle',padLp:1800,lead:'triangle',leadLp:3200,leadVol:.11,leadDur:1,bass:{type:'triangle',lp:900,vol:.26,pat:[0,2,4,6,8,10,12,14]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
+  ev_vegas:{root:50,sc:'dor',prog:[0,3,4,3],bpm:112,pad:'sine',padLp:1400,lead:'triangle',leadLp:2400,leadVol:.1,leadDur:2,bass:{type:'triangle',lp:800,vol:.28,pat:[0,4,8,12]},stab:[6,14],stabType:'triangle',drums:'swing'}
 };
 const noteOf=(zm,deg)=>{const sc=SC[zm.sc];const o=Math.floor(deg/sc.length);return zm.root+sc[((deg%sc.length)+sc.length)%sc.length]+12*o;};
 function mkRng(kind){let a=2166136261;for(let i=0;i<kind.length;i++){a^=kind.charCodeAt(i);a=Math.imul(a,16777619);}return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -2307,62 +2198,9 @@ function mkProgs(kind,zm){
   return [P0,P1,P2,P3];
 }
 const MOT={},PROGS={};
-for(const k of Object.keys(ZMUS)){if(ZMUS[k].song)continue;PROGS[k]=mkProgs(k,ZMUS[k]);MOT[k]=PROGS[k].map((pr,i)=>mkMotif(k+i,ZMUS[k],pr));}
+for(const k of Object.keys(ZMUS)){PROGS[k]=mkProgs(k,ZMUS[k]);MOT[k]=PROGS[k].map((pr,i)=>mkMotif(k+i,ZMUS[k],pr));}
 AU.zm=ZMUS.gruft;AU.mots=MOT.gruft;AU.progs=PROGS.gruft;AU.var=0;
-AU.playSong=function(sg,step,t){
-  const bar=Math.floor(step/16)%16,s=step%16;
-  if(s===0&&bar%4===0&&this.pvar!==undefined)this.var=this.pvar;
-  const sec=(Math.floor(bar/4)+(this.var||0))%4,bi=bar%4;
-  const I=sec===3?0:Math.min(2,this.intensity+(sec===2?1:0));
-  const sd=this.sd,T=t+(sg.swing&&s%4===2?sd*sg.swing*.67:0);
-  const P=sg.P[sec],ch=P.ch[bi],br=ch[0],ct=ch.slice(1);
-  const F=m=>mfT(m);
-  const tn=(o,tt)=>{o.t=tt===undefined?T:tt;o.dest=this.mus;this.tone(o);};
-  const ns=o=>{o.t=t;o.dest=this.mus;this.noise(o);};
-  const kick=v=>tn({f:140,to:45,dur:.18,type:'sine',vol:v},t),snare=v=>{ns({f:1900,dur:.12,vol:v,q:.7});tn({f:190,to:120,dur:.08,type:'triangle',vol:v*.6},t);},hat=v=>ns({f:8000,ft:'highpass',dur:.03,vol:v});
-  if(s===0&&sg.pad)for(const n of ct)tn({f:F(n),dur:sd*15.5,attack:.5,type:sg.pad.type,vol:sg.pad.vol,lp:sg.pad.lp},t);
-  if(s===0&&sg.drone)for(const n of sg.drone)tn({f:F(nm(n)),dur:sd*15.5,attack:.8,type:'sine',vol:.05},t);
-  const bs=sg.bass;
-  if(bs&&(I>=1||s%8===0)){
-    let off=null;
-    if(bs.pat==='boogie'){if(s%2===0)off=[0,4,7,9,10,9,7,4][s/2];}
-    else if(bs.pat==='oompah'){if(s===0||s===8)off=0;else if(s===4||s===12)off=7;}
-    else if(bs.pat==='hop'){if(s===0||s===14)off=0;else if(s===6||s===8)off=7;}
-    else if(bs.pat==='tar'){if(s%4===0)off=s%8===0?0:7;}
-    else if(bs.pat==='root'){if(s===0||s===8)off=0;}
-    if(off!==null)tn({f:F(br+off),dur:sd*(bs.dur||1.8),type:bs.type,vol:bs.vol,lp:bs.lp,attack:.005});
-  }
-  if(sg.comp&&I>=1&&sg.comp.steps.includes(s))for(const n of ct)tn({f:F(n),dur:sd*(sg.comp.dur||1),type:sg.comp.type,vol:sg.comp.vol,lp:sg.comp.lp||2000});
-  if(sg.arp&&I>=sg.arp.minI&&s%sg.arp.every===0){const k=Math.floor(s/sg.arp.every)%ct.length;tn({f:F(ct[k]+(sg.arp.oct||0)),dur:sd*(sg.arp.dur||1.5),type:sg.arp.type,vol:sg.arp.vol,lp:sg.arp.lp||2400,send:true});}
-  const mn=P.mel[bi][s];
-  if(mn){
-    const m=mn[0],len=mn[1],L=sg.lead,v=L.vol*(I>=2?1.15:1)*(sec===3?.75:1);
-    if(L.trem){for(let k=0;k<len;k+=L.trem)tn({f:F(m),dur:sd*Math.min(len-k,L.trem)*1.15+.03,type:L.type,vol:v*(k?.7:1),lp:L.lp,attack:.004,send:true},T+k*sd);}
-    else tn({f:F(m),dur:sd*len*(L.dur||1),type:L.type,vol:v,lp:L.lp,attack:L.attack||.012,vib:L.vib,send:true});
-    if(L.dbl&&(sec===2||L.dblAll))tn({f:F(m+L.dbl.n),dur:sd*len*(L.dur||1),type:L.dbl.type,vol:v*L.dbl.v,lp:L.lp,attack:.01,send:true});
-  }
-  switch(sg.drums){
-    case 'rock':
-      if(s===0||s===8)kick(.34);if(I>=1&&s===10)kick(.2);if(s===4||s===12)snare(.16);if(s%4===0||s%4===2)hat(.04);break;
-    case 'sleigh':
-      if(s===0)kick(.18);if(s%2===0)ns({f:7500,ft:'highpass',dur:.05,vol:.05});if(s%4===0)ns({f:5200,ft:'highpass',dur:.09,vol:.035});break;
-    case 'polka':
-      if(s===0||s===8)kick(.3);if(s===4||s===12)snare(.12);if(s%4===2)hat(.05);
-      if(sg.party&&s===0&&sec===2&&bi===0)ns({f:3000,to:9000,dur:.5,vol:.08,q:.5});break;
-    case 'tar':
-      if(s===0||s===8)kick(.26);if(s%2===0)ns({f:6500,ft:'highpass',dur:.04,vol:.05});if(I>=1&&(s===6||s===14))snare(.08);break;
-    case 'csardas':
-      if(s===0||s===8)kick(.28);if(I>=1&&(s===4||s===12))snare(.1);if(s%2===0)hat(.035);break;
-    case 'darbuka':
-      if(s===0||s===8)tn({f:120,to:70,dur:.2,type:'sine',vol:.3},t);
-      if(s===2||s===6||s===12||(I>=1&&s===14))ns({f:3600,dur:.06,vol:.1,q:2});
-      if(I>=2&&s===10)ns({f:3000,dur:.05,vol:.06,q:2});break;
-    case 'spring':
-      if(s===0||s===8)kick(.16);if(s%4===0)tn({f:900,dur:.05,type:'square',vol:.035},t);if(I>=1&&s%8===4)ns({f:4200,ft:'highpass',dur:.05,vol:.05});break;
-  }
-};
 AU.play=function(step,t){
-  if((this.zm||ZMUS.gruft).song)return this.playSong(this.zm.song,step,t);
   const zm=this.zm||ZMUS.gruft,sd=this.sd,bar=Math.floor(step/16)%16,s=step%16;
   if(s===0&&bar%4===0&&this.pvar!==undefined){this.var=this.pvar;}
   const sec=(Math.floor(bar/4)+(this.var||0))%4,bi4=bar%4;
