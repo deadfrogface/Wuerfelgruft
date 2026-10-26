@@ -191,11 +191,11 @@ svg{display:block}
 .nf.unk::after{color:rgba(255,255,255,.22)}
 .nf i.q{background:#e8873a}
 .nf i.f{background:#8fd0e8}
-.fchip{position:absolute;z-index:4;pointer-events:none;font:700 11px/1 var(--ui);color:rgba(255,255,255,.78);background:rgba(10,8,30,.55);padding:3px 7px;border-radius:9px;white-space:nowrap}
-.fchip.up{top:4px;left:50%;transform:translateX(-50%)}
-.fchip.down{bottom:4px;left:50%;transform:translateX(-50%)}
-.fchip.left{left:4px;top:50%;transform:translateY(-50%)}
-.fchip.right{right:4px;top:50%;transform:translateY(-50%)}
+.fchip{position:absolute;z-index:4;pointer-events:none;font:800 14px/1 var(--ui);color:rgba(255,255,255,.9);background:rgba(10,8,30,.6);padding:4px 7px;border-radius:9px;white-space:nowrap;box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.fchip.up{top:-30px;left:50%;transform:translateX(-50%)}
+.fchip.down{bottom:-30px;left:50%;transform:translateX(-50%)}
+.fchip.left{left:-30px;top:50%;transform:translateY(-50%)}
+.fchip.right{right:-30px;top:50%;transform:translateY(-50%)}
 .turncap{position:absolute;left:50%;top:50%;z-index:7;pointer-events:none;transform:translate(-50%,-50%);font:800 calc(var(--bs)/9)/1 var(--disp);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 18px rgba(255,226,122,.7);animation:tcap .9s ease-out forwards}
 @keyframes tcap{0%{opacity:0;transform:translate(-50%,-30%) scale(.8)}20%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-70%) scale(1.05)}}
 .nf i.slime{background:var(--moss)}
@@ -394,9 +394,10 @@ html.lite .ent.ph3 .fl{animation:none}
 .tr-vines{background:repeating-linear-gradient(45deg,rgba(40,110,40,.55) 0 5px,rgba(110,170,60,.45) 5px 10px)}
 .tr-lava{background:radial-gradient(circle at 50% 55%,rgba(255,210,90,.9),rgba(232,85,61,.75) 55%,rgba(90,20,10,.8));animation:tlava 1.4s ease-in-out infinite}
 @keyframes tlava{50%{filter:brightness(1.35)}}
-.tr-chute,.tr-rift{border-radius:50%;inset:8%}
-.tr-chute{background:conic-gradient(#ffe27a,#b47a14,#ffe27a,#b47a14,#ffe27a);animation:tswirl 2s linear infinite}
-.tr-rift{background:conic-gradient(#b890ff,#17152b,#b890ff,#17152b,#b890ff);animation:tswirl 2.6s linear infinite reverse;box-shadow:0 0 10px #8a6ae0}
+.tr-chute,.tr-rift{inset:4%;background-size:400% 100%;background-repeat:no-repeat;image-rendering:pixelated;animation:portalp .8s step-end infinite}
+.tr-chute{background-image:var(--sp-portal_gold)}
+.tr-rift{background-image:var(--sp-portal_void);animation-direction:reverse}
+@keyframes portalp{0%{background-position-x:0}25%{background-position-x:33.3333%}50%{background-position-x:66.6667%}75%{background-position-x:100%}100%{background-position-x:100%}}
 .tr-chute::before,.tr-rift::before{display:none}
 .nf i.t{background:#6a8ac8}
 html.rm .tr,html.rm .tr::before{animation:none}
@@ -1399,6 +1400,28 @@ const BOSSRAW=[
  [['Leerenwächter','golem','#2a2a45','#8a72e0','horns',18,3,{slow:1,summon:'Leerenblob',sumN:3,bm:'gravity'}],['Der Urwürfel','head','#1a1a2f','#ffe27a','crown',28,3,{slow:1,tele:1,summon:'Schattenhund',sumN:3,bm:'worldshift'}]]
 ];
 const ROSTER=[];            /* ROSTER[zone] = Typ-IDs */
+function portalFrames(kind){
+  const P=kind==='gold'?{o:'#17152b',core:'#2a1a05',a:'#fff3b0',b:'#ffe27a',c:'#d99a1c',d:'#b47a14',r1:'#ffe27a',r2:'#8a5a0c'}:{o:'#0a0714',core:'#0c0818',a:'#f0e0ff',b:'#b890ff',c:'#8a6ae0',d:'#4a2a8a',r1:'#b890ff',r2:'#5a3aa0'};
+  const frames=[];
+  for(let f=0;f<4;f++){
+    const g=Array.from({length:16},()=>Array(16).fill(null));
+    for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+      const dx=x-7.5,dy=y-7.5,r=Math.hypot(dx,dy);let th=Math.atan2(dy,dx);if(th<0)th+=Math.PI*2;
+      if(r>7.7)continue;
+      let c;
+      if(r>7.0)c=P.o;
+      else if(r>5.9){const seg=Math.floor((th+f*(Math.PI*2/10*2)/4)/(Math.PI*2/10))%2;c=seg?P.r1:P.r2;}
+      else{
+        if(r<1.6)c=P.a;
+        else{const sp=((th-f*(Math.PI*2/3)/4+r*.8)/(Math.PI*2/3));const fr=sp-Math.floor(sp);c=fr<.16?P.a:fr<.3?P.b:fr<.42?P.d:P.core;}
+      }
+      g[y][x]=c;
+    }
+    frames.push(g);
+  }
+  return frames;
+}
+GEN.portal_gold={frames:portalFrames('gold')};GEN.portal_void={frames:portalFrames('void')};
 function caravanFrames(){
   const O='#2a1a0c',T='#d9a860',TD='#a8743a',TL='#ecc888',W='#8a5a2a',WL='#b8803a',WD='#5a3a1a',R='#c0442a',C='#f4efe0',P='#6a4a8a',PL='#8e6cb4',F='#e8b890',G='#f4b942',GD='#b47a14',S='#c9b078',RD='#8a2a1a';
   const mk=(ph)=>{
@@ -2415,6 +2438,7 @@ function renderBoard(){
     else{
       const tr=terrOf(i);
       if(tr){const d=tdir(tr);let rot=-90;if(d>=0){const dv=DIRS[d];rot=Math.round(Math.atan2(-vdot(dv,view.u),vdot(dv,view.r))*180/Math.PI);}
+        if(tr.k==='chute')ensureSpr('portal_gold');else if(tr.k==='rift')ensureSpr('portal_void');
         html+=`<i class="tr tr-${tr.k}" style="--rot:${rot}deg"></i>`;}
       if(G.spikes.has(i))html+=spr('spike');
       if(i===G.exit)html+=spr('stairs')+(locked?spr('lock','lock'):'');
@@ -2532,12 +2556,13 @@ function markSeen(){
   const vk=faceKeyOf(view);if(vk&&!S.includes(vk))S.push(vk);
   for(const f of netFaces)if(f.cells.includes(G.pos)&&!S.includes(f.k))S.push(f.k);
 }
-const FCHIP={up:['up','˄ '],down:['down','˅ '],left:['left','‹ '],right:['right',' ›']};
+const FLET=()=>LANG==='en'?{F:'F',B:'B',L:'L',R:'R',U:'T',D:'D'}:{F:'V',B:'H',L:'L',R:'R',U:'O',D:'U'};
 function updateChips(){
+  const F=FLET();
   for(const d of ['up','down','left','right']){
     const el=chipEls[d];if(!el)continue;
-    const k=faceKeyOf(rotView(view,d));
-    const t=d==='right'?FNAME[k]+' ›':d==='left'?'‹ '+FNAME[k]:d==='up'?'˄ '+FNAME[k]:'˅ '+FNAME[k];
+    const k=faceKeyOf(rotView(view,d)),L=F[k];
+    const t=d==='right'?L+' ›':d==='left'?'‹ '+L:d==='up'?'˄ '+L:'˅ '+L;
     if(el._t!==t){el.textContent=t;el._t=t;}
   }
 }
