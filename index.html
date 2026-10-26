@@ -4274,7 +4274,7 @@ function openShop(newDie){
   if(G.daily)withSeed(G.dday+':s'+G.depth,buildStock);else buildStock();
   renderShop();openModal('m-shop');sfx('key');
 }
-const depthPrice=()=>1+.045*G.depth;
+const depthPrice=()=>1+.065*G.depth;
 const priceOf=it=>Math.max(5,Math.round(it.price*(1-.2*G.haggle)*DF().price*(1-.05*metaMul('rep'))*depthPrice()*(1+.3*(shop?shop.bought||0:0))));
 function renderShop(){
   const nk=kindOf(G.depth+1),NA=AMMO[nk],OA=AMMO[kindOf(G.depth)];
