@@ -1149,11 +1149,20 @@ function paintStrip(frames,colorOf,sz=16){
   const u=`url(${cv.toDataURL()})`;cv.width=cv.height=0;return u;
 }
 
+
+// Individually authored monster silhouettes; no recolored shared body templates.
+const MONSTER_ART={"Hai":["................","................","................","..........a.....",".........aaa....","....aaaaaaaaaa..","..aaaaaaaaaaaaaa",".aaWWaaaaaaaakaa","aakWkaaaaaaaakka","aaaaakaaaaaaaaaa",".aaaaaaaaaaaaa..","..aaaaaaaaaaa...","....aaa...aaa...",".....a.....a....","................","................"],"Seepferd":["................",".......yyy......","......yyyyy.....","....yyyyyyyy....","..yyyyWkyyyy....","..yyyyyyyyy.....",".....yyyyy......","......yyyy......",".......yyyy.....","........yyyy....",".........yyyy...","........yyyyy...",".......yyyyy....",".......yyy......","........yyy.....","................"],"Dampfdrache":["................","..............aa",".............aaa","..aaa.......aaa.","..aaaaa....aaaa.","...aaaaa..aaaa..","....aaaaaaaaa...","..aaaaaaaaaaa...","aaaaaaaaaaWka...","..aaaaaaaaaaaa..","...aaaaaaaaaa...","....aaaaa.aaaa..",".....aaaa..aaa..","......aaa...aaa.",".......a........","................"],"Uhrmacher":[".....aaaa.......","....aaaaaa......","....akWWka......","....aaaaaa......","......aa........","...aaaaaaaa.....","..aayyaaayaa....","..aaykyaayaa....","..aayyaaayaa....","..aaaaaaaaaa....","...aaaaaa.aa....","...aa..aa..aa...","...aa..aa..aa...","...aa..aa.......","..aaa..aaa......","................"],"Beutelschnitzer":["......aaaa......",".....aaaaaa.....","....aaakkkaa....","....akWWkka.....","....aaaaaa......",".....aaaa.......","...aaaaaaaa.....","..aaayaaaaaa....","..aaayaaaaaaa...","..aaayaaaaaayaa.","..aaayaaaaaaaya.","...aaaaaaaaaaya.","....aa..aaa..a..","....aa..aaa.....","...aaa..aaaa....","................"],"Goldgoblin":[".....aaaa.......","....aaaaaa......","..aaaaWWaaaa....","..aaaakkkaaaa...","....aaaaaa......","...aaaaaaaa.....","..aaaaaayaaa....",".aaaaaaaaayaaa..",".aaaaaaaaayyaaa.",".aaaaaaaaayaaaa.","..aaaaaaaaaaaa..","...aaaa..aaaa...","...aaa....aaa...","..aaaa....aaaa..","................","................"]};
+function monsterArtGrid(id,def){
+ const name=MT[id]&&MT[id].name,rows=MONSTER_ART[name];
+ if(!rows)return genGrid(def.body,def.main,def.acc,def.kind);
+ const palette={a:def.main,y:def.acc,W:'#f4efe0',k:'#17152b'};
+ return rows.map(row=>[...row].map(c=>palette[c]||null));
+}
 function ensureSpr(id){
   if(SPRDONE.has(id))return;SPRDONE.add(id);
   const def=GEN[id];if(!def)return;
   const E=Array(16).fill(null);
-  const grid=def.frames?null:(def.grid||genGrid(def.body,def.main,def.acc,def.kind));
+  const grid=def.frames?null:(def.grid||monsterArtGrid(id,def));
   const fr=def.frames?def.frames:def.grid?[grid]:[grid,[E,...grid.slice(0,9),...grid.slice(10)],grid,[...grid.slice(1,10),grid[9],...grid.slice(10)]];
   const u=paintStrip(fr,c=>c,def.size||16);
   if(u)document.documentElement.style.setProperty('--sp-'+id,u);
