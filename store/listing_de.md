@@ -14,7 +14,7 @@ Steige Etage für Etage in die Würfelgruft hinab. Jede Etage ist ein Würfel mi
 • 64 Verstärkungen, Wurf-Items, Oasen und Händler zwischen den Welten, dazu gezinkte Würfel zum Glücksspielen
 • 4 Klassen mit Stärken und Schwächen, 5 Schwierigkeitsstufen von „Leicht“ bis „1 Leben“
 • Aufstiegsstufen und Mutatoren für noch härtere Läufe
-• Über 40 Skins zum Freischalten, dazu zeitlich begrenzte Events wie Halloween, Weihnachten, Ostern, Valentinstag, Italien- und Ungarn-Fest, Geburtstag und die Vegas-Nacht mit Blackjack, Würfeln und Roulette
+• Über 40 Skins zum Freischalten, dazu zeitlich begrenzte Events mit eigenen Minispielen und Musik: Halloween, Weihnachten, Ostern, Valentinstag, Italien- und Ungarn-Fest, Geburtstag und die Vegas-Nacht mit Blackjack, Würfeln und Roulette
 • Tageslauf mit festem Startwert, Login-Bonus, Aufgaben und Erfolge
 • Dauerhafte Gruftsteine für Freischaltungen in der Schmiede
 • Komplett offline, ohne Werbung, ohne Käufe, ohne Konto
