@@ -32,6 +32,7 @@ jobs:
         run: |
           mkdir -p www/fonts
           cp index.html www/index.html
+          cp -R src www/src
           cp node_modules/@fontsource/grenze-gotisch/files/grenze-gotisch-latin-{600,800}-normal.woff2 www/fonts/
           cp node_modules/@fontsource/alegreya-sans/files/alegreya-sans-latin-{400,500,700,800}-normal.woff2 www/fonts/
           ls www/fonts
