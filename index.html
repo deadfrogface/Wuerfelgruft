@@ -147,10 +147,11 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .mrow .btn{line-height:1.1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:clamp(54px,8.6dvh,70px)}
 .mrow .btn small{display:block;font-size:.62em;font-weight:700;opacity:.7;margin-top:2px}
 .btn.sm{padding:clamp(7px,1.4dvh,11px) 6px;font-size:clamp(.88rem,1.9dvh,1rem)}
-.wm{position:relative;isolation:isolate;overflow:hidden}
-.wm::before{content:'';position:absolute;right:6px;top:50%;width:34px;height:34px;transform:translateY(-50%);background:var(--wm) no-repeat center/contain;image-rendering:pixelated;opacity:.2;z-index:-1;pointer-events:none}
-.btn.big.wm::before{width:46px;height:46px;opacity:.16}
-.trow .wm::before,.trow2 .wm::before{right:50%;margin-right:-17px;width:34px;height:34px;opacity:.16}
+.wm{position:relative}
+.btn.big.wm::before{display:none}
+#b-q .dot{right:4px!important;top:3px!important}
+.btn.sm.wm{display:flex;align-items:center;justify-content:center;gap:6px}
+.btn.sm.wm::before{content:'';flex:none;width:20px;height:20px;background:var(--wm) no-repeat center/contain;image-rendering:pixelated}
 .btn.ghost.wm{background:linear-gradient(180deg,#3c3668,#2a2650)}
 #b-event{min-height:clamp(46px,7dvh,58px)}
 .stats{margin-top:2px}
