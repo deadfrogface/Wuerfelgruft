@@ -57,7 +57,8 @@ svg{display:block}
 .scene{perspective:700px;height:min(190px,24vh);display:grid;place-items:center;position:relative}
 .cube{--s:min(120px,15vh);width:var(--s);height:var(--s);position:relative;transform-style:preserve-3d;animation:spin 16s linear infinite}
 @keyframes spin{from{transform:rotateX(-26deg) rotateY(0)}to{transform:rotateX(-26deg) rotateY(360deg)}}
-.face{position:absolute;inset:0;display:grid;place-items:center;border:2px solid var(--ink);border-radius:4px;background:repeating-conic-gradient(var(--bone) 0 25%,var(--bone2) 0 50%) 0 0/40% 40%;box-shadow:inset 0 0 0 2px rgba(23,21,43,.25)}
+.face{position:absolute;inset:0;display:grid;place-items:center;border:2px solid #0c0a1c;border-radius:3px;background:var(--ft,#4a4570) center/100% 100% no-repeat;image-rendering:pixelated}
+.f1{--ft:var(--ft1)}.f2{--ft:var(--ft2)}.f3{--ft:var(--ft3)}.f4{--ft:var(--ft4)}.f5{--ft:var(--ft5);filter:brightness(1.12)}.f6{--ft:var(--ft6);filter:brightness(.7)}.f3{filter:brightness(.82)}.f4{filter:brightness(.9)}.f2{filter:brightness(.78)}
 .face .spr{width:62%;height:62%}
 .f1{transform:translateZ(calc(var(--s)/2))}
 .f2{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
@@ -5232,6 +5233,34 @@ function applyTitleEvent(ev){
   }
 }
 
+
+function faceTextures(){
+  const accents=['#3fd0b0','#f4b942','#8bd450','#ffe27a','#b9a7ff','#e8553d'];
+  const hash=(a,b,c)=>{let h=(a*374761393+b*668265263+c*2147483647)|0;h=(h^(h>>>13))*1274126177;return ((h^(h>>>16))>>>0)/4294967296;};
+  accents.forEach((acc,f)=>{
+    const N=32,cv=document.createElement('canvas');cv.width=cv.height=N;const c=cv.getContext('2d');if(!c)return;
+    const px=(x,y,col)=>{c.fillStyle=col;c.fillRect(x,y,1,1);};
+    const base=['#5d577f','#544e78','#645e8a','#4d4872','#58527c'];
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const r=Math.floor(y/5),off=(r%2)*4,bx=Math.floor((x+off)/9);
+      let col=base[Math.floor(hash(bx,r,f)*base.length)];
+      if(y%5===4||(x+off)%9===8)col='#2a2548';
+      else if(y%5===0)col='#7a74a6';
+      else if(hash(x,y,f+9)<.07)col='#6d6796';
+      px(x,y,col);
+    }
+    // vertieftes Feld für die Figur
+    for(let y=6;y<26;y++)for(let x=6;x<26;x++){const chk=((x>>2)+(y>>2))%2;px(x,y,chk?'#2c2752':'#252046');}
+    for(let i=6;i<26;i++){px(i,6,'#16122c');px(6,i,'#16122c');px(i,25,'#4a4570');px(25,i,'#4a4570');}
+    // Moos und Risse
+    for(let k=0;k<26;k++){const x=Math.floor(hash(k,1,f+3)*32),y=Math.floor(hash(k,2,f+3)*32);if((x<6||x>25||y<6||y>25)&&hash(k,3,f)<.6)px(x,y,hash(k,4,f)<.5?'#5aa02c':'#3f8a1c');}
+    for(let k=0;k<3;k++){let x=Math.floor(hash(k,5,f)*26)+3,y=Math.floor(hash(k,6,f)*4);for(let i=0;i<5;i++){if((x<6||x>25||y<6||y>25))px(x,y,'#1c1838');x+=hash(i,k,f)<.5?0:1;y++;}}
+    // Nieten und Edelstein
+    for(const [x,y] of [[1,1],[29,1],[1,29],[29,29]]){px(x,y,'#f4b942');px(x+1,y,'#b47a14');px(x,y+1,'#b47a14');px(x+1,y+1,'#8a5a0c');}
+    px(15,2,'#ffffff');px(16,2,acc);px(15,3,acc);px(16,3,'#17152b');px(15,29,acc);px(16,29,'#ffffff');px(15,28,'#17152b');px(16,28,acc);
+    document.documentElement.style.setProperty('--ft'+(f+1),`url(${cv.toDataURL()})`);
+  });
+}
 function initTitleFx(){
   ['i_arrow','i_dice','i_sun','i_forge','i_scroll','i_book','i_help','i_gear'].forEach(ensureSpr);
   $('#torch-l').innerHTML=spr('i_torch');$('#torch-r').innerHTML=spr('i_torch');
@@ -5606,7 +5635,7 @@ if(!DIFFS[save.diff])save.diff='normal';
 if(!save.achPaid){for(const id of Object.keys(save.ach))addGS(achGS(id));save.achPaid=true;persist();}
 if(!save.bd)save.bd={};if(!save.dex)save.dex={};if(!save.ach)save.ach={};if(!save.stats)save.stats={bosses:0,throws:0,rolls:0,turns:0};
 if(!save.meta)save.meta={};if(!save.daily)save.daily={day:'',best:0,done:false,streak:0,last:''};if(!save.login)save.login={last:'',streak:0,claimed:''};if(!save.q)save.q={day:'',list:[],prog:{},done:{}};if(!save.wq)save.wq={week:'',t:'',n:0,r:0,prog:0,done:false};
-initSprites();fillStatic();initLang();setupLang();applySettings();buildGrid();buildNet();buildTitle();initTitleFx();buildDust();updateStats();syncSwitches();
+initSprites();fillStatic();initLang();setupLang();applySettings();buildGrid();buildNet();faceTextures();buildTitle();initTitleFx();buildDust();updateStats();syncSwitches();
 setTimeout(()=>{try{if(loginPending()&&$('#scr-title').classList.contains('on'))openLogin();}catch(e){}},900);
 window.__wg={get G(){return G;}};
 })();
