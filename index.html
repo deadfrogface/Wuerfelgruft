@@ -83,6 +83,7 @@ svg{display:block}
 .btn{box-shadow:0 5px 0 #a89a76,inset 0 2px 0 rgba(255,255,255,.4)}.btn.ghost{box-shadow:0 5px 0 #1a1736,inset 0 2px 0 rgba(255,255,255,.08)}
 .btn.sm .bi{display:inline-block;vertical-align:middle;margin-right:6px;--cs:20px;width:20px;height:20px}.btn.sm{display:flex;align-items:center;justify-content:center;position:relative}
 .btn.sm .bi .px{--cs:20px}
+.gsb{position:absolute;z-index:3;top:max(10px,env(safe-area-inset-top,0px));right:12px;font-size:1rem;box-shadow:0 3px 0 #0c0a1c,inset 0 0 0 1px rgba(255,255,255,.08)}
 .chips2{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.chip2{display:inline-flex;align-items:center;gap:5px;background:var(--ink3);border-radius:99px;padding:3px 11px 3px 8px;font-weight:800;font-size:.9rem;color:var(--text)}.chip2 .px{--cs:18px;width:18px;height:18px}
 .chip2.d-leicht{color:#ff8ab8}.chip2.d-normal{color:#3fd0b0}.chip2.d-schwer{color:#ff8a3d}.chip2.d-hardcore{color:#ff5d73}.chip2.d-1hp{color:#c8302d}
 .evfx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -810,6 +811,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 
 <!-- ========== Titel ========== -->
 <section class="screen on" id="scr-title" data-ev="">
+  <div class="gsb chip2" id="gsb"></div>
   <div class="tbg" id="tbg"><i class="bricks"></i><i class="fog"></i><span class="torch l" id="torch-l"></span><span class="torch r" id="torch-r"></span></div>
   <div class="embers" id="embers"></div>
   <div class="evfx" id="evfx"></div>
@@ -5259,8 +5261,7 @@ window.addEventListener('resize',()=>{fitTitle();});
 function updateStats(){
   $('#b-cont').hidden=!save.run;$('#b-endless').hidden=!save.endless;$('#b-play').textContent=save.run?'Neues Spiel':'Spielen';
   const bd=save.bd[save.diff]||null;
-  const D=DIFFS[save.diff];
-  $('#stats').innerHTML=(save.runs||save.best)?`<div class="chips2"><span class="chip2 d-${save.diff}">${D.name}</span><span class="chip2">${spr('i_gs')}${fmt(save.gs||0)}</span><span class="chip2">Beste Etage ${(bd&&bd.depth)||0}</span></div>`:'Noch kein Lauf. Viel Glück.';
+  $('#gsb').innerHTML=spr('i_gs')+'<span>'+fmt(save.gs||0)+'</span>';$('#stats').textContent='';
   rollQuests();dailyRoll();
   $('#b-daily').innerHTML='<span>Tageslauf</span><small></small>';$('#b-daily small').textContent=DAILY_RULES[ruleOf()].name;
   $('#q-dot').hidden=!loginPending();
