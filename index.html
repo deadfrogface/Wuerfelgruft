@@ -2217,25 +2217,27 @@ const nm=s=>{const m=/^([A-G])([#b]?)(-?\d)$/.exec(s);return 12*(+m[3]+1)+NOTEI[
 const parseMel=str=>{const o={};for(const t of str.split(' ')){if(!t)continue;const m=/^([A-G][#b]?\d)@(\d+)\/(\d+)$/.exec(t);o[+m[2]]=[nm(m[1]),+m[3]];}return o;};
 const prepSong=sg=>{sg.P=sg.secs.map(S=>({ch:S.ch.map(c=>c.split(' ').map(nm)),mel:S.mel.map(parseMel)}));return sg;};
 const SONGS={
-  /* Vegas: Smooth Jazz Ballade in d-Moll, 76 BPM: Saxophon mit langen Phrasen und Vorschlägen, E-Piano-Akkorde, Walking Bass, Besen */
-  vegas:prepSong({swing:.85,drums:'brush',rv:.3,
-    lead:{type:'brass',lp:1300,vol:.09,dur:.95,attack:.08,vib:7},
-    bass:{pat:'walk',type:'pluck',vol:.42,lp:520,dur:1.7},
-    comp:{steps:[2,8,11],type:'ep',vol:.05,lp:2000,dur:.9},
+  /* Vegas: Rat-Pack-Big-Band in B-Dur, 124 BPM: vierstimmiger Bläsersatz, Walking Bass, Ride-Swing, Charleston-Klavier */
+  vegas:prepSong({swing:1,drums:'swingbig',rv:.25,slot:true,
+    lead:{type:'brass',lp:2300,vol:.07,dur:.85,attack:.02,harm:[{n:-4,type:'brass',v:.8},{n:-9,type:'brass',v:.7},{n:-12,type:'brass',v:.6}]},
+    bass:{pat:'walk',type:'pluck',vol:.42,lp:560,dur:1.6},
+    comp:{steps:[0,6],type:'ep',vol:.05,lp:2200,dur:.7},
     secs:[
-      {ch:['D2 F3 A3 C4 E4','G2 F3 A3 B3 E4','C2 E3 G3 B3 D4','F2 A3 C4 E4 G4'],
-       mel:['F5@2/4 E5@6/2 D5@8/4 A4@12/4','B4@0/2 D5@2/4 E5@6/6 D5@12/2 B4@14/2','E5@0/6 D5@6/2 C5@8/8','A4@2/4 C5@6/2 E5@8/6 F5@14/2']},
-      {ch:['B2 A3 D4 F4','E2 D4 G#4 B4','A2 G3 B3 C4 E4','A2 G3 B3 C4 E4'],
-       mel:['D5@0/4 F5@4/2 E5@6/2 D5@8/8','B4@2/4 D5@6/4 G#4@10/6','E5@0/6 C5@6/2 B4@8/4 A4@12/4','A4@0/12']},
-      {ch:['G2 F3 A3 Bb3 D4','C2 Bb3 E4 A4','F2 A3 C4 E4 G4','F2 A3 C4 E4 G4'],
-       mel:['D5@2/4 Bb4@6/2 G4@8/8','C5@0/4 E5@4/4 A4@8/8','A4@0/4 C5@4/4 E5@8/6 F5@14/2','F5@0/8 C5@8/8']},
-      {ch:['D2 F3 A3 C4 E4','G2 F3 A3 B3 E4','C2 E3 G3 B3 D4','A2 G3 C#4 E4'],
-       mel:['D5@0/12','D5@0/6 B4@6/6','E5@0/8 C5@8/8','C#5@0/4 E5@4/4 A4@8/8']}]}),
-  /* Italien: sonniger Strand-Pop in G-Dur, 112 BPM: Akkordeon in Terzen, Schlaggitarre auf den Nachschlägen, Bongos, Wellen */
-  italy:prepSong({swing:0,drums:'beach',rv:.2,
+      {ch:['Bb2 D4 F4 A4','G2 F3 B3 D4','C2 Bb3 Eb4 G4','F2 Eb3 A3 C4'],
+       mel:['D5@0/2 F5@2/2 Bb5@4/4 A5@8/2 F5@10/2 D5@12/4','B4@0/2 D5@2/2 F5@4/4 E5@8/4 D5@12/4','Eb5@0/2 G5@2/2 C6@4/4 Bb5@8/2 G5@10/2 Eb5@12/4','A4@0/4 C5@4/4 Eb5@8/2 D5@10/2 C5@12/4']},
+      {ch:['Eb2 D4 G4 Bb4','E2 G3 Bb3 Db4','D2 C4 F4 A4','G2 F3 B3 D4'],
+       mel:['G5@0/4 F5@4/2 Eb5@6/2 Bb4@8/8','E5@0/2 G5@2/2 Bb5@4/4 Db6@8/4 Bb5@12/4','F5@0/4 A5@4/4 D6@8/4 C6@12/4','B5@0/2 A5@2/2 G5@4/2 F5@6/2 D5@8/8']},
+      {ch:['Bb2 D4 F4 A4','G2 F3 B3 D4','C2 Bb3 Eb4 G4','F2 Eb3 A3 C4'],
+       mel:['F5@0/2 Bb5@2/2 D6@4/4 C6@8/2 Bb5@10/2 F5@12/4','D5@0/2 F5@2/2 B5@4/4 A5@8/4 F5@12/4','G5@0/2 C6@2/2 Eb6@4/4 D6@8/2 C6@10/2 G5@12/4','C6@0/4 A5@4/4 F5@8/4 C5@12/4']},
+      {ch:['Bb2 G4 D4 F4','G2 F3 B3 D4','C2 Bb3 Eb4 G4','F2 Eb3 A3 C4'],
+       mel:['D5@0/8 F5@8/8','D5@0/8 B4@8/8','Eb5@0/8 G5@8/8','A4@0/4 C5@4/4 A4@8/8']}]}),
+  /* Italien: Strand-Pop in G-Dur, 112 BPM: Akkordeon in Terzen, Zupf- und Schlaggitarre, Mandolinen-Tremolo, Streicher, Bongos, Wellen */
+  italy:prepSong({swing:0,drums:'beach',rv:.22,
     lead:{type:'accord',lp:2300,vol:.075,dur:.9,vib:5,attack:.03,harm:[{n:-4,type:'accord',v:.7}],dbl:{n:12,type:'pluck',v:.5}},
     bass:{pat:'oompah',type:'pluck',vol:.28,lp:650,dur:1.1},
     comp:{steps:[0,4,6,10,12,14],type:'pluck',vol:.03,lp:2200,dur:.45},
+    arp:{every:2,minI:0,type:'pluck',vol:.025,dur:1,oct:12,lp:2200},
+    pad:{type:'strings',vol:.012,lp:1000},
     secs:[
       {ch:['G2 G3 B3 D4','E2 E3 G3 B3','C3 C4 E4 G4','D2 D3 F#3 A3'],
        mel:['D5@0/4 D5@4/2 E5@6/2 D5@8/4 B4@12/4','B4@0/4 B4@4/2 C5@6/2 B4@8/4 G4@12/4','E5@0/4 E5@4/2 D5@6/2 E5@8/4 G5@12/4','F#5@0/6 E5@6/2 D5@8/8']},
@@ -2265,7 +2267,7 @@ const ZMUS={
   ev_italy:{bpm:112,song:SONGS.italy},
   ev_hungary:{root:52,sc:'hung',prog:[0,3,4,0],bpm:128,pad:'sawtooth',padLp:700,lead:'sawtooth',leadLp:2200,leadVol:.05,leadDur:2,bass:{type:'sawtooth',lp:560,vol:.2,pat:[0,3,6,8,11,14]},stab:[2,6,10,14],drums:'tribal'},
   ev_birthday:{root:60,sc:'majp',prog:[0,2,3,4],bpm:132,pad:'triangle',padLp:1800,lead:'triangle',leadLp:3200,leadVol:.11,leadDur:1,bass:{type:'triangle',lp:900,vol:.26,pat:[0,2,4,6,8,10,12,14]},stab:[2,6,10,14],stabType:'triangle',drums:'dance'},
-  ev_vegas:{bpm:76,song:SONGS.vegas}
+  ev_vegas:{bpm:124,song:SONGS.vegas}
 };
 const noteOf=(zm,deg)=>{const sc=SC[zm.sc];const o=Math.floor(deg/sc.length);return zm.root+sc[((deg%sc.length)+sc.length)%sc.length]+12*o;};
 function mkRng(kind){let a=2166136261;for(let i=0;i<kind.length;i++){a^=kind.charCodeAt(i);a=Math.imul(a,16777619);}return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return((t^t>>>14)>>>0)/4294967296;};}
@@ -2360,6 +2362,11 @@ AU.playSong=function(sg,step,t){
       if(s===3||s===6||s===10||s===14)tn({f:s%8===6?340:250,to:s%8===6?260:190,dur:.07,type:'sine',vol:.09},t);
       if(s%2===0)ns({f:4500,ft:'lowpass',dur:.05,vol:.03,q:.5});
       if(s===0&&bi===0&&bar%4===0)ns({f:500,to:1400,dur:sd*14,vol:.035,q:.4});break;
+    case 'swingbig':
+      if(s%4===0)kick(.07);
+      if(s===0||s===4||s===6||s===8||s===12||s===14)ns({f:6200,ft:'bandpass',dur:.09,vol:s%8===6||s%8===0?.055:.04,q:.9});
+      if(s===4||s===12)ns({f:1800,ft:'lowpass',dur:.06,vol:.05,q:.5});
+      if(bi===3&&s>=12&&I>=1)snare(.07);break;
     case 'tar6':
       if(s===0||s===6)kick(.24);
       if(s%2===0)ns({f:6800,ft:'highpass',dur:.045,vol:s%6===0?.08:.045});
