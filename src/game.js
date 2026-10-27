@@ -1149,69 +1149,11 @@ function paintStrip(frames,colorOf,sz=16){
   const u=`url(${cv.toDataURL()})`;cv.width=cv.height=0;return u;
 }
 
-// Distinct enemy silhouette variants. Deterministic per monster ID; no gameplay changes.
-// Preserves the existing pixel-art palette and 16x16 rendering pipeline.
-function uniqueEnemyGrid(id,def){
-  const grid=genGrid(def.body,def.main,def.acc,def.kind).map(row=>row.slice());
-  const name=(MT[id]&&MT[id].name||id).toLowerCase();
-  let hash=2166136261;
-  for(const ch of id+':'+name){hash=Math.imul(hash^ch.charCodeAt(0),16777619)>>>0;}
-  const dark='#17152b',accent=def.acc,main=def.main;
-  const set=(x,y,c)=>{if(x>=0&&x<16&&y>=0&&y<16)grid[y][x]=c;};
-  const erase=(x,y)=>set(x,y,null);
-  const keywords=[
-    [/hai|piranha|fisch|muräne|qualle|seepferd|krake|tinten/,0],
-    [/drache|echse|wyrm/,1],
-    [/vogel|krähe|geier|harpyie|fliege|fleder/,2],
-    [/uhr|chrono|zeit|pendel|zahnrad|feder|dampf|kessel|automat/,3],
-    [/spinne|käfer|krebs|insekt/,4],
-    [/geist|seele|wisp|irrlicht|phantom/,5],
-    [/goblin|dieb|räuber|schnitzer|zwerg|kobold/,6],
-    [/könig|fürst|kaiser|meister|wächter|ritter|golem|statue/,7]
-  ];
-  const category=(keywords.find(([re])=>re.test(name))||[null,hash%8])[1];
-  // Distinct anatomy rather than palette-only changes.
-  if(category===0){ // sea creatures: fins, tail and asymmetric head profile
-    for(let y=4;y<13;y++)for(let x=0;x<4;x++)erase(x,y);
-    for(const [x,y] of [[2,7],[3,6],[3,8],[4,7],[11,4],[12,3],[12,4],[13,5],[12,11],[13,12]])set(x,y,main);
-    set(11,7,dark);set(10,7,'#f4efe0');
-  }else if(category===1){
-    for(const [x,y] of [[1,8],[2,7],[3,6],[12,5],[13,4],[14,3],[11,11],[12,12],[13,12],[14,11]])set(x,y,main);
-    set(14,3,accent);set(13,12,accent);
-  }else if(category===2){
-    for(const [x,y] of [[0,8],[1,7],[2,6],[3,5],[12,5],[13,6],[14,7],[15,8],[7,3],[8,3],[9,4]])set(x,y,main);
-    set(7,3,accent);set(8,3,accent);
-  }else if(category===3){
-    for(const [x,y] of [[2,3],[3,2],[4,3],[11,2],[12,3],[13,4],[2,12],[3,13],[12,12],[13,13]])set(x,y,accent);
-    set(7,6,'#f4efe0');set(8,6,'#f4efe0');set(8,8,dark);set(9,9,dark);
-  }else if(category===4){
-    for(const [x,y] of [[1,5],[2,6],[1,9],[2,10],[13,5],[14,6],[13,9],[14,10],[3,13],[12,13]])set(x,y,main);
-  }else if(category===5){
-    for(let x=3;x<13;x+=3)erase(x,14);
-    set(3,13,accent);set(8,14,main);set(12,13,accent);
-  }else if(category===6){
-    set(2,10,accent);set(1,11,accent);set(12,8,accent);set(13,9,accent);
-    set(5,2,main);set(6,1,main);set(9,2,main);
-  }else{
-    for(const [x,y] of [[5,1],[7,0],[9,1],[11,2],[2,10],[13,10]])set(x,y,accent);
-  }
-  // ID-derived structural differences: ears, horns, tails, limbs and gear.
-  // This makes even same-family monsters have distinct silhouettes.
-  const left=2+(hash%4),right=11+((hash>>>3)%3);
-  const top=1+((hash>>>6)%3);
-  for(let y=top;y<top+2;y++){set(left,y,(hash&1)?accent:main);set(right,y,(hash&2)?accent:main);}
-  if(hash&4){set(0,9,main);set(1,10,accent);}else{set(14,10,main);set(15,9,accent);}
-  if(hash&8){set(4,14,main);set(4,15,accent);}else{set(11,14,main);set(11,15,accent);}
-  if(hash&16){set(2,4,main);set(1,3,accent);}else{set(13,4,main);set(14,3,accent);}
-  if(hash&32){set(7,0,accent);}else{set(9,0,main);}
-  return grid;
-}
-
 function ensureSpr(id){
   if(SPRDONE.has(id))return;SPRDONE.add(id);
   const def=GEN[id];if(!def)return;
   const E=Array(16).fill(null);
-  const grid=def.frames?null:(def.grid||uniqueEnemyGrid(id,def));
+  const grid=def.frames?null:(def.grid||genGrid(def.body,def.main,def.acc,def.kind));
   const fr=def.frames?def.frames:def.grid?[grid]:[grid,[E,...grid.slice(0,9),...grid.slice(10)],grid,[...grid.slice(1,10),grid[9],...grid.slice(10)]];
   const u=paintStrip(fr,c=>c,def.size||16);
   if(u)document.documentElement.style.setProperty('--sp-'+id,u);
