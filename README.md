@@ -7,6 +7,9 @@ Mini-Roguelike auf einem Würfel mit sechs Seiten. Pixelart, Musik und Effekte k
 - `brand.py`: erzeugt App-Icon und Ladebildschirm
 - Fertige APK: unter **Releases**
 
+## Inhalt des Spiels
+100 Etagen in 10 Welten, 4 Klassen, 5 Schwierigkeitsstufen, Aufstiegsstufen und Mutatoren, Skins, Tageslauf und zeitlich begrenzte Events (Halloween, Weihnachten, Vegas-Nacht, Ostern, Valentinstag, Ungarn-Fest, Italien-Fest, Geburtstag). Events laufen offline nach dem Gerätedatum, siehe `EVENTS` in `index.html`.
+
 Hinweis: Der Signaturschlüssel `keystore.b64` ist für ein privates Hobbyprojekt gedacht.
 
 ## Play Store

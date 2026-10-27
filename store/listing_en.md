@@ -10,9 +10,11 @@ Descend floor by floor into the Dice Crypt. Every floor is a six-sided cube: the
 
 • 100 floors in 10 worlds, each with its own look, music, enemies, terrain and bosses
 • Turn-based: no time pressure, every move counts, diagonals included
-• 200+ enemies with unique attacks, bosses with rage phases
-• Upgrades, throwable items and a merchant between worlds, plus loaded dice to gamble with
-• 4 classes, 5 difficulty levels from "Easy" to "1 HP"
+• 200+ enemies with unique attacks, 20 bosses with rage phases and their own combat mechanics
+• 64 upgrades, throwable items, oases and a merchant between worlds, plus loaded dice to gamble with
+• 4 classes with strengths and weaknesses, 5 difficulty levels from "Easy" to "1 HP"
+• Ascent levels and mutators for even harder runs
+• 40+ skins to unlock, plus limited-time events: Halloween, Christmas, Easter, Valentine's Day, Italian and Hungarian festivals, a birthday and Vegas Night with blackjack, dice and roulette
 • Daily run, login bonus, quests and achievements
 • Permanent crypt stones to unlock upgrades at the forge
 • Fully offline: no ads, no purchases, no account
