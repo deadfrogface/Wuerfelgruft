@@ -4694,7 +4694,6 @@ const META=[
   {id:'boots',name:'Lederstiefel',desc:'Stacheln tun dir nichts mehr.',cost:[250]},
   {id:'armor',name:'Kettenhemd',desc:'Treffer mit 2 oder mehr Schaden richten 1 weniger an.',cost:[600]},
   {id:'reach',name:'Lange Waffen',desc:'Du startest mit dem Speer, danach auch mit der Schleuder.',cost:[350,900]},
-  {id:'phx',name:'Phönixfeder',desc:'Einmal pro Lauf: Wiederbelebung mit halben Leben.',cost:[1500]},
   {id:'edge',name:'Scharfer Anfang',desc:'+1 Grundschaden in jedem Lauf.',cost:[500]}
 ];
 const metaLv=id=>(save.meta[id]||0);
@@ -4977,7 +4976,7 @@ function newRun(resume,endless,daily){
       if(G.mut==='glass')G.dmg+=1;
       if(!D0.noUndo){G.undoBonus+=M.undo||0;G.undos=1+G.undoBonus;}
       if(M.dice)G.dice=['gruft'];
-      if(M.boots)G.boots=true;if(M.armor)G.armor=true;if(M.reach>=1)G.spear=true;if(M.reach>=2)G.sling=true;if(M.phx)G.phoenix=true;
+      if(M.boots)G.boots=true;if(M.armor)G.armor=true;if(M.reach>=1)G.spear=true;if(M.reach>=2)G.sling=true;
       const ck=clsOpen(save.cls||'krieger')?(save.cls||'krieger'):'krieger';G.cls=ck;const C=CLASSES[ck];if(C.apply)C.apply(D0);
     }
   }
