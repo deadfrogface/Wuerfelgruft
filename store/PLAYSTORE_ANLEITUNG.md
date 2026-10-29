@@ -35,9 +35,10 @@ Play verlangt eine öffentlich erreichbare Adresse.
 3. Paketname ist fest: `com.wuerfelgruft.game`.
 
 ## 5. Formulare (Vorschläge für die Antworten)
-- **Datensicherheit:** Es werden keine Daten erhoben oder geteilt. Keine Verschlüsselung in der Übertragung nötig, da nichts übertragen wird.
-- **Werbung:** Enthält keine Werbung.
-- **Inhaltseinstufung:** Fragebogen ehrlich ausfüllen. Gezeichnete Fantasy-Gewalt, kein Blut-Realismus, kein Glücksspiel um echtes Geld (die Würfel im Spiel nutzen nur Spielmünzen), keine Interaktion mit anderen Nutzern.
+- **Datensicherheit:** Eigene Daten werden nicht erhoben. Durch Google AdMob (freiwillige Belohnungs-Werbung) werden Geräte-/Werbe-ID und ungefähre Standortdaten aus der IP an Google übermittelt: bei „Daten teilen“ Geräte- oder andere IDs (Zweck: Werbung) angeben. Käufe laufen über Google Play.
+- **Werbung:** „Enthält Werbung“ = Ja.
+- **Käufe in der App:** Ja (Werbefrei, Unterstützer).
+- **Inhaltseinstufung:** Fragebogen ehrlich ausfüllen. Gezeichnete Fantasy-Gewalt, kein Blut-Realismus, kein Glücksspiel um echtes Geld (die Vegas-Würfel nutzen nur Spielmünzen, die man nicht kaufen kann; im Fragebogen „simuliertes Glücksspiel“ ehrlich angeben), keine Interaktion mit anderen Nutzern.
 - **Zielgruppe:** Ab 13 oder älter wählen, nicht ausdrücklich an Kinder richten (vermeidet zusätzliche Auflagen).
 - **Berechtigungen:** keine besonderen.
 - **Store-Eintrag:** Texte aus `store/listing_de.md` und `store/listing_en.md`, Icon, Feature-Grafik, Screenshots hochladen.
