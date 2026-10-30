@@ -110,11 +110,19 @@ jobs:
           name: Wuerfelgruft-APK
           path: Wuerfelgruft.apk
 
+      - uses: actions/upload-artifact@v4
+        if: hashFiles('Wuerfelgruft.aab') != ''
+        with:
+          name: Wuerfelgruft-AAB
+          path: Wuerfelgruft.aab
+
       - name: Release veroeffentlichen
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
           name: Würfelgruft 1.${{ github.run_number }}
-          files: Wuerfelgruft.apk
+          files: |
+            Wuerfelgruft.apk
+            Wuerfelgruft.aab
           body: "APK herunterladen und öffnen. Android fragt einmalig nach der Erlaubnis für Installationen aus dieser Quelle."
