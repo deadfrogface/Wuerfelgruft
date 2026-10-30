@@ -1,9 +1,33 @@
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Würfelgruft – Datenschutz / Privacy</title>
-<style>body{font:16px/1.55 system-ui,Arial,sans-serif;max-width:720px;margin:0 auto;padding:24px 18px;color:#1c1a2e;background:#faf8f2}h1{font-size:1.5rem}h2{font-size:1.15rem;margin-top:1.6em}a{color:#4a3bb0}</style></head>
-<body>
-<h1>Würfelgruft – Datenschutzerklärung</h1>
+<meta name="theme-color" content="#17152b">
+<style>
+:root{--ink:#17152b;--card:#25224a;--gold:#f4b942;--text:#e9e4f7;--dim:#a9a3c9}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);background:radial-gradient(ellipse 90% 40% at 50% 0,#3a3070,transparent 70%),var(--ink);min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:28px 18px 60px}
+header{text-align:center;margin-bottom:22px}
+header img{width:96px;height:96px;border-radius:22px;box-shadow:0 0 0 3px #3b3568,0 10px 30px rgba(0,0,0,.5);image-rendering:pixelated}
+header h2{margin:14px 0 2px;font:800 2rem Georgia,"Times New Roman",serif;letter-spacing:.04em;color:#f4efe0;text-shadow:0 3px 0 #000}
+header p{margin:0;color:var(--dim)}
+nav{display:flex;gap:8px;justify-content:center;margin:18px 0 6px}
+nav a{padding:8px 18px;border-radius:99px;background:var(--card);color:var(--text);text-decoration:none;font-weight:700;border:2px solid transparent}
+nav a.on{border-color:var(--gold);color:var(--gold)}
+section.lang{display:none;background:var(--card);border-radius:18px;padding:6px 22px 22px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#de,#en:target{display:block}
+body:has(#en:target) #de{display:none}
+h1{font-size:1.4rem;color:#f4efe0;margin:18px 0 6px}
+h2.s,section h2{font-size:1.05rem;color:var(--gold);margin:1.6em 0 .3em;letter-spacing:.02em}
+a{color:#9fc4ff}
+ul{padding-left:1.2em}li{margin:.35em 0}
+footer{text-align:center;color:var(--dim);font-size:.85rem;margin-top:22px}
+</style></head><body>
+<div class="wrap">
+<header><img src="icon.png" alt="Würfelgruft"><h2>WÜRFELGRUFT</h2><p>Ein Dungeon mit sechs Seiten · A dungeon with six sides</p></header>
+<nav><a href="#de" id="nde">Deutsch</a><a href="#en" id="nen">English</a></nav>
+<section class="lang" id="de">
+<h1>Datenschutzerklärung</h1>
 <p>Würfelgruft ist ein Spiel, das ohne Konto und ohne eigenen Server funktioniert. Spielstand und Einstellungen bleiben auf deinem Gerät. Optional gibt es freiwillige Werbung und Käufe, siehe unten.</p>
 <h2>Was die App tut</h2>
 <ul>
@@ -17,8 +41,9 @@
 <p>Käufe („Werbefrei“, „Unterstützer“) werden über Google Play abgewickelt. Wir erhalten keine Zahlungsdaten. Dein Kaufstatus wird beim Start mit Google Play abgeglichen und lokal gespeichert.</p>
 <h2>Kontakt</h2>
 <p>Fragen zum Datenschutz: <a href="mailto:dead0frog0face@gmail.com">dead0frog0face@gmail.com</a></p>
-<hr>
-<h1>Würfelgruft – Privacy Policy</h1>
+</section>
+<section class="lang" id="en">
+<h1>Privacy Policy</h1>
 <p>Würfelgruft works without an account and without any server of its own. Save data and settings stay on your device. Optional voluntary ads and purchases are described below.</p>
 <ul>
 <li>No account and no analytics or tracking of our own. The game itself needs no network access.</li>
@@ -30,4 +55,9 @@
 <h2>Purchases (Google Play)</h2>
 <p>Purchases ("Ad-free", "Supporter") are handled by Google Play. We receive no payment data. Your purchase status is synced with Google Play at start and stored locally.</p>
 <p>Contact: <a href="mailto:dead0frog0face@gmail.com">dead0frog0face@gmail.com</a></p>
+</section>
+<footer>Würfelgruft · dead0frog0face@gmail.com</footer>
+</div>
+<script>if(location.hash==='#en'){document.getElementById('nen').classList.add('on')}else{document.getElementById('nde').classList.add('on')}
+addEventListener('hashchange',()=>{const e=location.hash==='#en';document.getElementById('nen').classList.toggle('on',e);document.getElementById('nde').classList.toggle('on',!e)});</script>
 </body></html>
