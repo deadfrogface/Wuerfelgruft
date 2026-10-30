@@ -28,11 +28,13 @@ Mal ist es ein Schlüssel, mal sind es Schalter auf mehreren Seiten, ein Opferal
 **Sprachen:** Deutsch, Englisch (folgt der Gerätesprache)
 **Preis:** kostenlos, freiwillige Belohnungs-Werbung, In-App-Käufe (Werbefrei, Unterstützer-Skin)
 
-## Screenshots (Vorschlag, 1080×1920)
-1. Etage 1 mit Tutorial-Hinweis
-2. Würfelnetz und Zonenwechsel (Wüste / Eis)
-3. Bosskampf mit Lebensleiste
-4. Händler mit Würfelspiel
-5. Klassenwahl
-6. Skins in der Sammlung
-7. Event (Vegas-Nacht oder Halloween)
+## Screenshots (1080×1920, Reihenfolge)
+1. `1_titel.png` Titelbild
+2. `2_gruft.png` Etage mit Würfelnetz
+3. `3_wueste.png` Zonenwechsel Wüste
+4. `4_eisboss.png` Bosskampf
+5. `13_schalter.png` Etagenziel: Schalter auf mehreren Seiten
+6. `14_altar.png` Etagenziel: Opferaltar
+7. `10_event.png` Event-Titelbild (Halloween)
+8. `9_vegas.png`, `11_blackjack.png`, `12_roulette.png` Vegas-Nacht
+9. `8_skins.png` Skins in der Sammlung
