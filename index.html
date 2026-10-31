@@ -6297,6 +6297,19 @@ window.addEventListener('keydown',e=>{if(e.key==='u'||e.key==='U')undoMove();});
 /* ================= Entwickler-Werkzeuge (nur in der DEV-Version) =================
    Die DEV-Version wird vom Workflow gebaut (Flag DEVBUILD=true, eigene App-ID), im Store-Build ist alles aus. */
 const DEVBUILD=false;
+/* Wie ein normaler Lauf bis zur Start-Etage: pro Etage eine zufällige Verstärkung (Stufenregel wie in showUpgrades), Zonenwürfel, Münzen */
+function devAutoPicks(depth){
+  for(let d=1;d<depth;d++){
+    const nz=Math.min(ZONES.length-1,Math.floor(d/10));
+    const avail=UPS.filter(u=>u.can()&&u.tier<=nz&&(!u.rare||Math.random()<u.rare));
+    const fresh=nz>0?avail.filter(u=>u.tier===nz):[];
+    const u=pick(fresh.length&&Math.random()<.4?fresh:avail.length?avail:UPS.filter(x=>x.can()));
+    if(u){u.apply();G.ups[u.id]=(G.ups[u.id]||0)+1;}
+    if(d%10===0){const kd=kindOf(d);if(!G.dice.includes(kd))G.dice.push(kd);}
+    G.bombs+=G.sack;G.money+=G.income*10+12;
+  }
+  G.hp=G.maxhp;G.shield=G.shieldMax;
+}
 function devOpen(){
   let m=$('#m-dev');
   if(!m){
@@ -6321,11 +6334,13 @@ function devOpen(){
    <h3>Lauf</h3>
    <label>Start-Etage <input id="dv-depth" type="number" min="1" max="200" value="${DEVBUILD&&window.__devDepth||1}" style="width:80px;padding:6px;border-radius:8px;background:var(--ink3);color:var(--text)"></label>
    ${sel('dv-goal',goals,window.__goalForce||'')}
+   <div class="row-set"><div>Verstärkungen wie im Lauf<small>Pro übersprungener Etage eine zufällige Verstärkung, dazu Zonenwürfel und Münzen.</small></div><button class="sw on" role="switch" id="dv-auto"></button></div>
    <div class="row-set"><div>Unverwundbar</div><button class="sw" role="switch" id="dv-god"></button></div>
    ${b('dv-run','Lauf mit diesen Einstellungen starten','gold')}
    ${b('dv-login','Login-Bonus und Tageslauf zurücksetzen')}`;
   const on=(id,fn)=>{const e=$('#'+id);if(e)e.addEventListener('click',()=>{sfx('click');fn();});};
   const god=$('#dv-god');god.classList.toggle('on',!!window.__god);god.setAttribute('aria-checked',!!window.__god);
+  on('dv-auto',()=>{$('#dv-auto').classList.toggle('on');});
   on('dv-god',()=>{window.__god=!window.__god;$('#dv-god').classList.toggle('on',!!window.__god);});
   on('dv-gs1',()=>{addGS(1000);devOpen();});on('dv-gs2',()=>{addGS(1000000);devOpen();});
   on('dv-max',()=>{
@@ -6343,7 +6358,12 @@ function devOpen(){
   const evSel=$('#dv-ev');evSel.addEventListener('change',()=>{window.__evForce=evSel.value;document.documentElement.dataset.evk='_';updateStats();});
   on('dv-evgo',()=>{const e=activeEvent();closeModal('m-dev');if(!e)return toast('Kein Event aktiv');if(e==='vegas')openVegas();else openMini(e);});
   const gl=$('#dv-goal');gl.addEventListener('change',()=>{window.__goalForce=gl.value;});
-  on('dv-run',()=>{window.__devDepth=Math.max(1,+$('#dv-depth').value||1);closeModal('m-dev');G=null;startGame();G.depth=window.__devDepth;if(window.__god)G.god=true;if(G.depth>1)startLevel();else if(window.__god)G.god=true;});
+  on('dv-run',()=>{
+    window.__devDepth=Math.max(1,+$('#dv-depth').value||1);window.__devAuto=$('#dv-auto').classList.contains('on');
+    closeModal('m-dev');G=null;startGame();G.depth=window.__devDepth;if(window.__god)G.god=true;
+    if(G.depth>1&&window.__devAuto)devAutoPicks(G.depth);
+    if(G.depth>1)startLevel();
+  });
   on('dv-login',()=>{save.login={last:'',streak:0,claimed:''};save.daily={day:'',best:0,done:false,streak:0,last:''};save.adDay='';persist();toast('Zurückgesetzt');updateStats();});
   openModal('m-dev');
 }
