@@ -585,13 +585,52 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .hell-box .tiles{margin:0 0 8px}
 .tnav{position:absolute;inset:0;z-index:6;pointer-events:none}
 .tn{position:absolute;pointer-events:auto;background:rgba(23,21,43,.82);color:#f4efe0;border:2px solid rgba(244,185,66,.55);border-radius:99px;padding:7px 12px;font:800 .8rem var(--ui);box-shadow:0 3px 0 rgba(0,0,0,.45);animation:tnb 2.2s ease-in-out infinite}
-.tn.bl{left:8px;bottom:calc(var(--sa-bottom) + 8px)}.tn.br{right:8px;bottom:calc(var(--sa-bottom) + 8px)}.tn.back{left:8px;top:calc(var(--sa-top) + 8px)}
+.tn.back{left:6px;top:calc(var(--sa-top) + 8px)}
 .tn.u{top:calc(var(--sa-top) + 8px);left:50%;transform:translateX(-50%)}
 .tn.d{bottom:calc(var(--sa-bottom) + 8px);left:50%;transform:translateX(-50%)}
 @keyframes tnb{0%,100%{opacity:.95}50%{opacity:.6}}
 html.lite .tn{animation:none}
 #camp-inline .camp{aspect-ratio:1/.95}
 #camp-inline p{font-size:.82rem}
+/* ---------- Titelbild: Räume statt Listen ---------- */
+.tp .tp-in.room-in{padding-left:10px;padding-right:10px}
+.room{position:relative;width:100%;aspect-ratio:1/1.12;border-radius:6px;overflow:hidden;box-shadow:0 0 0 3px #2a1608,0 12px 30px rgba(0,0,0,.6);background:#14101f}
+.room>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.room .rs{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:12px;background:none;border:2px dashed rgba(255,255,255,.22);color:rgba(255,255,255,.45);font:800 1.4rem var(--disp)}
+.room .rs.has{border-color:transparent}
+.room .rs .px{--cs:min(17vw,70px)}
+.room .rs.trophy{box-shadow:0 0 0 3px #f4b942 inset,0 0 12px rgba(244,185,66,.55);background:rgba(0,0,0,.25)}
+.room .rs.statue::after{content:'';position:absolute;left:10%;right:10%;bottom:-3%;height:14%;border-radius:6px;background:linear-gradient(180deg,#8b93ad,#4a4566);z-index:-1}
+.room .rs[data-s=w1]{left:18%;top:9%;width:18%;aspect-ratio:1}.room .rs[data-s=w2]{left:41%;top:9%;width:18%;aspect-ratio:1}.room .rs[data-s=w3]{left:64%;top:9%;width:18%;aspect-ratio:1}
+.room .rs[data-s=t1]{left:33%;top:31%;width:14%;aspect-ratio:1}.room .rs[data-s=t2]{left:53%;top:31%;width:14%;aspect-ratio:1}
+.room .rs[data-s=f1]{left:18%;top:58%;width:18%;aspect-ratio:1}.room .rs[data-s=f2]{left:41%;top:62%;width:18%;aspect-ratio:1}.room .rs[data-s=f3]{left:64%;top:58%;width:18%;aspect-ratio:1}
+.room .obj{position:absolute;background:none;border:0;padding:0;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45));animation:objglow 2.6s ease-in-out infinite}
+.room .obj svg{width:100%;height:100%;display:block}
+.room .obj.ward{left:1.5%;top:17%;width:15%;height:44%}
+.room .obj.chest{right:2%;top:60%;width:20%;height:15%}
+@keyframes objglow{0%,100%{filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}50%{filter:drop-shadow(0 4px 0 rgba(0,0,0,.45)) drop-shadow(0 0 7px rgba(255,226,122,.75))}}
+.room .tflame{animation:flame .5s steps(2) infinite;transform-box:fill-box;transform-origin:50% 100%}
+html.lite .room .obj,html.lite .room .tflame{animation:none}
+.pit{position:relative;width:100%;aspect-ratio:100/66;margin:0 0 6px}
+.pit svg{width:100%;height:100%;display:block;overflow:visible}
+.pit .ring{transform-box:fill-box;transform-origin:50% 50%;animation:pitr 28s linear infinite}
+.pit .ring.b{animation-duration:40s;animation-direction:reverse}
+@keyframes pitr{to{transform:rotate(360deg)}}
+.pit .core{animation:glowf 1.6s ease-in-out infinite alternate}
+html.lite .pit .ring,html.lite .pit .core{animation:none}
+.plaques .btn{background:linear-gradient(180deg,#5a4a42,#3a2e2a);color:#ffd9b0;border:2px solid #2a1a14;box-shadow:0 4px 0 #1a0f0b,inset 0 0 0 2px rgba(255,180,120,.15)}
+.plaques .btn.gold{background:linear-gradient(180deg,#a8561a,#6a2a0a);color:#ffe9c0}
+.tp.arena{background:repeating-linear-gradient(90deg,rgba(0,0,0,.0) 0 58px,rgba(0,0,0,.18) 58px 60px),radial-gradient(ellipse 90% 50% at 50% 100%,rgba(244,185,66,.16),transparent 70%)}
+.tp.library{background:repeating-linear-gradient(0deg,rgba(90,60,30,.5) 0 8px,rgba(30,18,10,.55) 8px 74px),linear-gradient(90deg,#2a1a0e,#3a2514 50%,#2a1a0e)}
+.tp.library .tp-in{background:none}
+.tp.library .btn.big,.tp.library .btn.ghost{box-shadow:0 4px 0 #1a0f0b,0 0 18px rgba(0,0,0,.5)}
+/* Randpfeile: nur Symbol und Pfeil, ohne Text */
+.tn{display:flex;align-items:center;justify-content:center;gap:2px;padding:6px 7px;min-width:40px;height:40px;border-radius:99px;animation:tnb 2.2s ease-in-out infinite}
+.tn .px{--cs:24px}.tn b{font:900 1.15rem/1 var(--ui);color:#ffe27a;text-shadow:0 1px 0 #000}
+.tn.u,.tn.d{flex-direction:column;height:46px;min-width:40px;padding:3px 8px;gap:0}
+.tn.u b,.tn.d b{font-size:1rem;line-height:.9}
+.tn.l,.tn.r{top:23%}.tn.l{left:4px}.tn.r{right:4px}
+.tn.bl,.tn.br{display:none}
 .stars{color:var(--gold);letter-spacing:1px}
 .mgrid{display:grid;grid-template-columns:1.3fr repeat(5,1fr);gap:4px;align-items:center;margin:8px 0;font-size:.72rem;text-align:center}
 .mgrid .mc{text-align:left;font-size:.8rem}
@@ -1043,16 +1082,10 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
     <p class="stats" id="stats"></p>
   </div>
   </div>
-  <div class="tp" id="tp-l"><div class="tp-in">
-    <h2 class="tp-h">Gruftlager</h2>
+  <div class="tp" id="tp-l"><div class="tp-in room-in">
     <div id="camp-inline"></div>
-    <div class="tgrid">
-      <button class="btn ghost sm wm" id="b-ward" style="--wm:var(--sp-i_book)">Kleiderschrank</button>
-      <button class="btn ghost sm wm" id="b-vault" style="--wm:var(--sp-i_gs)">Kammer der Schätze</button>
-    </div>
   </div></div>
-  <div class="tp" id="tp-r"><div class="tp-in">
-    <h2 class="tp-h">Herausforderungen</h2>
+  <div class="tp arena" id="tp-r"><div class="tp-in">
     <div class="menu">
       <button class="btn big wm" id="b-q" style="--wm:var(--sp-i_scroll)">Aufgaben<i class="dot" id="q-dot" hidden></i></button>
       <button class="btn big gold wm" id="b-week" style="--wm:var(--sp-i_sun)">Wochenprüfung</button>
@@ -1060,8 +1093,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
       <button class="btn ghost wm" id="b-login" style="--wm:var(--sp-i_gs)">Login-Bonus</button>
     </div>
   </div></div>
-  <div class="tp" id="tp-u"><div class="tp-in">
-    <h2 class="tp-h">Wissen und Meisterschaft</h2>
+  <div class="tp library" id="tp-u"><div class="tp-in">
     <div class="tgrid">
       <button class="btn big wm" id="b-dex" style="--wm:var(--sp-i_book)">Sammlung</button>
       <button class="btn big wm" id="b-mst" style="--wm:var(--sp-i_sun)">Meister und Titel</button>
@@ -1072,9 +1104,9 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
     </div>
   </div></div>
   <div class="tp hell" id="tp-d"><div class="tp-in">
-    <h2 class="tp-h">Der Abgrund</h2>
     <div id="hell-info"></div>
-    <div class="menu">
+    <div class="pit" id="pit"></div>
+    <div class="menu plaques">
       <button class="btn big" id="b-endless" hidden>Endlosmodus</button>
       <button class="btn big gold" id="b-rush">Boss-Rush</button>
       <button class="btn big" id="b-souls">Seelenschmiede</button>
@@ -6159,8 +6191,8 @@ window.addEventListener('resize',()=>{fitTitle();});
 /* Allererster Start: nur Spielen und Einstellungen sind aktiv, der Rest ist grau, bis der erste Lauf vorbei ist */
 const isFresh=()=>(save.runs||0)<1&&!save.run;
 function updateStats(){
-  const fr=isFresh();for(const id of ['b-daily','b-forge','b-q','b-dex','b-help','b-event','b-endless','b-week','b-time','b-login','b-mst','b-ach','b-stat','b-ward','b-vault','b-rush','b-souls'])$('#'+id).classList.toggle('dis',fr);tpApply();
-  $('#b-cont').hidden=!save.run;$('#b-endless').hidden=!save.endless;$('#b-play').textContent=save.run?'Neues Spiel':'Spielen';
+  const fr=isFresh();for(const id of ['b-daily','b-forge','b-q','b-dex','b-help','b-event','b-endless','b-week','b-time','b-login','b-mst','b-ach','b-stat','b-rush','b-souls'])$('#'+id).classList.toggle('dis',fr);tpApply();
+  $('#b-cont').hidden=!save.run;$('#b-endless').hidden=false;$('#b-play').textContent=save.run?'Neues Spiel':'Spielen';
   const bd=save.bd[save.diff]||null;
   $('#gsb').innerHTML=spr('i_gs')+'<span>'+fmt(save.gs||0)+'</span>';$('#stats').textContent=(save.runs||0)>=1?'Rang '+mrRank().r+' · '+titleNow():'';
   rollQuests();dailyRoll();
@@ -6443,7 +6475,7 @@ $('#p-quit').addEventListener('click',()=>{
   save.run=null;persist();
   G=null;AU.setIntensity(0);updateStats();show('scr-title');
 });
-$('#b-endless').addEventListener('click',()=>{AU.unlock();sfx('click');openDiff(()=>startGame(true));});
+$('#b-endless').addEventListener('click',()=>{AU.unlock();sfx('click');if(!save.endless){toast('Besiege den Urwürfel auf Etage 100');return;}openDiff(()=>startGame(true));});
 $('#b-cont').addEventListener('click',()=>{AU.unlock();sfx('click');show('scr-game');newRun(true);});
 $('#o-again').addEventListener('click',()=>{sfx('click');closeModal('m-over');newRun();});
 $('#o-title').addEventListener('click',()=>{sfx('click');closeModal('m-over');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
@@ -6739,17 +6771,41 @@ function campFind(id){
   if(id.startsWith('st:')||id.startsWith('tr:')){const m=id.slice(3);return MT[m]?{id,n:MT[m].name,ico:m,kind:id[0]==='s'?'statue':'trophy'}:null;}
   const p=CAMP_PROPS.find(x=>x.id===id);return p?{...p,kind:'prop'}:null;
 }
+const ROOM_SVG=`<svg viewBox="0 0 100 112" preserveAspectRatio="none"><defs>
+<pattern id="rb" width="12" height="6" patternUnits="userSpaceOnUse"><rect width="12" height="6" fill="#4d4678"/><path d="M0 0H12M0 6H12M6 0V3M0 3V6M12 3V6" stroke="#2c2750" stroke-width=".7" fill="none"/></pattern>
+<pattern id="rp" width="14" height="10" patternUnits="userSpaceOnUse"><rect width="14" height="10" fill="#6a4524"/><path d="M0 0H14M0 5H14M7 0V5M3 5V10" stroke="#3a2210" stroke-width=".6" fill="none"/></pattern>
+<linearGradient id="rw" x1="0" x2="1"><stop offset="0" stop-color="#2a2548"/><stop offset="1" stop-color="#3f3868"/></linearGradient>
+<linearGradient id="rw2" x1="1" x2="0"><stop offset="0" stop-color="#2a2548"/><stop offset="1" stop-color="#3f3868"/></linearGradient>
+<radialGradient id="rg"><stop offset="0" stop-color="#ffcf6a" stop-opacity=".55"/><stop offset="1" stop-color="#ffcf6a" stop-opacity="0"/></radialGradient></defs>
+<polygon points="0,0 100,0 84,6 16,6" fill="#1a1630"/>
+<polygon points="0,0 16,6 16,50 0,68" fill="url(#rw)"/>
+<polygon points="100,0 84,6 84,50 100,68" fill="url(#rw2)"/>
+<rect x="16" y="6" width="68" height="44" fill="url(#rb)"/>
+<polygon points="0,68 16,50 84,50 100,68 100,112 0,112" fill="url(#rp)"/>
+<polygon points="0,68 16,50 84,50 100,68 100,112 0,112" fill="#000" opacity=".28"/>
+<path d="M0 80L16 50M0 96L32 50M0 112L50 50M25 112L68 50M62 112L84 50M100 96L68 50M100 80L84 50" stroke="#2a160a" stroke-width=".5" opacity=".6"/>
+<ellipse cx="50" cy="86" rx="34" ry="12" fill="#6a1a2a" opacity=".85"/><ellipse cx="50" cy="86" rx="28" ry="9" fill="none" stroke="#d9a030" stroke-width=".8"/>
+<g><rect x="30" y="38" width="40" height="3" rx="1" fill="#7a5028"/><rect x="31" y="41" width="3" height="10" fill="#5a3818"/><rect x="66" y="41" width="3" height="10" fill="#5a3818"/></g>
+<circle cx="19" cy="22" r="9" fill="url(#rg)"/><circle cx="81" cy="22" r="9" fill="url(#rg)"/>
+<g class="tflame"><path d="M19 17c-2 3 -2 5 0 7c2 -2 2 -4 0 -7z" fill="#ff8a3d"/><path d="M19 19c-1 2 -1 3 0 4c1 -1 1 -2 0 -4z" fill="#ffe27a"/></g>
+<g class="tflame"><path d="M81 17c-2 3 -2 5 0 7c2 -2 2 -4 0 -7z" fill="#ff8a3d"/><path d="M81 19c-1 2 -1 3 0 4c1 -1 1 -2 0 -4z" fill="#ffe27a"/></g>
+<rect x="18.4" y="23" width="1.2" height="5" fill="#3a2410"/><rect x="80.4" y="23" width="1.2" height="5" fill="#3a2410"/>
+</svg>`;
+const WARD_SVG=`<svg viewBox="0 0 30 60"><rect x="1" y="2" width="28" height="56" rx="2" fill="#7a4e26" stroke="#2a1608" stroke-width="2"/><rect x="4" y="5" width="10.5" height="50" fill="#8a5a2c" stroke="#3a2210" stroke-width="1"/><rect x="15.5" y="5" width="10.5" height="50" fill="#8a5a2c" stroke="#3a2210" stroke-width="1"/><circle cx="12" cy="31" r="1.6" fill="#ffe27a"/><circle cx="18" cy="31" r="1.6" fill="#ffe27a"/><path d="M6 8h6M17.5 8h6" stroke="#b07a40" stroke-width="1.2"/><path d="M5 57l-1 3M25 57l1 3" stroke="#2a1608" stroke-width="2"/></svg>`;
+const CHEST_SVG=`<svg viewBox="0 0 40 30"><path d="M3 12Q3 3 20 3Q37 3 37 12Z" fill="#8a5a2c" stroke="#2a1608" stroke-width="2"/><rect x="3" y="12" width="34" height="15" fill="#7a4e26" stroke="#2a1608" stroke-width="2"/><rect x="3" y="12" width="34" height="3" fill="#f4b942"/><rect x="16" y="9" width="8" height="10" rx="1.5" fill="#ffe27a" stroke="#8a5a0c" stroke-width="1.2"/><circle cx="20" cy="14" r="1.4" fill="#2a1608"/><path d="M8 3v24M32 3v24" stroke="#f4b942" stroke-width="2" opacity=".85"/></svg>`;
 function renderCamp(){
   if(!save.camp)save.camp={slots:{},own:{}};
   const C=save.camp;
-  let h=`<div class="camp"><div class="cwall"></div><div class="cfloor"></div>`;
+  let h=`<div class="room">${ROOM_SVG}`;
   for(const [id,type,label] of CAMP_SLOTS){
     const it=campFind(C.slots[id]);
-    h+=`<button class="cslot ${type}${it?' has '+it.kind:''}" data-s="${id}" aria-label="${label}">${it?spr(it.ico):'<span>+</span>'}</button>`;
+    h+=`<button class="rs ${type}${it?' has '+it.kind:''}" data-s="${id}" aria-label="${label}">${it?spr(it.ico):'<span>+</span>'}</button>`;
   }
-  h+='</div><p style="margin-top:10px">Tippe auf einen Platz, um etwas aufzustellen. Statuen gibt es für Gegner mit Stern, Trophäen für besiegte Bosse, Dinge zum Kaufen für Gruftsteine.</p>';
+  h+=`<button class="obj ward" id="obj-ward" aria-label="Kleiderschrank">${WARD_SVG}</button><button class="obj chest" id="obj-chest" aria-label="Kammer der Schätze">${CHEST_SVG}</button></div>`;
   for(const sel of ['#camp-body','#camp-inline']){const box=$(sel);if(box)box.innerHTML=h;}
-  $$('#camp-body .cslot,#camp-inline .cslot').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();sfx('click');openCampPick(b.dataset.s);}));
+  $$('#camp-body .rs,#camp-inline .rs').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();sfx('click');openCampPick(b.dataset.s);}));
+  $$('.obj.ward').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();sfx('click');openDex('look');}));
+  $$('.obj.chest').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();sfx('click');openVault();}));
 }
 function openCamp(){
   renderCamp();
@@ -6816,12 +6872,23 @@ const TP={c:[0,0],l:[-1,0],r:[1,0],u:[0,-1],d:[0,1]};
 const TP_NAME={l:'Lager',r:'Aufgaben',u:'Wissen',d:'Abgrund'};
 const TP_BACK={l:'r',r:'l',u:'d',d:'u'};
 let tpCur='c';
+const PIT_SVG=`<svg viewBox="0 0 100 66"><defs><radialGradient id="pc" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb04a"/><stop offset=".25" stop-color="#ff3d1a"/><stop offset=".6" stop-color="#4a0606"/><stop offset="1" stop-color="#000"/></radialGradient>
+<radialGradient id="pg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff5a2a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a2a" stop-opacity="0"/></radialGradient></defs>
+<ellipse cx="50" cy="34" rx="58" ry="34" fill="url(#pg)"/>
+<ellipse cx="50" cy="34" rx="49" ry="29" fill="#4a4066" stroke="#1a1428" stroke-width="2"/>
+<g class="ring"><ellipse cx="50" cy="35" rx="44" ry="25.5" fill="#2e2548" stroke="#6a5c92" stroke-width="1" stroke-dasharray="3 2.4"/></g>
+<g class="ring b"><ellipse cx="50" cy="36.5" rx="36" ry="20" fill="#221a38" stroke="#5a4c80" stroke-width="1" stroke-dasharray="2.6 2.4"/></g>
+<g class="ring"><ellipse cx="50" cy="38" rx="28" ry="15" fill="#18102a" stroke="#4a3c70" stroke-width="1" stroke-dasharray="2.2 2.2"/></g>
+<g class="ring b"><ellipse cx="50" cy="39.5" rx="20" ry="10.5" fill="#100a20" stroke="#3a2c60" stroke-width="1" stroke-dasharray="1.8 2"/></g>
+<ellipse class="core" cx="50" cy="41" rx="12" ry="6" fill="url(#pc)"/>
+<path d="M2 36Q8 56 28 62M98 36Q92 56 72 62" stroke="#1a1428" stroke-width="3" fill="none" opacity=".6"/>
+<g fill="#2a2040"><rect x="3" y="30" width="5" height="8"/><rect x="92" y="30" width="5" height="8"/><rect x="46" y="4" width="8" height="4"/></g></svg>`;
 function renderHell(){
   const best=save.bestDepth||0,so=save.souls||0,rushOk=save.won||best>=30;
-  const nxt=Math.max(101,best>100?Math.ceil((best+1-100)/25)*25+100+1-0:101);
-  $('#hell-info').innerHTML=`<div class="hell-box"><div class="tiles"><div class="tile hi"><b>${best}</b><span>Tiefster Rekord</span></div><div class="tile"><b>${Math.max(0,best-100)}</b><span>Etagen im Abgrund</span></div><div class="tile"><b>${fmt(so)}</b><span>Seelen</span></div></div>Ab Etage 101 wird alles härter: alle 25 Etagen kommt eine neue Regel dazu, und alle 25 Etagen wählst du eine Legende mit Preis. Seelen verdienst du hier und gibst sie in der Seelenschmiede aus.</div>${save.endless?'':'<p style="text-align:center;opacity:.8">Besiege den Urwürfel auf Etage 100, um den Abgrund zu öffnen.</p>'}`;
+  $('#hell-info').innerHTML=`<div class="hell-box"><div class="tiles"><div class="tile hi"><b>${best}</b><span>Tiefster Rekord</span></div><div class="tile"><b>${Math.max(0,best-100)}</b><span>Etagen im Abgrund</span></div><div class="tile"><b>${fmt(so)}</b><span>Seelen</span></div></div></div>`;
+  $('#pit').innerHTML=PIT_SVG;
   $('#b-rush').classList.toggle('dis',!rushOk);
-  $('#b-rush').textContent=rushOk?'Boss-Rush':'Boss-Rush (ab Etage 30)';
+  $('#b-endless').classList.toggle('dis',!save.endless);$('#b-endless').hidden=false;
 }
 function tpApply(){
   const [cx,cy]=TP[tpCur];
@@ -6832,9 +6899,18 @@ function tpApply(){
   }
   const nav=$('#tnav');if(!nav)return;nav.innerHTML='';
   if(isFresh())return;
-  const mk=(cls,txt,to)=>{const b=document.createElement('button');b.className='tn '+cls;b.textContent=txt;b.addEventListener('click',()=>tpGo(to));nav.appendChild(b);};
-  if(tpCur==='c'){mk('bl','‹ '+TP_NAME.l,'l');mk('br',TP_NAME.r+' ›','r');mk('u','⌃ '+TP_NAME.u,'u');mk('d',TP_NAME.d+' ⌄','d');}
-  else mk('back','‹ Titel','c');
+  const ICO={l:'chest',r:'i_scroll',u:'i_book',d:'p_glutkern',c:'i_dice'};
+  const CH={l:'‹',r:'›',u:'⌃',d:'⌄'};
+  const mk=(cls,to,chev,ico,name)=>{
+    const b=document.createElement('button');b.className='tn '+cls;b.setAttribute('aria-label',name);
+    const ic=spr(ico),ch=`<b>${chev}</b>`;
+    b.innerHTML=(cls==='r'||cls==='d'||cls==='back'&&chev==='›')?ic+ch:ch+ic;
+    if(cls==='d')b.innerHTML=ic+ch;if(cls==='u')b.innerHTML=ch+ic;
+    b.addEventListener('click',()=>tpGo(to));nav.appendChild(b);
+  };
+  ensureSpr('chest');ensureSpr('p_glutkern');
+  if(tpCur==='c'){mk('l','l',CH.l,ICO.l,'Gruftlager');mk('r','r',CH.r,ICO.r,'Aufgaben');mk('u','u',CH.u,ICO.u,'Wissen');mk('d','d',CH.d,ICO.d,'Abgrund');}
+  else mk('back','c',{l:'›',r:'‹',u:'⌄',d:'⌃'}[tpCur],ICO.c,'Zurück zum Titel');
 }
 function tpGo(p){
   if(!TP[p])return;if(isFresh()&&p!=='c')return;
@@ -6861,8 +6937,6 @@ function tpGo(p){
   sc.addEventListener('pointercancel',()=>{st=null;});
   window.addEventListener('keydown',e=>{if(!sc.classList.contains('on')||anyModal())return;const m={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[e.key];if(!m)return;if(tpCur==='c')tpGo(m);else if(TP_BACK[tpCur]===m)tpGo('c');});
 })();
-$('#b-ward').addEventListener('click',()=>{sfx('click');openDex('look');});
-$('#b-vault').addEventListener('click',()=>{sfx('click');openVault();});
 $('#b-week').addEventListener('click',()=>{AU.unlock();sfx('click');startGame(false,'week');});
 $('#b-time').addEventListener('click',()=>{AU.unlock();sfx('click');startTimed();});
 $('#b-login').addEventListener('click',()=>{sfx('click');openLogin();});
