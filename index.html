@@ -609,9 +609,12 @@ html.lite .tn{animation:none}
 .room .obj.ward{left:1.5%;top:17%;width:15%;height:44%}
 .room .obj.chest{right:2%;top:60%;width:20%;height:15%}
 @keyframes objglow{0%,100%{filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}50%{filter:drop-shadow(0 4px 0 rgba(0,0,0,.45)) drop-shadow(0 0 7px rgba(255,226,122,.75))}}
+.room::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 20% 60%,rgba(255,226,160,.5) 0 1px,transparent 2px),radial-gradient(circle at 70% 35%,rgba(255,226,160,.5) 0 1px,transparent 2px),radial-gradient(circle at 45% 78%,rgba(255,226,160,.4) 0 1px,transparent 2px);animation:dust 7s ease-in-out infinite alternate}
+@keyframes dust{to{transform:translate(8px,-14px);opacity:.4}}
+html.lite .room::after{animation:none}
 .room .tflame,.scn .tflame{animation:flame .5s steps(2) infinite;transform-box:fill-box;transform-origin:50% 100%}
 html.lite .room .obj,html.lite .room .tflame{animation:none}
-.pit{position:relative;width:100%;aspect-ratio:100/66;margin:0 0 6px}
+.pit{position:relative;width:100%;aspect-ratio:100/70;margin:0 0 6px}
 .pit svg{width:100%;height:100%;display:block;overflow:visible}
 .pit .ring{transform-box:fill-box;transform-origin:50% 50%;animation:pitr 28s linear infinite}
 .pit .ring.b{animation-duration:40s;animation-direction:reverse}
@@ -6798,6 +6801,8 @@ const ROOM_SVG=`<svg viewBox="0 0 100 112" preserveAspectRatio="none"><defs>
 <pattern id="rp" width="14" height="10" patternUnits="userSpaceOnUse"><rect width="14" height="10" fill="#6a4524"/><path d="M0 0H14M0 5H14M7 0V5M3 5V10" stroke="#3a2210" stroke-width=".6" fill="none"/></pattern>
 <linearGradient id="rw" x1="0" x2="1"><stop offset="0" stop-color="#2a2548"/><stop offset="1" stop-color="#3f3868"/></linearGradient>
 <linearGradient id="rw2" x1="1" x2="0"><stop offset="0" stop-color="#2a2548"/><stop offset="1" stop-color="#3f3868"/></linearGradient>
+<radialGradient id="tl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb04a" stop-opacity=".5"/><stop offset="1" stop-color="#ffb04a" stop-opacity="0"/></radialGradient>
+<linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset=".35" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
 <radialGradient id="rg"><stop offset="0" stop-color="#ffcf6a" stop-opacity=".55"/><stop offset="1" stop-color="#ffcf6a" stop-opacity="0"/></radialGradient></defs>
 <polygon points="0,0 100,0 84,6 16,6" fill="#1a1630"/>
 <polygon points="0,0 16,6 16,50 0,68" fill="url(#rw)"/>
@@ -6808,6 +6813,19 @@ const ROOM_SVG=`<svg viewBox="0 0 100 112" preserveAspectRatio="none"><defs>
 <path d="M0 80L16 50M0 96L32 50M0 112L50 50M25 112L68 50M62 112L84 50M100 96L68 50M100 80L84 50" stroke="#2a160a" stroke-width=".5" opacity=".6"/>
 <ellipse cx="50" cy="86" rx="34" ry="12" fill="#6a1a2a" opacity=".85"/><ellipse cx="50" cy="86" rx="28" ry="9" fill="none" stroke="#d9a030" stroke-width=".8"/>
 <g><rect x="30" y="38" width="40" height="3" rx="1" fill="#7a5028"/><rect x="31" y="41" width="3" height="10" fill="#5a3818"/><rect x="66" y="41" width="3" height="10" fill="#5a3818"/></g>
+<g stroke="#2a1a0c" stroke-width="1.6" fill="#5a3818"><rect x="14" y="4" width="72" height="3.4"/><rect x="20" y="4" width="2.4" height="3"/><rect x="48.8" y="4" width="2.4" height="3"/><rect x="77.6" y="4" width="2.4" height="3"/></g>
+<path d="M16 7v43M84 7v43" stroke="#000" stroke-opacity=".35" stroke-width="2.4"/>
+<rect x="16" y="46" width="68" height="4" fill="#2a1d46"/><rect x="16" y="49" width="68" height="1.4" fill="#000" opacity=".4"/>
+<ellipse cx="19" cy="30" rx="16" ry="22" fill="url(#tl)"/><ellipse cx="81" cy="30" rx="16" ry="22" fill="url(#tl)"/>
+<ellipse cx="26" cy="72" rx="20" ry="9" fill="url(#tl)" opacity=".5"/><ellipse cx="74" cy="72" rx="20" ry="9" fill="url(#tl)" opacity=".5"/>
+<g><path d="M44 6q6 -1 12 0v8l-6 4-6-4z" fill="#8a1a22" stroke="#2a0608" stroke-width=".8"/><path d="M50 9l1 2 2 .3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2-.3z" fill="#f4c24a"/></g>
+<g><rect x="19" y="44" width="8" height="8" rx="1" fill="#6a4524" stroke="#2a1608" stroke-width=".8"/><path d="M19 47h8M19 50h8" stroke="#2a1608" stroke-width=".5"/></g>
+<g><circle cx="73" cy="49" r="2.2" fill="#e6e0cc" stroke="#201a14" stroke-width=".4"/><rect x="71.8" y="50.4" width="2.4" height="1.4" fill="#e6e0cc"/><circle cx="72.4" cy="48.8" r=".6" fill="#14101f"/><circle cx="73.8" cy="48.8" r=".6" fill="#14101f"/></g>
+<g><rect x="48" y="36" width="1.4" height="3" fill="#e6dcb4"/><path class="tflame" d="M48.7 33.6q-1.2 1.6 0 2.8q1.2-1.2 0-2.8z" fill="#ffd45a"/></g>
+<path d="M0 0c6 3 10 6 14 14M0 0c3 6 6 12 7 22M0 0c9 1 14 3 20 9" stroke="#d8d4ec" stroke-opacity=".35" stroke-width=".4" fill="none"/>
+<path d="M18 86q-3 0-3 3M82 86q3 0 3 3M26 96q-2 2 0 4M74 96q2 2 0 4" stroke="#d9a030" stroke-width=".6" fill="none" opacity=".7"/>
+<path d="M42 86l8-3 8 3-8 3z" fill="#d9a030" opacity=".8"/>
+<rect width="100" height="112" fill="url(#vg)"/>
 <circle cx="19" cy="22" r="9" fill="url(#rg)"/><circle cx="81" cy="22" r="9" fill="url(#rg)"/>
 <g class="tflame"><path d="M19 17c-2 3 -2 5 0 7c2 -2 2 -4 0 -7z" fill="#ff8a3d"/><path d="M19 19c-1 2 -1 3 0 4c1 -1 1 -2 0 -4z" fill="#ffe27a"/></g>
 <g class="tflame"><path d="M81 17c-2 3 -2 5 0 7c2 -2 2 -4 0 -7z" fill="#ff8a3d"/><path d="M81 19c-1 2 -1 3 0 4c1 -1 1 -2 0 -4z" fill="#ffe27a"/></g>
@@ -6933,18 +6951,25 @@ function sceneHell(){
   return h+Array.from({length:9},(_,i)=>`<div class="embers"><i style="left:${8+i*10}%;animation-delay:${(i*0.7)%5}s;animation-duration:${4+i%3}s"></i></div>`).join('');
 }
 function buildScenes(){$('#scn-r').innerHTML=sceneArena();$('#scn-u').innerHTML=sceneLib();$('#scn-d').innerHTML=sceneHell();}
-const PIT_SVG=`<svg viewBox="0 0 100 66"><defs><radialGradient id="pc" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb04a"/><stop offset=".25" stop-color="#ff3d1a"/><stop offset=".6" stop-color="#4a0606"/><stop offset="1" stop-color="#000"/></radialGradient>
-<radialGradient id="pg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff5a2a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a2a" stop-opacity="0"/></radialGradient></defs>
-<ellipse cx="50" cy="34" rx="58" ry="34" fill="url(#pg)"/>
-<ellipse cx="50" cy="34" rx="49" ry="29" fill="#4a4066" stroke="#1a1428" stroke-width="2"/>
-<g class="ring"><ellipse cx="50" cy="35" rx="44" ry="25.5" fill="#2e2548" stroke="#6a5c92" stroke-width="1" stroke-dasharray="3 2.4"/></g>
-<g class="ring b"><ellipse cx="50" cy="36.5" rx="36" ry="20" fill="#221a38" stroke="#5a4c80" stroke-width="1" stroke-dasharray="2.6 2.4"/></g>
-<g class="ring"><ellipse cx="50" cy="38" rx="28" ry="15" fill="#18102a" stroke="#4a3c70" stroke-width="1" stroke-dasharray="2.2 2.2"/></g>
-<g class="ring b"><ellipse cx="50" cy="39.5" rx="20" ry="10.5" fill="#100a20" stroke="#3a2c60" stroke-width="1" stroke-dasharray="1.8 2"/></g>
-<ellipse cx="50" cy="41" rx="30" ry="15" fill="url(#pg)" opacity=".8"/><ellipse class="core" cx="50" cy="41" rx="12" ry="6" fill="url(#pc)"/><path d="M6 32Q50 8 94 32" fill="none" stroke="#ff6a3a" stroke-opacity=".5" stroke-width="1.2"/><path d="M14 36l8 4M86 36l-8 4M30 44l6 2M70 44l-6 2" stroke="#ff5a2a" stroke-opacity=".6" stroke-width=".8"/>
-<path d="M2 36Q8 56 28 62M98 36Q92 56 72 62" stroke="#1a1428" stroke-width="3" fill="none" opacity=".6"/>
-<g fill="#2a2040"><rect x="3" y="30" width="5" height="8"/><rect x="92" y="30" width="5" height="8"/><rect x="46" y="4" width="8" height="4"/></g></svg>`;
-buildScenes();
+const PIT_SVG=(()=>{
+  const N=9;let h='<svg viewBox="0 0 100 70"><defs><radialGradient id="pc" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff0a0"/><stop offset=".2" stop-color="#ffa030"/><stop offset=".5" stop-color="#e02a0a"/><stop offset="1" stop-color="#3a0404"/></radialGradient><radialGradient id="pg" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff5a2a" stop-opacity=".6"/><stop offset="1" stop-color="#ff5a2a" stop-opacity="0"/></radialGradient><linearGradient id="pw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".75"/><stop offset=".6" stop-color="#000" stop-opacity=".1"/><stop offset="1" stop-color="#ff3a10" stop-opacity=".25"/></linearGradient></defs>';
+  h+='<ellipse cx="50" cy="40" rx="62" ry="40" fill="url(#pg)"/>';
+  for(let k=0;k<N;k++){
+    const t=k/N,rx=49-k*4.9,ry=29-k*2.9,cy=30+k*4.3;
+    const lit=Math.round(86-t*70),red=Math.round(t*70);
+    const col=`rgb(${Math.min(255,lit+red)},${Math.max(10,Math.round(lit-14-t*12))},${Math.max(18,Math.round(lit+8-t*30))})`;
+    h+=`<ellipse cx="50" cy="${cy}" rx="${rx}" ry="${ry}" fill="${col}" stroke="#0a0610" stroke-width="${(1.6-t).toFixed(2)}"/>`;
+    h+=`<ellipse cx="50" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#pw)" opacity="${(.25+t*.5).toFixed(2)}"/>`;
+    let j='';for(let i=0;i<14;i++){const an=Math.PI*(1.05+i*.07);j+=`M${(50+rx*Math.cos(an)).toFixed(1)} ${(cy+ry*Math.sin(an)).toFixed(1)}v3.2`;}
+    h+=`<path d="${j}" stroke="#000" stroke-opacity=".35" stroke-width=".5" fill="none"/>`;
+    h+=`<g class="ring ${k%2?'b':''}"><ellipse cx="50" cy="${cy+.8}" rx="${rx-1.6}" ry="${ry-1}" fill="none" stroke="${k<3?'#8a7cb8':'#a05a4a'}" stroke-opacity="${(.5-t*.25).toFixed(2)}" stroke-width=".6" stroke-dasharray="${(2+k*.2).toFixed(1)} 2.6"/></g>`;
+  }
+  let st='';for(let i=0;i<22;i++){const t=i/22,an=Math.PI*(.12+t*1.7),k=t*(N-1.5);const rx=49-k*4.9-2,ry=29-k*2.9-1.2,cy=30+k*4.3;st+=`<rect x="${(50+rx*Math.cos(an)-1.8).toFixed(1)}" y="${(cy+ry*Math.sin(an)).toFixed(1)}" width="3.6" height="1.5" fill="#b8aedc" opacity="${(.85-t*.5).toFixed(2)}"/>`;}
+  h+=`<g>${st}</g>`;
+  h+='<ellipse class="core" cx="50" cy="66" rx="20" ry="7" fill="url(#pg)"/><ellipse class="core" cx="50" cy="67" rx="11" ry="4.4" fill="url(#pc)"/>';
+  h+='<g fill="#d8d2c0" stroke="#201a14" stroke-width=".5"><circle cx="9" cy="33" r="3"/><rect x="7.4" y="35" width="3.2" height="2" rx=".6"/><circle cx="91" cy="35" r="3"/><rect x="89.4" y="37" width="3.2" height="2" rx=".6"/></g><g fill="#0a0610"><circle cx="8" cy="32.4" r=".8"/><circle cx="10.2" cy="32.4" r=".8"/><circle cx="90" cy="34.4" r=".8"/><circle cx="92.2" cy="34.4" r=".8"/></g>';
+  return h+'</svg>';
+})();
 function renderHell(){
   const best=save.bestDepth||0,so=save.souls||0,rushOk=save.won||best>=30;
   $('#hell-info').innerHTML=`<div class="hell-box"><div class="tiles"><div class="tile hi"><b>${best}</b><span>Tiefster Rekord</span></div><div class="tile"><b>${Math.max(0,best-100)}</b><span>Etagen im Abgrund</span></div><div class="tile"><b>${fmt(so)}</b><span>Seelen</span></div></div></div>`;
