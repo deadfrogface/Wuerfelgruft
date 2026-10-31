@@ -593,7 +593,9 @@ html.lite .tn{animation:none}
 #camp-inline .camp{aspect-ratio:1/.95}
 #camp-inline p{font-size:.82rem}
 /* ---------- Titelbild: Räume statt Listen ---------- */
-.tp .tp-in.room-in{padding-left:10px;padding-right:10px}
+.tp .tp-in.room-in{padding:0;width:min(100%,560px);align-self:stretch}
+#tp-l .room{aspect-ratio:auto;height:100%;min-height:100%;border-radius:0;box-shadow:none}
+#tp-l .tp-in,#tp-l #camp-inline{height:100%}
 .room{position:relative;width:100%;aspect-ratio:1/1.12;border-radius:6px;overflow:hidden;box-shadow:0 0 0 3px #2a1608,0 12px 30px rgba(0,0,0,.6);background:#14101f}
 .room>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .room .rs{position:absolute;display:flex;align-items:center;justify-content:center;border-radius:12px;background:none;border:2px dashed rgba(255,255,255,.22);color:rgba(255,255,255,.45);font:800 1.4rem var(--disp)}
