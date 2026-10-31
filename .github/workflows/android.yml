@@ -11,6 +11,10 @@ permissions:
 jobs:
   apk:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [store, dev]
     steps:
       - uses: actions/checkout@v4
 
@@ -32,6 +36,13 @@ jobs:
         run: |
           mkdir -p www/fonts
           cp index.html www/index.html
+          if [ "${{ matrix.variant }}" = "dev" ]; then
+            # DEV-Version: Entwickler-Werkzeuge an, eigene App-ID (parallel zur Store-Version installierbar), eigener Name
+            sed -i 's/const DEVBUILD=false;/const DEVBUILD=true;/' www/index.html
+            grep -c "DEVBUILD=true" www/index.html
+            sed -i 's/"appId": "com.wuerfelgruft.game"/"appId": "com.wuerfelgruft.dev"/; s/"appName": "Würfelgruft"/"appName": "Würfelgruft DEV"/' capacitor.config.json
+            cat capacitor.config.json | head -4
+          fi
           cp node_modules/@fontsource/grenze-gotisch/files/grenze-gotisch-latin-{600,800}-normal.woff2 www/fonts/
           cp node_modules/@fontsource/alegreya-sans/files/alegreya-sans-latin-{400,500,700,800}-normal.woff2 www/fonts/
           ls www/fonts
@@ -96,6 +107,7 @@ jobs:
           ls -la Wuerfelgruft.apk
 
       - name: Play-Store-Bundle (AAB) bauen
+        if: matrix.variant == 'store'
         continue-on-error: true
         working-directory: android
         run: |
@@ -105,19 +117,30 @@ jobs:
           jarsigner -keystore $KS -storetype PKCS12 -storepass "$KS_PASS_USE" -keypass "$KS_PASS_USE" -signedjar ../Wuerfelgruft.aab "$AAB" "$KS_ALIAS_USE"
           ls -la ../Wuerfelgruft.aab
 
+      - name: DEV-APK umbenennen
+        if: matrix.variant == 'dev'
+        run: mv Wuerfelgruft.apk Wuerfelgruft-DEV.apk
+
       - uses: actions/upload-artifact@v4
+        if: matrix.variant == 'store'
         with:
           name: Wuerfelgruft-APK
           path: Wuerfelgruft.apk
 
       - uses: actions/upload-artifact@v4
-        if: hashFiles('Wuerfelgruft.aab') != ''
+        if: matrix.variant == 'dev'
+        with:
+          name: Wuerfelgruft-DEV-APK
+          path: Wuerfelgruft-DEV.apk
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.variant == 'store' && hashFiles('Wuerfelgruft.aab') != ''
         with:
           name: Wuerfelgruft-AAB
           path: Wuerfelgruft.aab
 
       - name: Release veroeffentlichen
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && matrix.variant == 'store'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.${{ github.run_number }}
@@ -126,3 +149,14 @@ jobs:
             Wuerfelgruft.apk
             Wuerfelgruft.aab
           body: "APK herunterladen und öffnen. Android fragt einmalig nach der Erlaubnis für Installationen aus dieser Quelle."
+
+      - name: DEV-Release veroeffentlichen
+        if: github.ref == 'refs/heads/main' && matrix.variant == 'dev'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-latest
+          name: Würfelgruft DEV (neuester Stand)
+          prerelease: true
+          make_latest: false
+          files: Wuerfelgruft-DEV.apk
+          body: "Entwickler-Version mit DEV-Menü (Gruftsteine, Events, Etage wählen, Unverwundbar). Eigene App, läuft neben der normalen Version, eigener Spielstand."

@@ -1292,6 +1292,7 @@ function pickType(z,pos,forced){
 }
 /* Etagenziel: Schlüssel bleibt der Standard, dazwischen Schalter auf mehreren Würfelseiten oder ein Opferaltar */
 function pickGoal(depth){
+  if(DEVBUILD&&window.__goalForce&&depth>=2&&depth%5!==0)return window.__goalForce;
   if(depth<3||depth%5===0)return 'key';
   const h=(G&&G.goals)||[],last=h[h.length-1];
   const w={key:36+(last&&last!=='key'?30:0),switch:14,altar:14,runes:10,clear:9,elite:9,survive:8};
@@ -3555,6 +3556,7 @@ function banner(t,s){
 
 /* ================= Regeln ================= */
 function hurtPlayer(n,src){
+  if(DEVBUILD&&G.god){floatText(G.pos,'Gott','blue');return false;}
   if(G.shell>0){G.shell--;floatText(G.pos,'Verfehlt','blue');sfx('block');return false;}
   if(G.dodge&&Math.random()*100<G.dodge*10){floatText(G.pos,'Ausgewichen','blue');sfx('block');return false;}
   if(G.shadow&&src&&(MT[src.type].shoot||MT[src.type].lob)&&Math.random()<.35){floatText(G.pos,'Verweht','blue');sfx('block');return false;}
@@ -6179,6 +6181,65 @@ try{
   }
 }catch(e){}
 window.addEventListener('keydown',e=>{if(e.key==='u'||e.key==='U')undoMove();});
+
+/* ================= Entwickler-Werkzeuge (nur in der DEV-Version) =================
+   Die DEV-Version wird vom Workflow gebaut (Flag DEVBUILD=true, eigene App-ID), im Store-Build ist alles aus. */
+const DEVBUILD=false;
+function devOpen(){
+  let m=$('#m-dev');
+  if(!m){
+    m=document.createElement('div');m.className='modal';m.id='m-dev';
+    m.innerHTML='<div class="panel help"><h2>DEV</h2><div id="dev-body"></div><div class="stack" style="margin-top:14px"><button class="btn big" id="dev-close">Schließen</button></div></div>';
+    $('#app').appendChild(m);
+    $('#dev-close').addEventListener('click',()=>{closeModal('m-dev');updateStats();});
+  }
+  const sel=(id,opts,cur)=>`<select id="${id}" style="width:100%;padding:8px;border-radius:8px;background:var(--ink3);color:var(--text);margin:4px 0">${opts.map(o=>`<option value="${o[0]}"${o[0]===cur?' selected':''}>${o[1]}</option>`).join('')}</select>`;
+  const evs=[['','Kein Event (echtes Datum)'],['none','Nur ohne Event'],...Object.keys(EVENTS).map(k=>[k,EVENTS[k].name])];
+  const goals=[['','Zufall'],...['key','switch','altar','runes','clear','elite','survive'].map(k=>[k,k])];
+  const b=(id,t,cls='ghost')=>`<button class="btn ${cls}" id="${id}" style="margin:4px 0">${t}</button>`;
+  $('#dev-body').innerHTML=`<p>Gruftsteine: <b style="color:var(--gold)">${fmt(save.gs||0)}</b> · Läufe: ${save.runs||0} · Rekord: ${save.bestDepth||0}</p>
+   <h3>Währung und Fortschritt</h3>
+   ${b('dv-gs1','+1.000 Gruftsteine')}${b('dv-gs2','+1.000.000 Gruftsteine')}
+   ${b('dv-max','Alles auf Max (Schmiede, Klassen, Skins, Aufstieg, Sammlung, Erfolge)','gold')}
+   ${b('dv-new','Neuer Spieler (Speicher löschen, Erststart-Ablauf)')}
+   <h3>Events</h3>
+   ${sel('dv-ev',evs,window.__evForce||'')}
+   ${b('dv-evgo','Event-Minispiel/Vegas öffnen')}
+   ${b('dv-evskin','Alle Event-Skins freischalten')}
+   <h3>Lauf</h3>
+   <label>Start-Etage <input id="dv-depth" type="number" min="1" max="200" value="${DEVBUILD&&window.__devDepth||1}" style="width:80px;padding:6px;border-radius:8px;background:var(--ink3);color:var(--text)"></label>
+   ${sel('dv-goal',goals,window.__goalForce||'')}
+   <div class="row-set"><div>Unverwundbar</div><button class="sw" role="switch" id="dv-god"></button></div>
+   ${b('dv-run','Lauf mit diesen Einstellungen starten','gold')}
+   ${b('dv-login','Login-Bonus und Tageslauf zurücksetzen')}`;
+  const on=(id,fn)=>{const e=$('#'+id);if(e)e.addEventListener('click',()=>{sfx('click');fn();});};
+  const god=$('#dv-god');god.classList.toggle('on',!!window.__god);god.setAttribute('aria-checked',!!window.__god);
+  on('dv-god',()=>{window.__god=!window.__god;$('#dv-god').classList.toggle('on',!!window.__god);});
+  on('dv-gs1',()=>{addGS(1000);devOpen();});on('dv-gs2',()=>{addGS(1000000);devOpen();});
+  on('dv-max',()=>{
+    for(const m of META)save.meta[m.id]=m.cost.length;
+    save.bestDepth=Math.max(save.bestDepth||0,100);save.best=Math.max(save.best||0,999999);save.won=true;save.endless=true;
+    if(!save.cbd)save.cbd={};for(const c of CLSK)save.cbd[c]=100;
+    if(typeof save.asc!=='object'||!save.asc)save.asc={};for(const d of DIFFK)save.asc[d]=5;
+    for(const k of Object.keys(MT))if(!MT[k].npc&&!MT[k].decoy)save.dex[k]={s:1,k:5};
+    for(const a of ACH)if(!save.ach[a.id])save.ach[a.id]=Date.now();
+    if(!save.evs)save.evs={};for(const k of Object.keys(EVSK))save.evs[k]=true;
+    save.gs=Math.max(save.gs||0,999999);persist();toast('Alles auf Max');devOpen();
+  });
+  on('dv-new',()=>{if(!confirm('Speicher wirklich löschen?'))return;try{localStorage.removeItem(SAVE_KEY);}catch(e){}location.reload();});
+  on('dv-evskin',()=>{if(!save.evs)save.evs={};for(const k of Object.keys(EVSK))save.evs[k]=true;persist();toast('Event-Skins frei');});
+  const evSel=$('#dv-ev');evSel.addEventListener('change',()=>{window.__evForce=evSel.value;document.documentElement.dataset.evk='_';updateStats();});
+  on('dv-evgo',()=>{const e=activeEvent();closeModal('m-dev');if(!e)return toast('Kein Event aktiv');if(e==='vegas')openVegas();else openMini(e);});
+  const gl=$('#dv-goal');gl.addEventListener('change',()=>{window.__goalForce=gl.value;});
+  on('dv-run',()=>{window.__devDepth=Math.max(1,+$('#dv-depth').value||1);closeModal('m-dev');G=null;startGame();G.depth=window.__devDepth;if(window.__god)G.god=true;if(G.depth>1)startLevel();else if(window.__god)G.god=true;});
+  on('dv-login',()=>{save.login={last:'',streak:0,claimed:''};save.daily={day:'',best:0,done:false,streak:0,last:''};save.adDay='';persist();toast('Zurückgesetzt');updateStats();});
+  openModal('m-dev');
+}
+if(DEVBUILD){
+  const db=document.createElement('button');db.textContent='DEV';db.id='b-dev';
+  db.style.cssText='position:fixed;left:8px;top:calc(8px + var(--sa-top));z-index:400;padding:6px 12px;border-radius:99px;background:#c8302d;color:#fff;font-weight:800;border:2px solid #fff;font-size:.8rem;opacity:.9';
+  db.addEventListener('click',devOpen);document.body.appendChild(db);
+}
 
 /* ================= Titel aufbauen ================= */
 function buildTitle(){
