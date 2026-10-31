@@ -14,7 +14,7 @@ Mal ist es ein Schlüssel, mal sind es Schalter auf mehreren Seiten, ein Opferal
 • Rundenbasiert: kein Zeitdruck, jeder Zug zählt, Diagonalen inklusive
 • Über 200 Gegner mit eigenem Aussehen, eigenen Angriffen und Bewegungen, 20 Bosse mit Wutphasen und eigenen Kampfmechaniken
 • 64 Verstärkungen, Wurf-Items, Oasen und Händler zwischen den Welten, dazu gezinkte Würfel zum Glücksspielen
-• 4 Klassen mit Stärken und Schwächen, 5 Schwierigkeitsstufen von „Leicht“ bis „1 Leben“
+• 7 Klassen mit Stärken und Schwächen, 5 Schwierigkeitsstufen von „Leicht“ bis „1 Leben“
 • Aufstiegsstufen und Mutatoren für noch härtere Läufe
 • Über 40 Skins zum Freischalten, dazu zeitlich begrenzte Events mit eigenen Minispielen und Musik: Halloween, Weihnachten, Ostern, Valentinstag, Italien- und Ungarn-Fest, Geburtstag und die Vegas-Nacht mit Blackjack, Würfeln und Roulette am Filztisch
 • 7 Etagenziele im Wechsel, die Gegner wachsen mit der Tiefe mit
