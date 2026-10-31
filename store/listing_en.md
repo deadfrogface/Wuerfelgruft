@@ -14,7 +14,7 @@ Sometimes it is a key, sometimes switches on several sides, an offering altar, r
 • Turn-based: no time pressure, every move counts, diagonals included
 • 200+ enemies, each with its own look, attacks and movement, 20 bosses with rage phases and their own combat mechanics
 • 64 upgrades, throwable items, oases and a merchant between worlds, plus loaded dice to gamble with
-• 4 classes with strengths and weaknesses, 5 difficulty levels from "Easy" to "1 HP"
+• 7 classes with strengths and weaknesses, 5 difficulty levels from "Easy" to "1 HP"
 • Ascent levels and mutators for even harder runs
 • 40+ skins to unlock, plus limited-time events with their own minigames and music: Halloween, Christmas, Easter, Valentine's Day, Italian and Hungarian festivals, a birthday and Vegas Night with blackjack, dice and roulette at the felt table
 • 7 floor goals in rotation, enemies grow stronger with depth
