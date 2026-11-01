@@ -683,6 +683,10 @@ html.lite .eye{animation:none;opacity:.8}
 .prop .pimg{image-rendering:pixelated;width:min(24vw,100px);height:auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.5));animation:objglow 3s ease-in-out infinite}
 .prop.big .pimg{width:min(36vw,150px)}.prop.wide .pimg{width:min(28vw,112px)}
 .tp.hell::before{display:none}
+.prop.lock,.tn.lock{filter:grayscale(.9) brightness(.7)}
+.prop.lock::after,.tn.lock::after{content:'';position:absolute;right:calc(50% - 46px);top:6px;width:24px;height:28px;background:var(--lockimg) center/contain no-repeat;image-rendering:pixelated;filter:none}
+.tn.lock::after{right:-6px;top:-8px;width:20px;height:23px}
+
 .tp.hell .tp-in{min-height:100%;display:flex;flex-direction:column;justify-content:space-between}
 .tp.hell .pit{flex:1;aspect-ratio:auto;margin:0}
 .tp.hell .hell-box{margin-bottom:0;background:rgba(20,6,8,.78);border:2px solid #6a2018}
@@ -4540,11 +4544,11 @@ function act(m,dW,dA,d8){
   if(m.dormant){
     m.dz=(m.dz||0)+1;
     if(m.dz<90&&G.mons.some(o=>o!==m&&!MT[o.type].boss&&!o.decoy))return 0;
-    m.dormant=false;floatText(m.pos,'Erwacht!','red');sfx('boss');flash();shake();burst(m.pos,T.col,16);setMsg(T.name+' erwacht! '+(T.bm?BM_TXT[T.bm]:'Jetzt gibt es kein Zurück.'));return 2;
+    m.dormant=false;floatText(m.pos,'Erwacht!','red');sfx('boss');flash();shake();burst(m.pos,T.col,16);setMsg(T.name==='Der Urwürfel'?'Der Urwürfel erwacht! Er durchschaut Tarnung, friert nicht ein und erlaubt keine Gratis-Züge.':T.name+' erwacht! '+(T.bm?BM_TXT[T.bm]:'Jetzt gibt es kein Zurück.'));return 2;
   }
   m.n=(m.n||0)+1;
   if(m.poison>0){m.poison--;if(hitMonster(m,1,false))return 2;}
-  if(m.stun>0){m.stun--;return 0;}
+  if(m.stun>0){if(isUrw(m)){m.stun=0;if(!m.immuneMsg){m.immuneMsg=1;floatText(m.pos,'Immun','gold');}}else{m.stun--;return 0;}}
   if(m.lure){
     if(m.lure.n--<=0)m.lure=null;
     else{
@@ -4669,8 +4673,11 @@ function act(m,dW,dA,d8){
 let pending=null,walking=false,walkCancel=false;
 function flush(){if(!pending||!G||G.busy||G.over||flipping)return;const f=pending;pending=null;f();}
 function release(){G.busy=false;setTimeout(flush,0);}
+const isUrw=m=>MT[m.type]&&MT[m.type].name==='Der Urwürfel';
+const finalFight=()=>!!(G&&G.boss&&G.mons.some(isUrw));
 async function monsterPhase(){
-  if(G.cloak>0){G.cloak--;floatText(G.pos,'Unbemerkt','blue');render();await sleep(60);return;}
+  if(G.cloak>0&&finalFight()&&!G.ffMsg){G.ffMsg=1;floatText(G.pos,'Durchschaut','red');setMsg('Der Urwürfel sieht dich trotz Tarnung.');}
+  if(G.cloak>0&&!finalFight()){G.cloak--;floatText(G.pos,'Unbemerkt','blue');render();await sleep(60);return;}
   const P=G.pos;
   const dW=bfs(P,G.walls),dA=bfs(P,null);
   const d8=G.mons.some(m=>MT[m.type].diag)?bfs8(P,G.walls):null;
@@ -4779,7 +4786,7 @@ async function playerActInner(t,pref){
     if(!killed){if(G.stun&&!T.boss)m.stun=1;if(G.poison)m.poison=2;if(G.gale&&!T.boss)knock(m,1);if(G.curse)m.cursed=true;if(rng&&G.harpoon)pull(m,1);}
     if(G.volt)for(const o of G.mons.slice())if(o!==m&&NB[m.pos].includes(o.pos))hitMonster(o,1,false);
     if(T.thorny&&adj&&!killed)hurtPlayer(1,null);
-    if(killed&&G.freeKills>0){G.freeKills--;free=true;setMsg('Nachgesetzt. Dieser Zug war gratis.');}
+    if(killed&&G.freeKills>0&&!finalFight()){G.freeKills--;free=true;setMsg('Nachgesetzt. Dieser Zug war gratis.');}
     render();await sleep(killed?95:70);
   }else{
     G.pos=t;sfx('step');
@@ -4795,7 +4802,8 @@ async function playerActInner(t,pref){
       setMsg('Die Treppe ist versiegelt. Finde den Schlüssel.');
     }
     G.steps++;
-    if(G.freeSteps>0){G.freeSteps--;free=true;}
+    if(finalFight()){/* der Urwuerfel erlaubt keine Gratis-Zuege */}
+    else if(G.freeSteps>0){G.freeSteps--;free=true;}
     else if(G.swift&&G.steps%(5-G.swift)===0){free=true;floatText(G.pos,'Flink','blue');}
   }
   if(G.hp<=0){die();return true;}
@@ -6369,6 +6377,7 @@ function startGame(endless,daily){
 }
 /* Boss-Rush: alle 20 Bosse hintereinander, wenig Leben, nach jedem Boss 1 Herz und eine Verstärkung */
 function startRush(){
+  if(!endGate())return;
   show('scr-game');newRun(false,false,false);
   G.rush=true;G.maxhp=G.hp=Math.min(G.maxhp,4);G.undos=Math.min(G.undos,1);G.depth=5;startLevel();
 }
@@ -6638,7 +6647,7 @@ $('#p-quit').addEventListener('click',()=>{
   save.run=null;persist();
   G=null;AU.setIntensity(0);updateStats();show('scr-title');
 });
-$('#b-endless').addEventListener('click',()=>{AU.unlock();sfx('click');if(!save.endless){toast('Besiege den Urwürfel auf Etage 100');return;}openDiff(()=>startGame(true));});
+$('#b-endless').addEventListener('click',()=>{AU.unlock();sfx('click');if(!save.endless&&!endGate())return;openDiff(()=>startGame(true));});
 $('#b-cont').addEventListener('click',()=>{AU.unlock();sfx('click');show('scr-game');newRun(true);});
 $('#o-again').addEventListener('click',()=>{sfx('click');closeModal('m-over');newRun();});
 $('#o-title').addEventListener('click',()=>{sfx('click');closeModal('m-over');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
@@ -6752,6 +6761,9 @@ window.addEventListener('keydown',e=>{if(e.key==='u'||e.key==='U')undoMove();});
 /* ================= Entwickler-Werkzeuge (nur in der DEV-Version) =================
    Die DEV-Version wird vom Workflow gebaut (Flag DEVBUILD=true, eigene App-ID), im Store-Build ist alles aus. */
 const DEVBUILD=false;
+const END_MSG='Besiege den Urwürfel auf Etage 100, um den Abgrund zu öffnen.';
+const endOpen=()=>!!save.won||DEVBUILD;
+const endGate=()=>{if(endOpen())return true;toast(END_MSG);sfx('block');return false;};
 /* Wie ein normaler Lauf bis zur Start-Etage: pro Etage eine zufällige Verstärkung (Stufenregel wie in showUpgrades), Zonenwürfel, Münzen */
 function devAutoPicks(depth){
   for(let d=1;d<depth;d++){
@@ -6843,6 +6855,7 @@ const SOULUP=[
 const soulLv=id=>(save.soulLv&&save.soulLv[id])||0;
 const soulCost=(u,l)=>Math.ceil(u.base*Math.pow(1.2,l));
 function openSouls(){
+  if(!endGate())return;
   const box=$('#souls-list');box.innerHTML='';$('#souls-n').textContent=fmt(save.souls||0);
   for(const u of SOULUP){
     const l=soulLv(u.id),done=l>=u.max,c=soulCost(u,l),ok=!done&&(save.souls||0)>=c;
@@ -6878,6 +6891,7 @@ const timeFor=d=>Math.max(35,75-3*Math.floor(d/10))+(d%5===0?30:0);
 const fmtT=sec=>{sec=Math.max(0,Math.ceil(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');};
 const fmtMs=ms=>{const t=Math.round(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');};
 function startTimed(){
+  if(!endGate())return;
   show('scr-game');newRun(false,false,false);
   G.timed=true;G.tTotal=0;G.speedGS=0;G.tlMax=timeFor(G.depth);G.tl=G.tlMax;tjShow();
 }
@@ -7300,6 +7314,7 @@ const VAULT=[
 const vOwn=id=>!!(save.cosOwn&&save.cosOwn[id]);
 for(const v of VAULT)if(v.type==='title')TITLES.push({id:v.id,n:v.tn,ok:()=>vOwn(v.id)});
 function openVault(){
+  if(!endGate())return;
   const box=$('#vault-list');box.innerHTML='';$('#vault-gs').textContent=fmt(save.gs||0);
   if(!save.cos)save.cos={};if(!save.cosOwn)save.cosOwn={};
   const groups=[['aura','Auren'],['cube','Würfel-Muster'],['title','Titel']];
@@ -7473,7 +7488,9 @@ function buildLib(){
   LIB_URL=PX.url(cv);return LIB_URL;
 }
 
+function pxLockUrl(){const cv=PX.Cv(10,12);cv.ell(5,4.5,3.4,3.6,'#c8c4d8');cv.ell(5,5,1.8,2.2,[0,0,0]);for(let y=0;y<12;y++)for(let x=0;x<10;x++){if(cv.has(x,y)&&x>3&&x<7&&y>2&&y<7){const k=(y*10+x)*4;cv.d[k+3]=0;}}cv.box(1,5,8,7,'#d6a63a','#f4d86a','#8a5a14');cv.r(4,7,2,3,'#2a1608');cv.outline('#14090a');return PX.url(cv);}
 function buildScenes(){
+  document.documentElement.style.setProperty('--lockimg',`url(${pxLockUrl()})`);
   buildLodge();
   const fl=(x,y,w,big)=>`<div class="fl" style="left:${(x/105*100).toFixed(2)}%;top:${(y/215*100).toFixed(2)}%;width:${(w/105*100).toFixed(2)}%"><img src="${LODGE_ASSETS[(big?'fb':'fl')+'0']}" alt=""><img class="b" src="${LODGE_ASSETS[(big?'fb':'fl')+'1']}" alt=""></div>`;
   $('#scn-r').innerHTML=`<div class="sbox"><img src="${buildArena()}" alt="">${fl(5.5,81,5)+fl(94.5,81,5)}<div class="samb"></div></div>`;
@@ -7504,7 +7521,7 @@ const PIT_SVG=(()=>{
 })();
 buildScenes();
 function renderHell(){
-  const best=save.bestDepth||0,so=save.souls||0,rushOk=save.won||best>=30;
+  const best=save.bestDepth||0,so=save.souls||0,rushOk=endOpen();
   $('#hell-info').innerHTML=`<div class="hell-box"><div class="tiles"><div class="tile hi"><b>${best}</b><span>Tiefster Rekord</span></div><div class="tile"><b>${Math.max(0,best-100)}</b><span>Etagen im Abgrund</span></div><div class="tile"><b>${fmt(so)}</b><span>Seelen</span></div></div></div>`;
   $('#pit').innerHTML='';
   $('#b-rush').classList.toggle('dis',!rushOk);
@@ -7518,8 +7535,9 @@ function tpApply(){
     el.classList.toggle('cur',p===tpCur);
   }
   const nav=$('#tnav');if(!nav)return;nav.innerHTML='';
+  for(const id of ['b-week','b-time'])$('#'+id).classList.toggle('lock',!endOpen());
   if(isFresh())return;
-  const ICO={l:'chest',r:'i_scroll',u:'i_book',d:'p_glutkern',c:'i_dice'};
+  const ICO={l:'chest',r:'i_scroll',u:'i_book',d:'p_glutkern',c:'i_dice'};const lockD=!endOpen();
   const CH={l:'‹',r:'›',u:'⌃',d:'⌄'};
   const mk=(cls,to,chev,ico,name)=>{
     const b=document.createElement('button');b.className='tn '+cls;b.setAttribute('aria-label',name);
@@ -7529,11 +7547,11 @@ function tpApply(){
     b.addEventListener('click',()=>tpGo(to));nav.appendChild(b);
   };
   ensureSpr('chest');ensureSpr('p_glutkern');
-  if(tpCur==='c'){mk('l','l',CH.l,ICO.l,'Gruftlager');mk('r','r',CH.r,ICO.r,'Aufgaben');mk('u','u',CH.u,ICO.u,'Wissen');mk('d','d',CH.d,ICO.d,'Abgrund');}
+  if(tpCur==='c'){mk('l','l',CH.l,ICO.l,'Gruftlager');mk('r','r',CH.r,ICO.r,'Aufgaben');mk('u','u',CH.u,ICO.u,'Wissen');mk('d','d',CH.d,ICO.d,'Abgrund');if(lockD){const bd=nav.querySelector('.tn.d');if(bd)bd.classList.add('lock');}}
   else mk('back','c',{l:'›',r:'‹',u:'⌄',d:'⌃'}[tpCur],ICO.c,'Zurück zum Titel');
 }
 function tpGo(p){
-  if(!TP[p])return;if(isFresh()&&p!=='c')return;
+  if(!TP[p])return;if(isFresh()&&p!=='c')return;if(p==='d'&&!endGate())return;
   tpCur=p;sfx('flip');if(!(G&&document.querySelector('#scr-game.on'))){const kz=p==='d'?'hoelle':(MUSIC_EV[activeEvent()]||'gruft');AU.setKind(kz,ZMUS[kz],MOT[kz],PROGS[kz]);AU.sd=60/AU.zm.bpm/4;AU.trans=0;}
   if(p==='l')openCamp();
   if(p==='d')renderHell();
@@ -7563,14 +7581,14 @@ function tpGo(p){
   sc.addEventListener('pointercancel',()=>{st=null;});
   window.addEventListener('keydown',e=>{if(!sc.classList.contains('on')||anyModal())return;const m={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[e.key];if(!m)return;if(tpCur==='c')tpGo(m);else if(TP_BACK[tpCur]===m)tpGo('c');});
 })();
-$('#b-week').addEventListener('click',()=>{AU.unlock();sfx('click');startGame(false,'week');});
-$('#b-time').addEventListener('click',()=>{AU.unlock();sfx('click');startTimed();});
+$('#b-week').addEventListener('click',()=>{AU.unlock();if(!endGate())return;sfx('click');startGame(false,'week');});
+$('#b-time').addEventListener('click',()=>{AU.unlock();if(!endGate())return;sfx('click');startTimed();});
 $('#b-login').addEventListener('click',()=>{sfx('click');openLogin();});
 $('#b-mst').addEventListener('click',()=>{sfx('click');openDex('mst');});
 $('#b-ach').addEventListener('click',()=>{sfx('click');openDex('ach');});
 $('#b-stat').addEventListener('click',()=>{sfx('click');openDex('stat');});
-$('#b-rush').addEventListener('click',()=>{AU.unlock();sfx('click');if(save.won||(save.bestDepth||0)>=30)startRush();else toast('Boss-Rush ab Etage 30');});
-$('#b-souls').addEventListener('click',()=>{sfx('click');openSouls();});
+$('#b-rush').addEventListener('click',()=>{AU.unlock();sfx('click');if(endGate())startRush();});
+$('#b-souls').addEventListener('click',()=>{if(!endGate())return;sfx('click');openSouls();});
 
 /* ================= Titel aufbauen ================= */
 function buildTitle(){

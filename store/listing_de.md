@@ -30,6 +30,7 @@ Mal ist es ein Schlüssel, mal sind es Schalter auf mehreren Seiten, ein Opferal
 
 ## Screenshots (1080×1920, Reihenfolge)
 1. `1_titel.png` Titelbild
+1b. `15_lager.png` Gruftlager (zwei Etagen, Held läuft herum), `16_abgrund.png` Abgrund, `17_wissen.png` Bibliothek, `18_aufgaben.png` Arena
 2. `2_gruft.png` Etage mit Würfelnetz
 3. `3_wueste.png` Zonenwechsel Wüste
 4. `4_eisboss.png` Bosskampf
