@@ -569,7 +569,8 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .card.cls.locked{opacity:.7}
 .cinfo{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font:800 .85rem var(--ui);color:var(--gold)}
 /* ---------- Titelbild als Würfel: fünf Seiten ---------- */
-.tpages{position:absolute;inset:0;overflow:hidden;z-index:2}
+.tpages{position:absolute;inset:0;overflow:hidden;z-index:2;touch-action:none}
+#scr-title,#scr-title .tp,#scr-title .tp *{touch-action:none}
 .tp{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;transition:transform .5s cubic-bezier(.25,.9,.25,1),opacity .35s;will-change:transform}
 .tp:not(.cur){pointer-events:none;opacity:.0}
 .tp.cur{opacity:1}
