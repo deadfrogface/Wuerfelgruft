@@ -176,6 +176,7 @@ async function botRun(cfg){
         if(path&&!path.length&&w.reach1(P,dest)&&!noMelee)tgt=dest;
       }
       else path=w.pathTo(dest);
+      if(!path||!path.length){const dm=w.bfs(dest,G.walls);let bestN=null,bv=1e9;for(const n of NB[P]){const v=dm.get(n);if(v!==undefined&&v<bv){bv=v;bestN=n;}}if(bestN!=null&&dest!==P)path=[bestN];}
       if(tgt==null){
         let step=path&&path.length?path[0]:null;
         if(step!=null&&dz.has(step)){const alt=stepTo(dest,cls==='jaeger');if(alt!=null&&!dz.has(alt))step=alt;else if(near&&near.d<=2&&waits<4){waits++;await w.waitTurn();continue;}}
