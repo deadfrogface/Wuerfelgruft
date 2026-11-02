@@ -5534,8 +5534,8 @@ function openQuests(){
   $('#q-body').innerHTML=h;
   $('#q-daily').addEventListener('click',()=>{sfx('click');closeModal('m-quests');startGame(false,true);});
   $('#q-week').addEventListener('click',()=>{sfx('click');closeModal('m-quests');startGame(false,'week');});
-  $('#q-time').addEventListener('click',()=>{sfx('click');closeModal('m-quests');startTimed();});
-  const qr=$('#q-rush');if(qr)qr.addEventListener('click',()=>{sfx('click');closeModal('m-quests');startRush();});
+  $('#q-time').addEventListener('click',()=>{sfx('click');closeModal('m-quests');openClass(()=>startTimed());});
+  const qr=$('#q-rush');if(qr)qr.addEventListener('click',()=>{sfx('click');closeModal('m-quests');openClass(()=>startRush());});
   $('#q-login').addEventListener('click',()=>{sfx('click');closeModal('m-quests');openLogin();});
   openModal('m-quests');
 }
@@ -7681,12 +7681,12 @@ function tpGo(p){
   window.addEventListener('keydown',e=>{if(!sc.classList.contains('on')||anyModal())return;const m={ArrowLeft:'l',ArrowRight:'r',ArrowUp:'u',ArrowDown:'d'}[e.key];if(!m)return;if(tpCur==='c')tpGo(m);else if(TP_BACK[tpCur]===m)tpGo('c');});
 })();
 $('#b-week').addEventListener('click',()=>{AU.unlock();if(!endGate())return;sfx('click');startGame(false,'week');});
-$('#b-time').addEventListener('click',()=>{AU.unlock();if(!endGate())return;sfx('click');startTimed();});
+$('#b-time').addEventListener('click',()=>{AU.unlock();if(!endGate())return;sfx('click');openClass(()=>startTimed());});
 $('#b-login').addEventListener('click',()=>{sfx('click');openLogin();});
 $('#b-mst').addEventListener('click',()=>{sfx('click');openDex('mst');});
 $('#b-ach').addEventListener('click',()=>{sfx('click');openDex('ach');});
 $('#b-stat').addEventListener('click',()=>{sfx('click');openDex('stat');});
-$('#b-rush').addEventListener('click',()=>{AU.unlock();sfx('click');if(endGate())startRush();});
+$('#b-rush').addEventListener('click',()=>{AU.unlock();sfx('click');if(endGate())openClass(()=>startRush());});
 $('#b-souls').addEventListener('click',()=>{if(!endGate())return;sfx('click');openSouls();});
 
 /* ================= Titel aufbauen ================= */
