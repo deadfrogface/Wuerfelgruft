@@ -25,3 +25,26 @@ Der Bot ist ein einfacher Spieler: Er nutzt Klassenfähigkeiten, meidet Gefahren
 - Frühe Etagen für die Standardklasse etwas leichter (Etage 1 bis 9), besonders der erste Boss.
 
 Vor jeder Änderung sollten echte Läufe auf dem Handy die Bot-Zahlen bestätigen.
+
+
+## Vergleich zweier Bot-Stile (2. November 2026, 8 Läufe je Klasse, bis Etage 20, gleicher Startwert)
+`basic` = einfacher Bot, `smart` = wägt jeden Zug nach Risiko und Nutzen ab (Gefahrenfelder, Schadensfenster langsamer Gegner, Kill-Chancen).
+
+| Klasse | Etage Ø basic | Etage Ø smart | Tod vor 10 (basic / smart) |
+|---|---|---|---|
+| Wächter | 18,5 | 15,8 | 0 / 0 |
+| Schatzjäger | 18,0 | 18,1 | 0 / 0 |
+| Zauberer | 13,3 | 11,8 | 2 / 2 |
+| Alchemist | 10,6 | 12,9 | 4 / 3 |
+| Krieger | 7,4 | 6,6 | 5 / 6 |
+| Dieb | 6,9 | 10,9 | 5 / 1 |
+| Jäger | 5,6 | 9,5 | 7 / 4 |
+
+Hängende Läufe: basic 6 von 56, smart 17 von 56 (der smart-Bot pendelt öfter zwischen Ausweichen und Ziel).
+
+**Was daraus folgt:**
+- **Beide Bots ordnen die Klassen gleich oben und unten:** Wächter und Schatzjäger vorne, Krieger hinten. Das macht die Rangfolge glaubwürdiger als eine einzelne Messung.
+- **Dieb und Jäger** schneiden mit dem klügeren Bot deutlich besser ab. Ihre Schwäche im ersten Lauf lag also teils am Bot, nicht an der Klasse.
+- **Der Krieger** bleibt auch mit dem klügeren Bot am schwächsten, hier wirkt der Bot nicht als Ursache.
+- **Der Wächter** stirbt mit dem klügeren Bot gelegentlich, bleibt aber auf Augenhöhe mit dem Schatzjäger an der Spitze.
+- Die Stichprobe ist klein (8 Läufe). Unterschiede unter etwa 2 Etagen sind Rauschen.
