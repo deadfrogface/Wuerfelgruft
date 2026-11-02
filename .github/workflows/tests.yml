@@ -1,0 +1,34 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+jobs:
+  regress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Playwright installieren
+        working-directory: tools
+        run: |
+          npm init -y >/dev/null
+          npm i --no-save playwright@1.49.0
+          npx playwright install --with-deps chromium
+      - name: Testversion bauen
+        run: python3 tools/build_test.py
+      - name: Regressionstest (Bot)
+        working-directory: tools
+        run: node regress.js | tee regress.out
+      - name: Wisch-Test
+        working-directory: tools
+        run: node swipe.js | tee swipe.out
+      - name: Ergebnis prüfen
+        working-directory: tools
+        run: |
+          grep -q '"bad":\[\]' regress.out
+          grep -q 'no errors' regress.out

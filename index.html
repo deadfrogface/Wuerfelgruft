@@ -683,6 +683,10 @@ html.lite .eye{animation:none;opacity:.8}
 .prop .pimg{image-rendering:pixelated;width:min(24vw,100px);height:auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.5));animation:objglow 3s ease-in-out infinite}
 .prop.big .pimg{width:min(36vw,150px)}.prop.wide .pimg{width:min(28vw,112px)}
 .tp.hell::before{display:none}
+@media (prefers-reduced-motion:reduce){
+  .amb,.samb,.hamb,.eye,.embers i,.fl img,.lodge .obj,.prop .pimg,.tn,.lava,.scn .glow{animation:none!important}
+  .eye{opacity:.8}
+}
 .prop.lock,.tn.lock{filter:grayscale(.9) brightness(.7)}
 .prop.lock::after,.tn.lock::after{content:'';position:absolute;right:calc(50% - 46px);top:6px;width:24px;height:28px;background:var(--lockimg) center/contain no-repeat;image-rendering:pixelated;filter:none}
 .tn.lock::after{right:-6px;top:-8px;width:20px;height:23px}
