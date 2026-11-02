@@ -2,18 +2,20 @@
 /* Balance-Bot: spielt ganze Läufe fair (kein Dauer-Leben, nutzt Klassenfähigkeiten, Verstärkungen und Händler)
    und zeigt je Klasse/Schwierigkeit, wie tief er kommt, woran er stirbt und wie viel Schaden jede Etage macht.
    Start: python3 tools/build_test.py && node tools/balance.js --runs=6 --maxdepth=40 --diff=normal --classes=krieger,zauberer
-   Optionen: --runs (je Klasse und Stufe), --maxdepth, --diff (Liste), --classes (Liste), --par (parallele Seiten), --cap (Aktionen je Etage bis "hängt") */
+   Optionen: --skill=basic|smart (smart bewertet jeden Zug nach Risiko und Nutzen), --seed (reproduzierbare Läufe), --runs (je Klasse und Stufe), --maxdepth, --diff (Liste), --classes (Liste), --par (parallele Seiten), --cap (Aktionen je Etage bis "hängt") */
 const {chromium}=require('playwright');
 const path=require('path'),fs=require('fs');
 const A=Object.fromEntries(process.argv.slice(2).map(a=>{const [k,v]=a.replace(/^--/,'').split('=');return [k,v===undefined?true:v];}));
 const CLASSES=(A.classes||'krieger,zauberer,jaeger,schatz,dieb,waechter,alchemist').split(',');
 const DIFFS=(A.diff||'normal').split(',');
-const RUNS=+(A.runs||4),MAXD=+(A.maxdepth||40),PAR=+(A.par||3),CAP=+(A.cap||320);
+const RUNS=+(A.runs||4),MAXD=+(A.maxdepth||40),PAR=+(A.par||3),CAP=+(A.cap||320),SKILL=A.skill||'smart',SEED=+(A.seed||Date.now()%100000);
 
 /* Wird im Browser ausgeführt. Der Bot spielt klassenspezifisch: Schattenschritt als Flucht und für Gratis-Treffer, Fallen vor
    anrückenden Gegnern, Warten für Blöcke beim Wächter, Mana-Management ohne Nahkampf beim Zauberer, Tränke und Münzwürfe auf Distanz. */
 async function botRun(cfg){
   const w=window.__wg;window.__fast=true;
+  {let a=(cfg.seed>>>0)||1;Math.random=()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  const SMART=cfg.skill==='smart';
   const y0=()=>new Promise(r=>setTimeout(r,0));
   const S=w.save;S.settings.lite=true;S.settings.tips=false;S.settings.sfx=false;S.settings.music=false;
   S.bestDepth=100;S.mr={xp:1e7,got:{}};S.run=null;S.cls=cfg.cls;S.diff=cfg.diff;S.mut='';S.meta=S.meta||{};
@@ -89,6 +91,7 @@ async function botRun(cfg){
     for(const n of NB[P]){if(G.walls.has(n)||w.monAt(n)||G.spikes.has(n))continue;const nr=nearest(n,mons);const sc=(nr?nr.d:9)*3-(dz.has(n)?5:0);if(sc>bs){bs=sc;best=n;}}
     return best;
   }
+  const nearestD=(a,b)=>{const d=w.bfs(a,null).get(b);return d===undefined?99:d;};
   const mon0=()=>w.G.mons.filter(m=>!MT[m.type].npc);
   for(let it=0;it<60000;it++){
     const G=w.G;if(!G){res.stuck=true;break;}
@@ -153,6 +156,22 @@ async function botRun(cfg){
     }
     /* ---------- Gefahr meiden ---------- */
     if(dz.has(P)&&!(attackable.length&&Math.random()<.3)){const s=stepTo(target!=null?target:P,cls==='jaeger');if(s!=null){await w.playerAct(s);await idle();continue;}}
+    /* ---------- Smart: Risiko und Nutzen jedes Zugs abwägen, solange Gegner nah sind ---------- */
+    if(SMART&&near&&near.d<=3&&target!=null&&!gl.wait){
+      const dmG=w.bfs(target,G.walls);
+      const ready=m=>{const T=MT[m.type];return T.slow?(m.cd===0?1:.15):1;};
+      const riskAt=(c,gone)=>{let r=dz.has(c)?3:0;for(const m of mons){if(m===gone||m.stun>0)continue;const T=MT[m.type];if(w.reach1(c,m.pos))r+=(T.dmg||1)*ready(m);else if((T.fast||T.charge)&&nearestD(c,m.pos)<=2)r+=.6*(T.dmg||1);}return r;};
+      const dist0=dmG.get(P);
+      const opts=[];
+      if(!noMelee)for(const m of attackable){const kill=m.hp<=(G.dmg||1)*(G.assassin&&m.stun>0?2:1);opts.push({k:'atk',pos:m.pos,v:(kill?3+(MT[m.type].dmg||1)*1.5:.7*(G.dmg||1))-riskAt(P,kill?m:null)*1.4});}
+      opts.push({k:'wait',v:-riskAt(P,null)*1.4-.3+(cls==='waechter'?.8:0)});
+      for(const n of NB[P]){if(G.walls.has(n)||w.monAt(n)||G.spikes.has(n))continue;const dn=dmG.get(n);const prog=(dist0!==undefined&&dn!==undefined)?(dist0-dn)*.9:0;opts.push({k:'mv',pos:n,v:prog-riskAt(n,null)*1.4-((G.traps||[]).includes(n)&&cls==='jaeger'?1:0)});}
+      for(const o of opts)o.v+=Math.random()*.2;
+      opts.sort((a,b)=>b.v-a.v);const best=opts[0];
+      if(best.k==='wait'){await w.waitTurn();continue;}
+      waits=0;(res.tr=res.tr||[]).push(P+'>'+best.pos+'S');if(res.tr.length>14)res.tr.shift();
+      await w.playerAct(best.pos);await idle();continue;
+    }
     /* ---------- Standard: kämpfen, einsammeln, Ziel ---------- */
     let tgt=null;
     if(attackable.length&&!noMelee){attackable.sort((a,b)=>a.hp-b.hp);tgt=attackable[0].pos;}
@@ -197,7 +216,7 @@ async function botRun(cfg){
 
 (async()=>{
   const file='file://'+path.join(__dirname,process.env.WG_OUT||'.out','test.html');
-  const jobs=[];for(const d of DIFFS)for(const c of CLASSES)for(let i=0;i<RUNS;i++)jobs.push({cls:c,diff:d});
+  const jobs=[];for(const d of DIFFS)for(const c of CLASSES)for(let i=0;i<RUNS;i++)jobs.push({cls:c,diff:d,skill:SKILL,seed:SEED+jobs.length*7919});
   const browser=await chromium.launch();const out=[];let next=0;const errs=new Set();
   async function worker(){
     const pg=await browser.newPage({viewport:{width:420,height:860}});
@@ -216,7 +235,7 @@ async function botRun(cfg){
   await Promise.all(Array.from({length:PAR},worker));
   await browser.close();
   /* Auswertung */
-  const lines=['# Balance-Bericht','',`Läufe je Klasse und Stufe: ${RUNS}, Etagen-Grenze: ${MAXD}, Bot fair (kein Dauer-Leben).`,''];
+  const lines=['# Balance-Bericht','',`Läufe je Klasse und Stufe: ${RUNS}, Etagen-Grenze: ${MAXD}, Bot fair (kein Dauer-Leben), Fertigkeit: ${SKILL}, Startwert: ${SEED}.`,''];
   const med=a=>{if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y);return s[Math.floor(s.length/2)];};
   lines.push('| Klasse | Stufe | Läufe | Etage Ø | Median | Max | Tod vor 10 | Bis Grenze | Häufigster Killer |','|---|---|---|---|---|---|---|---|---|');
   for(const d of DIFFS)for(const c of CLASSES){
