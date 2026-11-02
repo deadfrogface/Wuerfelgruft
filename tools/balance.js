@@ -23,7 +23,7 @@ async function botRun(cfg){
   res.cls=w.G.cls;
   const MT=w.MT,NB=w.NB;
   const cnt=(a,f)=>a.filter(f).length;
-  let lastKey='',lvlActs=0,lastPos=-1,same=0,lastDepth=0;
+  let lastKey='',lvlActs=0,lastPos=-1,same=0,lastDepth=0,prevHp=null,prevDepth=0;
   const GOODP=/^p_|^chest$|^heart$|^coin$/;
   const UPSCORE=u=>{const t=(u.name+' '+u.desc).toLowerCase();let s=1;
     if(/leben|herz/.test(t))s+=3;if(/schaden|stärker|klinge|speer/.test(t))s+=3;if(/rüstung|schild|block/.test(t))s+=2;if(/gratis|schritt|flink/.test(t))s+=1;
@@ -95,8 +95,10 @@ async function botRun(cfg){
     const G=w.G;if(!G){res.stuck=true;break;}
     if(G.over){res.over=true;res.cause=G.lastHit||'unbekannt';break;}
     res.depth=Math.max(res.depth,G.depth);
+    if(prevHp!==null&&G.depth===prevDepth&&G.hp<prevHp)res.dmg[G.depth]=(res.dmg[G.depth]||0)+(prevHp-G.hp);
+    prevHp=G.hp;prevDepth=G.depth;
     if(G.depth>MAXD_){res.capped=true;break;}
-    if(G.depth!==lastDepth){if(lastDepth)res.dmg[lastDepth]=G.lvlLoss||0;lastDepth=G.depth;lvlActs=0;G.lvlLoss=0;}
+    if(G.depth!==lastDepth){lastDepth=G.depth;lvlActs=0;}
     const open=[...document.querySelectorAll('.modal.on')].map(m=>m.id);
     if(open.length){const r=await modal(open);if(r==='stop')break;lvlActs++;if(lvlActs>CAP_*3){res.stuck=true;break;}continue;}
     if(G.busy){await y0();lvlActs++;if(lvlActs>CAP_*20){res.stuck=true;break;}continue;}
@@ -138,7 +140,7 @@ async function botRun(cfg){
 }
 
 (async()=>{
-  const file='file://'+path.join(__dirname,'.out','test.html');
+  const file='file://'+path.join(__dirname,process.env.WG_OUT||'.out','test.html');
   const jobs=[];for(const d of DIFFS)for(const c of CLASSES)for(let i=0;i<RUNS;i++)jobs.push({cls:c,diff:d});
   const browser=await chromium.launch();const out=[];let next=0;const errs=new Set();
   async function worker(){

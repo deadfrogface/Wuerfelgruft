@@ -2,3 +2,4 @@ node_modules/
 __pycache__/
 tools/.out/
 *.pyc
+tools/.out2/

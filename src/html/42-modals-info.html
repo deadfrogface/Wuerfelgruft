@@ -1,0 +1,88 @@
+<div class="modal" id="m-zmon"><div class="panel help"><h2>Gegner dieser Zone</h2><p id="zmon-sub"></p><div id="zmon-body"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="zmon-close">Zurück</button></div></div></div>
+
+<div class="modal" id="m-relics"><div class="panel help"><h2>Deine Verstärkungen</h2><ul id="relic-list"></ul>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="r-close">Schließen</button></div></div></div>
+
+<div class="modal" id="m-over"><div class="panel"><h2>Gefallen</h2><div id="over-new"></div><div class="go-top" id="over-top"></div><p id="over-txt" style="text-align:center">Die Gruft behält dich.</p>
+  <div class="tiles" id="over-res"></div>
+  <div id="over-goal"></div>
+  <div id="over-ad"></div>
+  <div class="stack"><button class="btn big" id="o-again">Nochmal versuchen</button><button class="btn ghost" id="o-title">Zum Titel</button></div></div></div>
+
+<div class="modal" id="m-win"><div class="panel"><h2>Bezwungen</h2><div class="newbest">Alle 50 Etagen geschafft</div><p>Du stehst über dem Würfel. Der Endlosmodus ist jetzt freigeschaltet.</p>
+  <div class="res" id="win-res"></div>
+  <div class="stack"><button class="btn big" id="w-go">Endlosmodus</button><button class="btn ghost" id="w-title">Zum Titel</button></div></div></div>
+
+<div class="modal" id="m-event"><div class="panel help"><h2 id="ev-title"></h2><div id="ev-body"></div><div class="stack" style="margin-top:14px"><button class="btn ghost" id="ev-ok">Beenden</button></div></div></div>
+
+<div class="modal" id="m-vegas"><div class="panel help"><h2>Vegas-Nacht</h2><div id="vg-body"></div><div class="stack" style="margin-top:14px"><button class="btn ghost" id="vg-close">Verlassen</button></div></div></div>
+
+<div class="modal" id="m-diff"><div class="panel help"><h2>Schwierigkeit</h2><p>Wähle, wie hart die Gruft sein soll.</p><div id="diff-mods"></div><div class="cards" id="diff-cards" style="margin-top:12px"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn ghost" id="d-cancel">Zurück</button></div></div></div>
+
+<div class="modal" id="m-class"><div class="panel help"><h2>Klasse</h2><p>Jede Klasse startet anders. Weitere schaltest du durch tiefe Etagen frei.</p><div class="cards" id="class-cards"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn ghost" id="c-over">Übersicht: Fähigkeiten und Freischaltung</button><button class="btn ghost" id="c-cancel">Zurück</button></div></div></div>
+
+<div class="modal" id="m-clsinfo"><div class="panel help"><h2 id="ci-t">Klasse</h2><div id="ci-body"></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="ci-pick" hidden>Diese Klasse wählen</button><button class="btn ghost" id="ci-close">Zurück</button></div></div></div>
+
+<div class="modal" id="m-set"><div class="panel help"><h2>Einstellungen</h2>
+  <h3>Ton</h3>
+  <div class="row-set"><div>Musik</div><button class="sw" role="switch" data-k="music" aria-label="Musik"></button></div>
+  <div class="row-set"><div>Musik-Lautstärke</div><input class="rg" type="range" min="0" max="100" step="5" data-k="musicVol" aria-label="Musik-Lautstärke"></div>
+  <div class="row-set"><div>Effekte</div><button class="sw" role="switch" data-k="sfx" aria-label="Effekte"></button></div>
+  <div class="row-set"><div>Effekt-Lautstärke</div><input class="rg" type="range" min="0" max="100" step="5" data-k="sfxVol" aria-label="Effekt-Lautstärke"></div>
+  <h3>Bild</h3>
+  <div class="row-set"><div>Helligkeit</div><input class="rg" type="range" min="60" max="130" step="5" data-k="bright" aria-label="Helligkeit"></div>
+  <div class="row-set"><div>Textgröße</div><input class="rg" type="range" min="90" max="130" step="10" data-k="ts" aria-label="Textgröße"></div>
+  <div class="row-set"><div>Sparmodus<small>Weniger Hintergrund-Effekte, für schwächere Handys.</small></div><button class="sw" role="switch" data-k="lite" aria-label="Sparmodus"></button></div>
+  <div class="row-set"><div>Fehlerprotokoll</div><button class="btn ghost" id="s-err" style="padding:6px 14px">Kopieren</button></div>
+  <div class="row-set"><div>Sprache / Language</div><button class="btn ghost" id="s-lang" style="padding:6px 14px;min-width:96px"></button></div>
+  <div class="row-set"><div>Spielhinweise</div><button class="sw" role="switch" data-k="tips" aria-label="Spielhinweise"></button></div>
+  <div class="row-set"><div>Bildschirm wackelt</div><button class="sw" role="switch" data-k="shake" aria-label="Bildschirm wackelt"></button></div>
+  <div class="row-set"><div>Weniger Bewegung<small>Schaltet Hintergrund- und Figuren-Animationen ab.</small></div><button class="sw" role="switch" data-k="rm" aria-label="Weniger Bewegung"></button></div>
+  <div class="row-set"><div>Kontrast für Gefahrenfelder<small>Weiß-blaue statt rote Schraffur, für Farbenblindheit.</small></div><button class="sw" role="switch" data-k="cb" aria-label="Kontrast"></button></div>
+  <div class="row-set"><div>Leben als Zahl</div><button class="sw" role="switch" data-k="num" aria-label="Leben als Zahl"></button></div>
+  <div class="row-set" id="set-support" hidden><div>Unterstützen<small>Werbefrei, Skin und Gratis-Belohnung.</small></div><button class="btn ghost" id="s-sup" style="padding:6px 14px">Öffnen</button></div>
+  <h3>Spiel</h3>
+  <div class="row-set"><div>Vibration</div><button class="sw" role="switch" data-k="vib" aria-label="Vibration"></button></div>
+  <div class="row-set" style="display:block"><div>Standard-Schwierigkeit<small>Gilt für den nächsten neuen Lauf.</small></div><div class="seg" id="set-diff"></div></div>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="s-close">Fertig</button><button class="btn ghost" id="s-reset">Bestwerte löschen</button></div></div></div>
+
+<div class="modal" id="m-bossinfo"><div class="panel help"><h2>Boss</h2>
+  <p>Auf dieser Etage wartet ein Boss. Er ist erstarrt, bis du <b>alle anderen Gegner</b> der Etage besiegt hast. Erst dann erwacht er.</p>
+  <ul>
+    <li><span class="ph" data-spr="king"></span><span>Die Lebensleiste über dem Würfel zeigt seine Kraft. Bei 2/3 und 1/3 Leben wird er wütend: neue Angriffe, mehr Schaden.</span></li>
+    <li><span class="ph" data-spr="key"></span><span>Besiegst du ihn, öffnet sich die Treppe. Jeder Boss hat eine eigene Besonderheit, die beim Erwachen angezeigt wird.</span></li>
+    <li><span class="ph" data-spr="heart"></span><span>Rote Felder warnen vor seinen großen Angriffen. Weich ihnen aus.</span></li>
+  </ul>
+  <div class="stack" style="margin-top:14px"><button class="btn big" id="boss-go">Verstanden</button></div></div></div>
+
+<div class="modal" id="m-help"><div class="panel help"><h2>Anleitung</h2>
+  <h3>Der Würfel</h3>
+  <ul>
+    <li><span class="ph" data-spr="hero"></span><span>Tippe auf ein Nachbarfeld, um zu gehen oder anzugreifen, auch diagonal. Nach jedem Zug ziehen alle Monster.</span></li>
+    <li><svg class="ico" viewBox="0 0 24 24" style="color:var(--gold)"><use href="#s-chev"/></svg><span>Am Rand erscheint ein goldener Pfeil. Tippe ihn, um über die Kante auf die nächste Seite zu laufen.</span></li>
+    <li><svg class="ico" viewBox="0 0 32 32"><use href="#s-target"/></svg><span>Wische über das Brett, um den Würfel zu drehen. Tippe auf das Netz unten, um eine Seite direkt anzusehen. Umsehen kostet einen Zug, auf Leicht nicht. Laufen über Kanten und der Zentrier-Knopf kosten nichts.</span></li>
+    <li><span class="ph" data-spr="stairs"></span><span>Die Treppe liegt immer auf einer anderen Seite. Ab Etage 2 ist sie versiegelt, du brauchst den Schlüssel.</span></li>
+  </ul>
+  <div id="h-states"></div>
+  <div id="h-zone"></div>
+  <h3>Fundstücke</h3>
+  <ul>
+    <li><span class="ph" data-spr="heart"></span><span>Herz: heilt 2 Leben.</span></li>
+    <li><i class="hatch"></i><span>Schraffierte Felder liegen in einer Schusslinie oder im Wurfbereich eines Gegners.</span></li>
+    <li><span class="ph" data-spr="spike"></span><span>Stachelfalle: 1 Schaden für dich.</span></li>
+    <li><span class="ph" data-spr="coin"></span><span>Münzen und Siege geben Geld. Nach jeder Zone (Etage 10, 20 …) wartet ein Händler.</span></li>
+    <li><span class="ph" data-spr="bomb"></span><span>Jede Zone hat ein eigenes Wurf-Item (Bombe, Sporen, Frost, Fass, Leere). Beim Zonenwechsel tauschst du übrige Stücke gegen Münzen oder gegen das neue Item.</span></li>
+    <li><span class="ph" data-spr="heart"></span><span>Jede Zone versteckt eigene Fundstücke mit besonderer Wirkung.</span></li>
+    <li><span class="ph" data-spr="key"></span><span>Für jede geschaffte Zone bekommst du einen gezinkten Würfel. Im Händler hat jede Ware eine Zahl: würfle sie, und du bekommst sie gratis.</span></li>
+  </ul>
+  <h3>Tipps</h3>
+  <ul>
+    <li><span class="ph" data-spr="undo"></span><span>Zurück nimmt deinen letzten Zug zurück, einmal pro Etage.</span></li>
+    <li><svg class="ico" viewBox="0 0 32 32"><use href="#s-hourglass"/></svg><span>Tippe ein fernes Feld an, dann läuft dein Held den Weg selbst. Er hält an, sobald Gefahr naht.</span></li>
+  </ul>
+  <div class="stack" style="margin-top:16px"><button class="btn big" id="h-close">Verstanden</button></div></div></div>
+

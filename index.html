@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#17152b">
 <title>Würfelgruft</title>
 <style>
+/* src/css/01-base.css: Grundlagen: Farben, Schriften, Seite, Sprites. */
 @font-face{font-family:'Grenze Gotisch';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/grenze-gotisch-latin-600-normal.woff2) format('woff2')}
 @font-face{font-family:'Grenze Gotisch';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/grenze-gotisch-latin-800-normal.woff2) format('woff2')}
 @font-face{font-family:'Alegreya Sans';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/alegreya-sans-latin-400-normal.woff2) format('woff2')}
@@ -40,6 +41,7 @@ svg{display:block}
 .screen{position:absolute;inset:0;display:none;flex-direction:column}
 .screen.on{display:flex}
 
+/* src/css/02-buttons-title.css: Knöpfe, Titel und erste Politur. */
 /* ---------- Buttons ---------- */
 .btn{display:block;width:100%;background:var(--bone);color:var(--ink);font-weight:800;font-size:1.15rem;padding:13px 18px;border-radius:12px;box-shadow:0 5px 0 #a89a76;transition:transform .06s,box-shadow .06s;text-align:center}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 #a89a76}
@@ -116,6 +118,7 @@ html.lite .evfx{display:none}
 #b-event.ev-birthday::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 12% 30%,#ff5d73 3px,transparent 4px),radial-gradient(circle at 30% 75%,#5aa0e8 3px,transparent 4px),radial-gradient(circle at 70% 25%,#8bd450 3px,transparent 4px),radial-gradient(circle at 88% 70%,#ffe27a 3px,transparent 4px);pointer-events:none}
 
 
+/* src/css/03-title-events.css: Titelbildschirm und Event-Kulissen auf dem Titelbild. */
 /* ---------- Titelbildschirm neu ---------- */
 #scr-title{align-items:center;justify-content:safe center;overflow-y:auto;padding:max(8px,var(--sa-top)) 0 max(8px,var(--sa-bottom));--g1:rgba(130,110,230,.32);--g2:rgba(244,185,66,.10)}
 #scr-title[data-ev=halloween]{--g1:rgba(255,120,40,.30);--g2:rgba(150,60,200,.14)}
@@ -188,6 +191,7 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .stats{margin-top:2px}
 
 
+/* src/css/04-menus-cards.css: Auswahl-Karten, Game Over, HUD-Teile, Händler, Sammlung und Intro. */
 /* ---------- Auswahl-Karten ---------- */
 .card.diff,.card.cls{align-items:stretch;padding:10px 12px}
 .card .cl{display:flex;align-items:center;flex:none}
@@ -270,6 +274,7 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .i-vis.in{animation:fadein .6s both}
 @keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
+/* src/css/05-game-board.css: Spiel: HUD, Brett und Dock. */
 /* ---------- Spiel: HUD ---------- */
 .hud{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px 2px}
 .hearts{display:flex;flex-wrap:wrap;gap:2px;flex:1;min-width:0}
@@ -399,6 +404,7 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .relic{display:flex;align-items:center;gap:1px;font-size:.8rem;font-weight:800;background:var(--ink2);border-radius:8px;padding:1px 5px 1px 2px}
 .relic .spr{width:22px;height:22px}
 
+/* src/css/06-modals-overlays.css: Fenster (Modale) und Überlagerungen. */
 /* ---------- Modale ---------- */
 .modal{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(10,9,24,.8);padding:16px;z-index:30}
 .modal.on{display:flex}
@@ -445,6 +451,7 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
   .ember,.cell .spr.item,.ent .spr,.zbg *{animation:none}
 }
 
+/* src/css/07-zone-effects.css: Zonen: Angriffsanimationen, Hintergründe und Leuchteffekte. */
 /* ===== Zonen: Angriffs-Animationen ===== */
 .ent.recoil .body{animation:rcl .26s ease-out}
 @keyframes rcl{40%{transform:translate(calc(var(--lx,0)*-.5),calc(var(--ly,0)*-.5)) scale(.9,1.12)}}
@@ -491,6 +498,7 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 .ent.hero.d-leicht{--gl:255,138,184;--ga:.28}.ent.hero.d-schwer{--gl:244,185,66;--ga:.28}.ent.hero.d-hardcore{--gl:200,48,45;--ga:.34}
 .ent.hero.d-1hp{--gl:255,42,42;--ga:.5;animation:aura 1.1s ease-in-out infinite}
 
+/* src/css/08-incentives.css: Anreize: Gruftsteine, Tageslauf, Login und Aufgaben. */
 /* ===== Anreize ===== */
 .mg{display:grid;gap:8px;margin:10px 0}.mg.g3{grid-template-columns:repeat(3,1fr)}
 .mc{aspect-ratio:1;border-radius:12px;background:var(--ink3);display:flex;align-items:center;justify-content:center;border:2px solid transparent;font-weight:900;font-size:1.3rem;color:var(--bone);padding:0;position:relative;overflow:hidden}
@@ -573,6 +581,7 @@ html.lite .tbg .fog,html.lite .torch::before{animation:none}
 #ci-body .cchips{display:flex;flex-wrap:wrap;gap:6px;overflow:visible}
 .card.cls.locked{opacity:.7}
 .cinfo{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font:800 .85rem var(--ui);color:var(--gold)}
+/* src/css/09-title-pages.css: Titelbild als Würfel: die fünf Seiten. */
 /* ---------- Titelbild als Würfel: fünf Seiten ---------- */
 .tpages{position:absolute;inset:0;overflow:hidden;z-index:2;touch-action:none}
 #scr-title,#scr-title .tp,#scr-title .tp *{touch-action:none}
@@ -602,6 +611,7 @@ html.lite .tn{animation:none}
 .tp .tp-in.room-in{padding:0;width:min(100%,560px);align-self:stretch}
 #tp-l .room{aspect-ratio:auto;height:100%;min-height:100%;border-radius:0;box-shadow:none}
 #tp-l .tp-in,#tp-l #camp-inline{height:100%}
+/* src/css/10-lodge.css: Gruftlager als zweistöckiges Pixel-Haus. */
 /* ---------- Lager: zweistoeckiges Haus (Pixel-Art) ---------- */
 .lodge{position:relative;width:100%;aspect-ratio:105/220;overflow:hidden;background:#14101f;container-type:inline-size;image-rendering:pixelated}
 #tp-l .tp-in.room-in{position:absolute;inset:0;padding:0;width:100%}
@@ -668,6 +678,7 @@ html.lite .pit .ring,html.lite .pit .core{animation:none}
 .tp.library .tp-in{background:none}
 .tp.library .btn.big,.tp.library .btn.ghost{box-shadow:0 4px 0 #1a0f0b,0 0 18px rgba(0,0,0,.5)}
 
+/* src/css/11-pixel-scenes-juice.css: Pixel-Szenen (Arena, Bibliothek, Abgrund) und Feinschliff (Juice). */
 /* ---------- Pixel-Szenen: Arena / Bibliothek / Abgrund ---------- */
 .scn .sbox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max(100vw,calc(100dvh*105/215));aspect-ratio:105/215}
 .scn .sbox>img{width:100%;height:100%;display:block;image-rendering:pixelated}
@@ -788,6 +799,7 @@ html.lite .embers{display:none}
 .qb{height:6px;background:#17152b;border-radius:4px;margin-top:4px;overflow:hidden}
 .qb i{display:block;height:100%;background:linear-gradient(90deg,#3fd0b0,#8ff5da)}
 
+/* src/css/12-collection-bosses-terrain.css: Sammlung, Boss-Phasen, Gelände, Wurf-Items und Einstellungen. */
 /* ===== Sammlung & Sparmodus ===== */
 .dexg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .dx{display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--ink3);border-radius:10px;padding:6px 2px;min-width:0}
@@ -899,6 +911,7 @@ html{font-size:calc(100%*var(--ts,1))}
 html.rm *,html.rm *::before,html.rm *::after{animation:none!important}
 html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,255,255,.6) 0 6px,rgba(0,90,200,.6) 6px 12px)}
 
+/* src/css/13-body-animations.css: Bewegung und Angriff je Körperform der Gegner. */
 /* ===== Bewegung und Angriff je Körperform ===== */
 .ent.mv-human .body{animation:hop .17s ease-out}
 .ent.mv-blob .body{animation:mvblob .24s ease-out}
@@ -1040,6 +1053,7 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 @keyframes obd{from{transform:translate(0,0)}to{transform:translate(var(--sx),-60px)}}
 
 
+/* src/css/14-pixelart-idle.css: Pixel-Art-Details und Ruhe-Animationen der Gegner. */
 /* ===== Pixelart ===== */
 :root{--c5:calc(var(--bs)/5)}
 .px{--cs:var(--c5);display:block;flex:none;width:var(--cs);height:var(--cs);background-repeat:no-repeat;background-position:0 0;background-size:calc(var(--f,1)*var(--cs)) var(--cs);image-rendering:pixelated;animation:pxa calc(var(--f,1)*var(--fd,.22s)) steps(var(--f,1)) infinite}
@@ -1437,12 +1451,16 @@ html.cb .cell.danger::after{background:repeating-linear-gradient(45deg,rgba(255,
 (()=>{
 'use strict';
 
+/* src/js/core/helpers.js
+   Kleine Hilfsfunktionen (Zufall, Auswahl, DOM-Kürzel). */
 /*GEO-START*/
 /* ================= Helfer ================= */
 const rnd=n=>Math.floor(Math.random()*n);
 const pick=a=>a[rnd(a.length)];
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
 
+/* src/js/world/cube-geometry.js
+   Würfel-Geometrie: Felder, Nachbarn, Flächen und Blickwechsel. */
 /* ================= Würfel-Geometrie =================
    Der Würfel besteht aus einer Schale von 5x5x5 Feldern (98 Felder).
    Nachbarn = Schalenfelder, die entlang einer Achse direkt angrenzen.
@@ -1534,6 +1552,8 @@ function bfs(src,blocked){
   return d;
 }
 
+/* src/js/world/levelgen.js
+   Levelgenerator: Wände, Stacheln, Gegner, Ziele und Gelände. */
 /* ================= Monster & Levelgenerator ================= */
 const MT={
   slime:{name:'Schleim',hp:1,dmg:1,pts:10,col:'#8bd450'},
@@ -1710,6 +1730,8 @@ const reduceMotion=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: re
 const ART={"hero": ["................", "................", "....kkkkkkk.....", "...kttuuuuttk...", "..kttuutttttTk..", "..ktkkkkkkkkTk..", "..ktkykkkykkTk.a", "..ktkkkkkkkkTkak", "..kttkkkkkkTTkak", "..kttttttttTTkyk", ".kttTtttttttTTkh", ".kttTttttttTTTkk", ".kttTtttttttTTk.", ".kTTTTTTTTTTTTk.", "..kkkTTkkTTkkk..", "...kk.kk.kk.k..."], "slime": ["................", "................", "................", "................", "......kkkk......", "....kkmmllkk....", "...kmmmllmmmk...", "..kmmmmmmmmmmk..", "..kmWWmmmmWWmk..", ".kmmWkmmmmWkmmk.", ".kmmmmmmmmmmmmk.", ".kmmmkkkkkkmmmk.", ".kMmmmmmmmmmmMk.", "..kMMMMMMMMMMk..", "...kkkkkkkkkk...", "................"], "archer": ["................", "................", "....kkkkkk......", "...kWWWWWWk.hk..", "...kWkWWkWk.hHk.", "...kWkWWkWk.h.k.", "...kWWWkWWk.h.k.", "....kWkWkWkkh.k.", "...kkeeeeeekhHk.", "..keeEeeeeeEk.k.", "..keeEeeeeeEkhk.", "..keeEeeeeeEkh..", "..keEEeeeeEEk...", "..kkEEEEEEEEkk..", "...kk.kkkk.kk...", "................"], "brute": ["................", "..k..........k..", "..kbk.kkkk.kbk..", "...kbkkoooookbk.", "....kkooooooook.", "...koWkooooWkok.", "...kokoooookoRk.", "...kookkkkkkoRk.", "..kkoRkWkkWkRRkk", ".kooRRkkkkkkRRok", ".koorrrrrrrrrook", ".kooRrrrrrrrRook", "..kkRrrrrrrrRkk.", "...kRRrrrrrRRk..", "...kkRRkkkkRRkk.", "....kkk....kkk.."], "ghost": ["................", "................", "....kkkkkkkk....", "...kvvvvvvvvk...", "..kvvWWvvvvvvk..", "..kvvWvvvvvvvk..", "..kvvvvvvvvvvk..", "..kvkkvvvkkvVk..", "..kvkkvvvkkvVk..", "..kvvvvkkvvvVk..", "..kvvvvkkvvVVk..", "..kvvvvvvvvVVk..", "..kvvvvvvvVVVk..", "..kvVvvvvVVVVk..", "..kkvVkkVVkVkk..", "...k.kk.kk.kk..."], "heart": ["................", "................", "................", "...kkk....kkk...", "..kppppk.kpWpk..", ".kppWppppkppppk.", ".kpWpppppppppPk.", ".kpppppppppppPk.", ".kppppppppppPPk.", "..kppppppppPPk..", "...kppppppPPk...", "....kppppPPk....", ".....kppPPk.....", "......kPPk......", ".......kk.......", "................"], "coin": ["................", "................", "................", ".....kkkkkk.....", "....kzzzzyyk....", "...kzzyyyyyYk...", "...kzyyYYyyYk...", "...kzyyYyyyYk...", "...kzyyYyyyYk...", "...kzyyYYyyYk...", "...kyyyyyyYYk...", "....kyyyyYYk....", ".....kkkkkk.....", "................", "................", "................"], "key": ["................", "................", "...kkkk.........", "..kzzyyk........", ".kzkkkyYk.......", ".kzk.kyYk.......", ".kyk.kyYk.......", ".kyyYyYYk.......", "..kkyYYkkk......", "....kyYkYkk.....", ".....kyYkYYk....", "......kyYkYk....", ".......kyYkk....", "........kYYk....", ".........kk.....", "................"], "bomb": ["................", "................", "..........k*k...", ".........kh*k...", "........kh.k....", ".....kkkkkk.....", "....kSSSSSSk....", "...kSsWSSSSSk...", "..kSsWSSSSSSSk..", "..kSSSSSSSSSdk..", "..kSSSSSSSSSdk..", "..kSSSSSSSSddk..", "...kSSSSSSddk...", "....kddddddk....", ".....kkkkkk.....", "................"], "spike": ["................", "................", "................", "................", "................", ".......kk.......", "..kk...kak..kk..", ".kak...kak.kak..", ".kak..kaAAkkak..", ".kaAk.kaAAkkaAk.", "kkaAkkkaAAkkaAkk", "kSSSSSSSSSSSSSSk", "kSssssssssssssSk", "kSSSSSSSSSSSSSSk", ".kkkkkkkkkkkkkk.", "................"], "stairs": ["................", ".kkkkkkkkkkkkkk.", ".ky*y*y*y*y*yyk.", ".kyBBBBBBBBBByk.", ".kykkkkkkkkkkyk.", ".kydSSSSSSSSdyk.", ".kydkkkkkkkkdyk.", ".kyddSSSSSSddyk.", ".kyddkkkkkkddyk.", ".kydddSSSSdddyk.", ".kydddkkkkdddyk.", ".kyddddddddddyk.", ".kyddddddddddyk.", ".kyyyyyyyyyyyyk.", ".kkkkkkkkkkkkkk.", "................"], "lock": ["................", "................", "................", ".....kkkkkk.....", "....kaaaaaak....", "....ka....ak....", "....ka....ak....", "..kkkkkkkkkkkk..", "..kzzyyyyyyyYk..", "..kzyyyyyyyyYk..", "..kyyyykkyyyYk..", "..kyyyykkyyyYk..", "..kyyyyykyyYYk..", "..kyyyyyyyyYYk..", "..kkkkkkkkkkkk..", "................"], "potion": ["................", "......kkkk......", ".....kbbBbk.....", ".....kbBBbk.....", "......kWWk......", "......kWWk......", ".....kWttWk.....", "....kWtttttk....", "...kttuuttTTk...", "...ktuutttTTk...", "...kttttttTTk...", "...kttttttTTk...", "....kTTTTTTk....", ".....kkkkkk.....", "................", "................"], "blade": ["................", ".............kk.", "............kaak", "...........kaWak", "..........kaWak.", ".........kaWak..", "........kaWak...", ".......kaWak....", "..kk..kaWak.....", "..kykkaWak......", "...kyykak.......", "....kkyyk.......", "...khkkyyk......", "..khHk.kkk......", "..kkk...........", "................"], "spear": ["................", "..............k.", ".............kak", "............kaWk", "...........kaaak", "..........kkAak.", ".........khkkk..", "........khk.....", ".......khk......", "......khk.......", ".....khk........", "....khk.........", "...khk..........", "..khk...........", "..kk............", "................"], "shield": ["................", "..kkkkkkkkkkkk..", ".knnnnnnnnnnnNk.", ".knWnnnbbnnnnNk.", ".knWnnnbbnnnnNk.", ".knnnnnbbnnnnNk.", ".knbbbbbbbbbbNk.", ".knbbbbbbbbbbNk.", ".knnnnnbbnnnNNk.", "..knnnnbbnnnNk..", "..knnnnbbnnNNk..", "...knnnnnnNNk...", "....knnnnNNk....", ".....kNNNNk.....", "......kkkk......", "................"], "thorns": ["................", ".......kk.......", "......kaak......", ".k....kaak....k.", ".kak..kaak..kak.", "..kakkkaakkkak..", "...kaaaAAaaak...", ".kkaaarrrraaakk.", "kaaaaarrrrraaaak", ".kkaaarrrraaakk.", "...kaaaAAaaak...", "..kakkkaakkkak..", ".kak..kaak..kak.", ".k....kaak....k.", "......kaak......", ".......kk......."], "drop": ["................", ".......kk.......", "......krrk......", "......krrk......", ".....krrrrk.....", ".....krrrrk.....", "....krrWrrrk....", "....krWrrrrRk...", "...krrWrrrrRk...", "...krrrrrrRRk...", "...krrrrrrRRk...", "....krrrrRRk....", ".....kRRRRk.....", "......kkkk......", "................", "................"], "bolt": ["................", "........kkkk....", ".......kzyyk....", "......kzyyk.....", ".....kzyyk......", "....kzyyk.......", "...kzyyyyyk.....", "...kkkkzyYk.....", "......kzyk......", ".....kzyYk......", "....kzyYk.......", "....kyYk........", "...kyYk.........", "...kYk..........", "...kk...........", "................"], "wall": ["kkkkkkkkkkkkkkkk", "kssssssskssssssk", "kSSSSSSSkSSSSSSk", "kSSSSSSSkSSSSSSk", "kkkkkkkkkkkkkkkk", "kssskssssssskssk", "kSSSkSSSSSSSkSSk", "kSSSkSSSSSSSkSSk", "kkkkkkkkkkkkkkkk", "kssssssskssssssk", "kSSSSSSSkSSSSSSk", "kSSSSSSSkSSSSSSk", "kkkkkkkkkkkkkkkk", "kssskssssssskssk", "kSSSkSSSSSSSkSSk", "kkkkkkkkkkkkkkkk"], "floor0": ["GGGGGGGGGGGGGGGH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "HHHHHHHHHHHHHHHH"], "floor1": ["GGGGGGGGGGGGGGGH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFIFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFIFFFFH", "GFFFFFIFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFIFFH", "GFFFFFFFFFFFFFFH", "GFFIFFFFFFFFFFFH", "GFFFFFFFFFFFFIFH", "GFFFFFIFFFFFFFFH", "GFFFFFFFFFFFFFFH", "HHHHHHHHHHHHHHHH"], "floor2": ["GGGGGGGGGGGGGGGH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFHIFFFFFFH", "GFFFFFFFHFFFFFFH", "GFFFFFFFHIFFFFFH", "GFFFFFFFFHFFFFFH", "GFFFFFFFFHIFFFFH", "GFFFFFFFFFHFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "HHHHHHHHHHHHHHHH"], "floor3": ["GGGGGGGGGGGGGGGH", "GFFFFFFFFFFFFFFH", "GFFIIFFIIFFFFFFH", "GFFHFFFHFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFIIFFFFFFFFFFFH", "GFHFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFFFFFFH", "GFFFFFFFFFIIFFFH", "GFFFFFFFFFHFFFFH", "GFFFFFFFFFFFFFFH", "HHHHHHHHHHHHHHHH"], "king": ["................", "..k..k.kk.k..k..", "..kykkyzzykkyk..", "..kyyyyyyyyyyk..", "...kkkkkkkkkk...", "..kWWWWWWWWWWk..", "..kWrkWWWWkrWk..", "..kWWWWkkWWWWk..", "..kWWkkkkkkWWk..", ".kkeEEeeeeEEekk.", "kEEeeEeeeeEeeEEk", "kEeeeEeeeeEeeeEk", "kEEeeEEeeEEeeEEk", ".kEEEEEEEEEEEEk.", "..kkEEkkkkEEkk..", "...kkk....kkk..."], "undo": ["................", "................", ".....kkkkkk.....", "...kkbbbbbbkk...", "..kbbbbbkbbbbk..", "..kbbbbbkbbbbk..", ".kbbbbbbkbbbbBk.", ".kbbbbbbkbbbbBk.", ".kbbkkkkkbbbbBk.", ".kbbbbbbbbbbbBk.", ".kbbbbbbbbbbBBk.", "..kbbbbbbbbBBk..", "..kkBBBBBBBBkk..", "...kkkkkkkkkk...", "................", "................"]};
 const PALJ={"k": "#17152b", "W": "#f4efe0", "b": "#e9dfc8", "B": "#c9ba98", "s": "#6f6993", "S": "#4a4566", "d": "#2c2847", "t": "#3fd0b0", "T": "#2a9a82", "u": "#8ff5da", "r": "#e8553d", "R": "#a93a28", "o": "#ff8a5c", "y": "#f4b942", "Y": "#b47a14", "z": "#ffe27a", "m": "#8bd450", "M": "#5aa02c", "l": "#c5f285", "v": "#cdbfff", "V": "#8a72e0", "p": "#ff5d73", "P": "#b8334a", "n": "#5aa0e8", "N": "#3f6fb5", "a": "#dfe6f2", "A": "#8b93ad", "h": "#c98a4b", "H": "#312b58", "e": "#8a5fa8", "E": "#5d3d78", "g": "#2a2547", "F": "#3d3768", "G": "#4b4580", "I": "#474177"};
 /*CONTENT-START*/
+/* src/js/content/enemies-zones-upgrades.js
+   Inhalte: Gegner (normal und Boss), Zonen und Verstärkungen. */
 /* ================= Inhalte: Gegner, Zonen, Verstärkungen ================= */
 const BODY={
 blob:["................","................","................","................","......kkkk......","....kkmmllkk....","...kmmmllmmmk...","..kmmmmmmmmmmk..","..kmWWmmmmWWmk..",".kmmWkmmmmWkmmk.",".kmmmmmmmmmmmmk.",".kmmmkkkkkkmmmk.",".kMmmmmmmmmmmMk.","..kMMMMMMMMMMk..","...kkkkkkkkkk...","................"],
@@ -2287,6 +2309,8 @@ function tdir(tr){let d=tr.d;if(d===undefined||d<0)return -1;if(tr.k==='current'
 const avoidT=(m,n)=>{const tr=terrOf(n);return !!tr&&AVOIDT.has(tr.k)&&!FLY(m)&&!(G.flood&&tr.k==='water');};
 const nearTen=d=>Math.max(10,Math.round(d/10)*10);    /* 33 -> 30 */
 
+/* src/js/content/items-and-symbols.js
+   Wurf-Items, Fundstücke und ihre Symbole je Zone. */
 /* ================= Symbole der neuen Verstärkungen ================= */
 function mkIcon(fn){
   const g=Array.from({length:16},()=>Array(16).fill(null));
@@ -2461,6 +2485,8 @@ function zdeco(name,A,kd){
     return o;
   });
 }
+/* src/js/content/difficulty-and-hero.js
+   Schwierigkeitsstufen, Heldenlook, Klassen-Sprites und Skins. */
 /* ===== Schwierigkeitsstufen & Heldenlook ===== */
 const DIFFK=['leicht','normal','schwer','hardcore','1hp'];
 const DIFF_INFO={
@@ -2712,10 +2738,14 @@ function fillStatic(){document.querySelectorAll('[data-spr]').forEach(e=>{e.inne
 
 const fmt=n=>Number(n).toLocaleString(LANG==='en'?'en-US':'de-DE');
 
+/* src/js/core/save.js
+   Spielstand (localStorage) laden und speichern. */
 /* ================= Speicher ================= */
 const SAVE_KEY='wuerfelgruft.v1';
 let save={best:0,bestDepth:0,runs:0,kills:0,seenIntro:false,endless:false,diff:'normal',bd:{},dex:{},ach:{},stats:{bosses:0,throws:0,rolls:0,turns:0},gs:0,meta:{},daily:{day:'',best:0,done:false,streak:0,last:''},login:{last:'',streak:0,claimed:''},q:{day:'',list:[],prog:{},done:{}},wq:{week:'',t:'',n:0,r:0,prog:0,done:false},achPaid:false,settings:{lang:'',music:true,sfx:true,vib:true,shake:true,tips:true,rotcost:false,musicVol:100,sfxVol:100,bright:100,ts:100,rm:false,cb:false,num:false,lite:false,liteAuto:false}};
 try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s)save={...save,...s,settings:{...save.settings,...(s.settings||{})}};}catch(e){}
+/* src/js/core/i18n.js
+   Sprache Deutsch/English: Wörterbuch EN_DICT und Übersetzung der Oberfläche. */
 /* ================= Sprache (Deutsch / English) =================
    Die Texte im Spiel sind deutsch. Im englischen Modus werden sie beim Erscheinen im DOM
    über ein Wörterbuch (ganze Sätze, sonst Bruchstücke) übersetzt. */
@@ -2772,6 +2802,8 @@ function persist(){if(persistT)return;persistT=setTimeout(flushSave,350);}
 window.addEventListener('pagehide',flushSave);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushSave();});
 
+/* src/js/audio/engine.js
+   Audio-Motor: Web-Audio, Instrumente und Soundeffekte. */
 /* ================= Audio ================= */
 const AU={ctx:null,playing:false,step:0,next:0,timer:null,intensity:0,sd:60/88/4};
 const CH=[[50,53,57],[46,50,53],[43,46,50],[45,49,52]];
@@ -2896,6 +2928,8 @@ AU.sched=function(){
 };
 const mfT=n=>mf(n+(AU.trans||0));
 const SC={minp:[0,3,5,7,10],majp:[0,2,4,7,9],phryg:[0,1,4,5,7,8,10],dor:[0,2,3,5,7,9,10],lyd:[0,2,4,6,7,9,11],min:[0,2,3,5,7,8,10],hung:[0,2,3,6,7,8,11],whole:[0,2,4,6,8,10]};
+/* src/js/audio/music.js
+   Musik: Zonenstücke, Motive und komponierte Songs. */
 /* ---- Komponierte Stücke (Events, Wüste): feste Melodien, Akkorde und Klangfarben ---- */
 const NOTEI={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
 const nm=s=>{const m=/^([A-G])([#b]?)(-?\d)$/.exec(s);return 12*(+m[3]+1)+NOTEI[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0);};
@@ -3254,6 +3288,8 @@ function sfx(n,kd){
 }
 const vibe=ms=>{if(save.settings.vib&&navigator.vibrate)try{navigator.vibrate(ms);}catch(e){}};
 
+/* src/js/game/state.js
+   Laufzustand G und Hilfen für Zustände und Felder. */
 /* ================= Zustand ================= */
 const GOAL=ZONES.length*10;   /* letzte Etage = Ende der letzten Zone mit eigenem Inhalt */
 let G=null;
@@ -3356,6 +3392,8 @@ function hintFor(d,L){
   return h||'Das Netz unten zeigt alle sechs Seiten. Tippe darauf, um hinzusehen.';
 }
 
+/* src/js/game/lines-reach.js
+   Linien, Reichweiten und Sichtfelder. */
 /* ================= Linien & Reichweiten ================= */
 function lineWalk(from,fn,max=4){
   const [x,y,z]=xyz(from);
@@ -3423,6 +3461,8 @@ function rayHit(from,P,max){
 function diagOK(from,t){const m=ND[from]&&ND[from].get(t);return !!m&&m.some(c=>!G.walls.has(c));}
 const reach1=(P,t)=>NB[P].includes(t)||diagOK(P,t);
 
+/* src/js/render/board.js
+   Spielfeld zeichnen: Zellen, Gegner, Held und Anzeige. */
 /* ================= Rendern ================= */
 function buildGrid(){
   for(let r=0;r<5;r++)for(let c=0;c<5;c++){
@@ -3767,6 +3807,8 @@ async function flipView(nv,dir){
   flipping=false;flush();
 }
 
+/* src/js/render/effects.js
+   Effekte: Zahlen, Partikel, Schlag und Wackeln. */
 /* ================= Effekte ================= */
 function cellPct(i){const vc=viewCoord(view,i);return vc?{x:(vc.col+.5)*20,y:(vc.row+.5)*20}:null;}
 function floatText(i,text,cls){
@@ -3866,6 +3908,8 @@ function banner(t,s){
   const b=$('#banner');b.classList.remove('on');void b.offsetWidth;b.classList.add('on');
 }
 
+/* src/js/game/combat.js
+   Kampf: Schaden, Treffer und Tod von Gegnern. */
 /* ================= Regeln ================= */
 function hurtPlayer(n,src){
   if(n>0)hitStop(70);
@@ -4001,6 +4045,8 @@ function hitMonster(m,dmg,byPlayer){
   return true;
 }
 /* ===== Feinschliff: Treffer-Stopp, Stoßring, Flug zur Anzeige, Staub, Zähler ===== */
+/* src/js/render/juice.js
+   Feinschliff: Treffer-Stopp, Stoßringe, Flug zur Anzeige und Punkte-Zähler. */
 const JUICE_OK=()=>!(save.settings&&save.settings.lite);
 function hitStop(ms){const b=$('#board');if(!b||!JUICE_OK())return;b.classList.add('freeze');setTimeout(()=>b.classList.remove('freeze'),ms);}
 function shockRing(i,col){const p=cellPct(i);if(!p||!JUICE_OK())return;const e=document.createElement('i');e.className='sring';e.style.cssText=`left:${p.x}%;top:${p.y}%;--c:${col||'#fff'}`;fxLayer.appendChild(e);setTimeout(()=>e.remove(),440);}
@@ -4021,6 +4067,8 @@ function tweenScore(){
   const step=t=>{const k=Math.min(1,(t-t0)/380);scoreShown=Math.round(from+(to-from)*(1-Math.pow(1-k,3)));el.textContent=fmt(scoreShown)+' Punkte';if(k<1)scoreRaf=requestAnimationFrame(step);};
   scoreRaf=requestAnimationFrame(step);
 }
+/* src/js/game/pickups-goals.js
+   Einsammeln, Etagenziele (Schlüssel, Schalter, Runen, Aufräumen, Elite, Überleben) und Opferaltar. */
 function pickup(it,t){
   if(it==='coin')flyTo(t,'s-coin',document.querySelector('#chips .coin'));else if(it==='heart')flyTo(t,'s-heart',$('#hearts'));
   if(typeof it==='string'&&(it.startsWith('p_')||it==='chest'))markEx('finds',it);pickFx(t,it);
@@ -4134,6 +4182,8 @@ function altarFight(){
   for(const c of cells.slice(0,n)){const nm=mkMon(pickType(z,pos,[]),c,{mcd:1});G.mons.push(nm);settle(nm);burst(c,MT[nm.type].col,8);}
   sfx('summon');floatText(G.pos,'Kampf!','red');
 }
+/* src/js/game/oasis-chests.js
+   Oase mit wanderndem Händler und Truhen. */
 let oasis=null;
 function openOasisShop(){
   const pr=b=>Math.max(8,Math.round(b*depthPrice()*DF().price));
@@ -4225,6 +4275,8 @@ function openChest(t){
     setMsg('Die Truhe war eine Mimik!');floatText(free[0],'!','red');sfx('aim');
   }else{G.money+=30;floatText(t,'+30','gold');}
 }
+/* src/js/game/terrain.js
+   Betreten von Feldern und Gelände (Eis, Sand, Ranken, Lava und mehr). */
 function landing(t,from,dep,noTerr){
   if(G.traps&&G.traps.includes(t)){G.traps.splice(G.traps.indexOf(t),1);G.bombs++;floatText(t,'Falle aufgenommen','gold');sfx('coin');}
   if(fieldAt(t)==='fire'){floatText(t,'Brand','red');sfx('crackle');hurtPlayer(1,null);}
@@ -4294,6 +4346,8 @@ function terrainTick(){
     if(nx>=0&&!monAt(nx)&&nx!==G.pos){m.pos=nx;settleBasic(m);}
   }
 }
+/* src/js/game/monster-ai-boss.js
+   Gegner-Bewegung, Fluchtverhalten und Boss-Mechaniken. */
 function moveCands(m){
   const T=MT[m.type];
   if(!T.diag)return NB[m.pos].filter(n=>!avoidT(m,n));
@@ -4572,6 +4626,8 @@ function bossMove(m){
   sfx('aim');floatText(m.pos,'!','red');setMsg(T.name+': '+def[0]+'!');
   return true;
 }
+/* src/js/game/monster-acts.js
+   Gegner-Angriffe, Zustände (Gift, Brand) und die Zug-Entscheidung. */
 function markEx(cat,id){if(!save.ex)save.ex={};const c=save.ex[cat]||(save.ex[cat]={});if(!c[id]){c[id]=1;persist();}}
 const hasEx=(cat,id)=>!!(save.ex&&save.ex[cat]&&save.ex[cat][id]);
 function noteState(k){if(!save.st)save.st={};if(!save.st[k]){save.st[k]=1;persist();}}
@@ -4726,6 +4782,8 @@ function act(m,dW,dA,d8){
   if(T.slow&&(m.ph||1)<2)m.cd=1;
   return moved?1:0;
 }
+/* src/js/game/turns-player.js
+   Zugablauf, Spieleraktionen, Laufen und Zielen. */
 let pending=null,walking=false,walkCancel=false;
 function flush(){if(!pending||!G||G.busy||G.over||flipping)return;const f=pending;pending=null;f();}
 function release(){G.busy=false;setTimeout(flush,0);}
@@ -4935,6 +4993,8 @@ function tapCell(i){
   if(G.walls.has(i)){sfx('bump');const el=cellEls.find(c=>+c.dataset.i===i);if(el)pulse(el,'bump',200);return;}
   autoWalk(i);
 }
+/* src/js/game/class-abilities.js
+   Klassen-Fähigkeiten: jede Klasse spielt sich anders. */
 /* ================= Klassen-Fähigkeiten: jede Klasse spielt sich anders ================= */
 const ELEMC={F:'#e8553d',E:'#5aa0e8',G:'#8bd450'};
 function alchGain(m){
@@ -5124,6 +5184,8 @@ function showUpgrades(){
   openModal('m-up');
 }
 
+/* src/js/ui/zone-guide.js
+   Zonen-Anleitung. */
 /* ================= Zonen-Anleitung ================= */
 const OLD_DESC={slime:'läuft jeden Zug auf dich zu. Stachel töten ihn.',archer:'zielt einen Zug, schießt im nächsten. Verlasse die Linie, bevor er schießt.',brute:'zäh, schlägt hart, handelt nur jeden zweiten Zug. Das „!“ zeigt, wann.',ghost:'gleitet durch Wände.',king:'ruft alle paar Züge Schleime. Mit seinem Tod öffnet sich die Treppe.'};
 const ZINFO={
@@ -5179,6 +5241,8 @@ function buildHelpZone(){
   box.innerHTML=h;
 }
 
+/* src/js/meta/collection.js
+   Sammlung: Erfolge, Bestiarium und Statistik. */
 /* ================= Sammlung: Erfolge, Bestiarium, Statistik ================= */
 const ACH=[];
 for(let i=1;i<=10;i++)ACH.push({id:'zone'+i,name:'Zone '+i+' bezwungen',desc:'Schaffe Etage '+(i*10)+' ('+ZONES[i-1]+').'});
@@ -5231,6 +5295,8 @@ function noteSeen(type){
     }
   }else d.s++;
 }
+/* src/js/meta/mastery.js
+   Meisterrang (1 bis 30) und Meisterschaft: Abzeichen, Sterne, Titel. */
 /* ================= Meisterschaftsrang (Konto-Stufe, 1 bis 30) ================= */
 const MR_MAX=30;
 const mrNeed=r=>Math.round(110*r*(1+r*.18));          /* Erfahrung von Rang r auf r+1 */
@@ -5374,6 +5440,8 @@ function openDex(tab){
   openModal('m-dex');
 }
 
+/* src/js/meta/incentives.js
+   Anreize: Gruftsteine, Tageslauf, Login-Bonus und Aufgaben. */
 /* ================= Anreize: Gruftsteine, Tageslauf, Login, Aufgaben ================= */
 const pad2=n=>String(n).padStart(2,'0');
 const dayKey=(d=new Date())=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
@@ -5540,6 +5608,8 @@ function openQuests(){
   openModal('m-quests');
 }
 
+/* src/js/game/shop.js
+   Händler zwischen den Zonen. */
 /* ================= Händler zwischen den Zonen ================= */
 const DIE={wueste:{fav:3,name:'Wüstenwürfel',col:'#e8c870'},uhrwerk:{fav:4,name:'Uhrwerkwürfel',col:'#c98a4b'},tiefsee:{fav:2,name:'Tiefseewürfel',col:'#4aa0c8'},gruft:{fav:1,name:'Gruftwürfel',col:'#e9dfc8'},gold:{fav:6,name:'Goldwürfel',col:'#f4b942'},moor:{fav:2,name:'Moorwürfel',col:'#8bd450'},wind:{fav:5,name:'Windwürfel',col:'#cfe6ff'},eis:{fav:3,name:'Eiswürfel',col:'#8fd0e8'},glut:{fav:4,name:'Glutwürfel',col:'#ff8a5c'},leere:{fav:6,name:'Leerenwürfel',col:'#b890ff'}};
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
@@ -5687,6 +5757,8 @@ function leaveShop(){
   G.depth++;G.money+=G.income*10;G.hp=Math.min(G.maxhp,G.hp+G.oasis);startLevel();
 }
 
+/* src/js/game/run-start.js
+   Lauf starten (newRun). */
 /* ================= Lauf starten ================= */
 function newRun(resume,endless,daily){
   wrapUps();shop=null;
@@ -5759,6 +5831,8 @@ function startLevel(){
   recordBest();applyTheme();saveRun();
 }
 
+/* src/js/ui/screens-modals.js
+   Bildschirm- und Fensterverwaltung. */
 /* ================= Screens & Modale ================= */
 function show(id){$$('.screen').forEach(s=>s.classList.toggle('on',s.id===id));if(id==='scr-title')setTimeout(titleTips,1400);}
 function titleTips(){
@@ -5775,6 +5849,8 @@ function openModal(id){$('#'+id).classList.add('on');}
 function closeModal(id){$('#'+id).classList.remove('on');}
 function anyModal(){return $$('.modal.on').length>0;}
 
+/* src/js/meta/monetization.js
+   Unterstützen: Werbefrei, Unterstützer-Skin und freiwillige Belohnungs-Werbung. */
 /* ================= Unterstützen: Werbefrei-Kauf und freiwillige Werbung =================
    Nur in der Android-App (Capacitor-Plugins AdMob und NativePurchases). Im Browser bleibt alles verborgen.
    Vor der Veröffentlichung: Test-IDs durch echte AdMob-IDs ersetzen und test:false setzen. */
@@ -5859,6 +5935,8 @@ function overAdButton(gain){
   b.addEventListener('click',async()=>{b.disabled=true;if(await monetReward()){G.adBonus=1;addGS(gain);updateStats();toast('+'+gain+' Gruftsteine');b.remove();}else b.disabled=false;});
   box.appendChild(b);
 }
+/* src/js/events/vegas-events.js
+   Events nach Datum und die Vegas-Nacht. */
 /* ================= Events & Vegas-Nacht ================= */
 const EVENTS={
   halloween:{name:'Halloween',from:[10,24],to:[10,31],item:'e_kuerbis',mul:1,goal:10,col:['#ff9a4d','#c0561a'],rule:'Selten liegt ein Kürbis auf einer Etage. Er heilt 2 Leben.',aim:'Sammle 10 Kürbisse.'},
@@ -5903,6 +5981,8 @@ function evPickup(it,t){
   else if(it==='e_paprika'){sfx('boom');floatText(t,'Paprika!','red');const dd=bfs(G.pos,null);for(const m of G.mons.slice())if((dd.get(m.pos)||99)<=2&&!MT[m.type].boss){burst(m.pos,'#e8302d',10);hitMonster(m,2,false);}}
   else if(it==='e_kuchen'){const h=Math.min(3,G.maxhp-G.hp);G.hp+=h;sfx('heart');floatText(t,h?'+'+h:'Lecker','green');}
 }
+/* src/js/events/minigames.js
+   Minispiele der Events. */
 /* ================= Event-Minispiele ================= */
 const MINI_TXT={
   halloween:{t:'Geisterjagd',d:'Geister tauchen aus den Gräbern auf. Tippe sie an, bevor sie verschwinden. Lass die Kürbisse in Ruhe, die kosten Punkte.'},
@@ -6235,6 +6315,8 @@ GEN.ace={grid:GEN_ACE};
 const EV_DECO={halloween:{ic:['e_kuerbis','i_bat'],fx:['i_bat','e_kuerbis'],mode:'fly',n:7},xmas:{ic:['e_geschenk','e_geschenk'],fx:['i_flake'],mode:'fall',n:22},vegas:{ic:['i_chip','i_chip'],fx:['i_chip','s-coin'],mode:'fall',n:12},
   easter:{ic:['e_ei','e_ei'],fx:['e_ei'],mode:'fall',n:10},valentine:{ic:['e_rose','e_rose'],fx:['s-heart'],mode:'rise',n:14},hungary:{ic:['e_paprika','e_paprika'],fx:['e_paprika','i_conf'],mode:'fall',n:12},
   italy:{ic:['e_pizza','e_espresso'],fx:['e_pizza','i_conf'],mode:'fall',n:10},birthday:{ic:['e_kuchen','e_kuchen'],fx:['i_conf'],mode:'fall',n:20}};
+/* src/js/events/title-event-scenes.js
+   Event-Kulissen des Titelbilds als Pixel-Art. */
 /* ---------- Event-Kulissen als Pixel-Art (105x215) ---------- */
 const EVPX={
   rope(cv,y0,sag,col='#e8dcc0'){for(let x=0;x<105;x++){const u=x/104;cv.p(x,Math.round(y0+sag*4*u*(1-u)*(1)),col);}},
@@ -6336,6 +6418,8 @@ const EVS={
     return '';
   }
 };
+/* src/js/ui/title-screen.js
+   Titelbild: Event anwenden, Würfel-Texturen, Anzeige aktualisieren, Start von Läufen. */
 function applyTitleEvent(ev){
   const sc=$('#scr-title'),fx=$('#evfx'),be=$('#b-event');
   sc.dataset.ev=ev||'';fx.innerHTML='';fx.className='evfx';
@@ -6440,6 +6524,8 @@ function startRush(){
   show('scr-game');newRun(false,false,false);
   G.rush=true;G.maxhp=G.hp=Math.min(G.maxhp,4);G.undos=Math.min(G.undos,1);G.depth=5;startLevel();
 }
+/* src/js/ui/story.js
+   Intro, Outro und der erste Lauf. */
 let introI=0,introTimer=null,introDone=true,STORY=null,storyCb=null,storyHint='Tippen zum Beginnen';
 const INTRO=[
   {vis:'cube',t:'Tief unter der Stadt liegt ein Würfel aus Stein. Sechs Seiten. Jede ein eigener Raum.'},
@@ -6497,6 +6583,8 @@ function syncSwitches(){
   $$('.rg').forEach(r=>{r.value=save.settings[r.dataset.k];});
   const sd=$('#set-diff');if(sd){sd.innerHTML='';for(const k of DIFFK){const b=document.createElement('button');b.textContent=DIFFS[k].name;b.className=save.diff===k?'on':'';b.addEventListener('click',()=>{sfx('click');save.diff=k;persist();updateStats();syncSwitches();});sd.appendChild(b);}}
 }
+/* src/js/ui/settings-classes.js
+   Fehlerprotokoll, Einstellungen, Schwierigkeits- und Klassenwahl. */
 const ERRKEY='wuerfelgruft-errors';
 function logError(msg,where){
   try{const l=JSON.parse(localStorage.getItem(ERRKEY)||'[]');l.push({t:new Date().toISOString(),m:String(msg).slice(0,300),w:String(where||'').slice(0,200),d:G?G.depth:0});
@@ -6606,6 +6694,8 @@ $('#ci-pick').addEventListener('click',()=>{sfx('card');const f=$('#ci-pick')._c
 $('#c-over').addEventListener('click',()=>{sfx('click');openClsOverview();});
 $('#c-cancel').addEventListener('click',()=>{sfx('click');closeModal('m-class');});
 
+/* src/js/ui/input.js
+   Eingaben im Spiel: Tippen, Wischen und Tasten. */
 /* ================= Eingaben ================= */
 const stage=$('#stage');let ptr=null;
 stage.addEventListener('pointerdown',e=>{ptr={x:e.clientX,y:e.clientY};AU.unlock();});
@@ -6714,6 +6804,8 @@ $('#shop-go').addEventListener('click',leaveShop);
 $('#w-go').addEventListener('click',()=>{sfx('click');closeModal('m-win');G.endless=true;showUpgrades();});
 $('#w-title').addEventListener('click',()=>{sfx('click');closeModal('m-win');G=null;AU.setIntensity(0);updateStats();show('scr-title');});
 
+/* src/js/ui/theme-zone-bg.js
+   Zonen-Look, Hintergründe, Laufzustand speichern und Zurück-Taste. */
 /* ================= Theme, Staub, Zurück-Taste ================= */
 const TINTS=['#2b2650','#1f3a4d','#3d2a55','#4d2b30','#2a4a3f','#3a2f66','#4a3a22','#22364d','#4d2a45','#2d2d4d'];
 const TRANS=[0,2,-2,3,-1,5,0,-3,2,0];
@@ -6817,10 +6909,14 @@ try{
 }catch(e){}
 window.addEventListener('keydown',e=>{if(e.key==='u'||e.key==='U')undoMove();});
 
+/* src/js/core/build-flags.js
+   Build-Schalter (DEVBUILD, wird für die DEV-Version im Workflow umgestellt). */
 /* ================= Entwickler-Werkzeuge (nur in der DEV-Version) =================
    Die DEV-Version wird vom Workflow gebaut (Flag DEVBUILD=true, eigene App-ID), im Store-Build ist alles aus. */
 const DEVBUILD=false;
 
+/* src/js/meta/unlocks.js
+   Freischaltungen (das Titelmenü wächst mit dem Spieler) und Endgame-Sperre. */
 /* ===== Freischaltungen: das Titelmenü wächst mit dem Spieler ===== */
 const UNL={
   u:{n:'Wissen',ok:()=>(save.runs||0)>=1,h:'Wissen ab dem 1. abgeschlossenen Lauf'},
@@ -6862,6 +6958,8 @@ document.addEventListener('click',e=>{
 const END_MSG='Besiege den Urwürfel auf Etage 100, um den Abgrund zu öffnen.';
 const endOpen=()=>!!save.won||DEVBUILD;
 const endGate=()=>{if(endOpen())return true;toast(END_MSG);sfx('block');return false;};
+/* src/js/dev/dev-menu.js
+   Entwicklermenü, nur in der DEV-Version. */
 /* Wie ein normaler Lauf bis zur Start-Etage: pro Etage eine zufällige Verstärkung (Stufenregel wie in showUpgrades), Zonenwürfel, Münzen */
 function devAutoPicks(depth){
   for(let d=1;d<depth;d++){
@@ -6943,6 +7041,8 @@ if(DEVBUILD){
   db.addEventListener('click',devOpen);document.body.appendChild(db);
 }
 
+/* src/js/meta/endgame-souls.js
+   Endgame: Seelen, Seelenschmiede und Legenden. */
 /* ================= Seelen und Legenden (Endgame) ================= */
 const SOULUP=[
   {id:'sf',n:'Seelenfunke',d:'+2 % Gruftsteine pro Lauf je Stufe.',base:4,max:50},
@@ -6984,6 +7084,8 @@ function openLegend(cont){
   if(!box.children.length){cont();return;}
   sfx('boss');openModal('m-legend');
 }
+/* src/js/game/time-attack.js
+   Zeitjagd: Timer pro Etage. */
 /* ================= Zeitjagd: Timer pro Etage ================= */
 const timeFor=d=>Math.max(35,75-3*Math.floor(d/10))+(d%5===0?30:0);
 const fmtT=sec=>{sec=Math.max(0,Math.ceil(sec));return Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');};
@@ -7019,6 +7121,8 @@ function tjFloorDone(){
     if(!save.tj[G.depth]||ms<save.tj[G.depth]){const first=!save.tj[G.depth];save.tj[G.depth]=ms;toast((first?'Zeit Etage ':'Neue Bestzeit Etage ')+G.depth+': '+fmtMs(ms));addGS(first?30:10);}
   }
 }
+/* src/js/lodge/camp-data.js
+   Gruftlager: Plätze und Dekoration (Daten). */
 /* ================= Gruftlager: eigener Raum mit Deko ================= */
 const CAMP_SLOTS=[['w1','wand','Wand links'],['w2','wand','Wand Mitte'],['w3','wand','Wand rechts'],['f1','boden','Boden links'],['f2','boden','Boden Mitte'],['f3','boden','Boden rechts'],['t1','tisch','Regal links'],['t2','tisch','Regal rechts'],['w4','wand','Wand oben links'],['w5','wand','Wand oben rechts'],['t3','tisch','Tisch unten links'],['t4','tisch','Tisch unten rechts'],['f4','boden','Boden oben links'],['f5','boden','Boden oben rechts']];
 const CAMP_PROPS=[
@@ -7046,6 +7150,8 @@ function campFind(id){
   if(id.startsWith('st:')||id.startsWith('tr:')){const m=id.slice(3);return MT[m]?{id,n:MT[m].name,ico:m,kind:id[0]==='s'?'statue':'trophy'}:null;}
   const p=CAMP_PROPS.find(x=>x.id===id);return p?{...p,kind:'prop'}:null;
 }
+/* src/js/render/pixel-engine.js
+   Pixel-Engine: Zeichnen mit Dithering und Licht. */
 /* ================= Pixel-Engine: Szenen als echtes Pixel-Art mit Dithering ================= */
 const PX=(()=>{
   const cache={};
@@ -7091,6 +7197,8 @@ const PX=(()=>{
   return {Cv,rgb,B4,hash,mul,mix,url};
 })();
 
+/* src/js/lodge/lodge.js
+   Gruftlager als zweistöckiges Pixel-Haus mit laufendem Helden. */
 /* ---------- Gruftlager: zwei Etagen als Pixel-Art (105x220) ---------- */
 const LW=105,LH_=220;
 const SLOTPOS={w1:[19,126,15],w2:[62,126,15],w3:[41,126,15],w4:[19,15,15],w5:[54,15,14],t1:[19,32,15],t2:[54,32,14],t3:[19,145,15],t4:[62,145,15],f1:[22,178,15],f2:[40,180,15],f3:[58,178,15],f4:[46,68,15],f5:[64,68,15]};
@@ -7394,6 +7502,8 @@ function openCampPick(slot){
   }
   openModal('m-campp');
 }
+/* src/js/meta/vault.js
+   Kammer der Schätze: Aussehen gegen Gruftsteine. */
 /* ================= Kammer der Schätze: Aussehen gegen Gruftsteine ================= */
 const VAULT=[
   {id:'a_glut',type:'aura',n:'Glutaura',d:'Ein warmes Leuchten um den Helden.',price:1000,gl:'255,120,40',sw:'#ff8a3d'},
@@ -7436,6 +7546,8 @@ function openVault(){
 }
 
 
+/* src/js/ui/title-pages-scenes.js
+   Titelseiten (Seitenkarte) und ihre Pixel-Szenen: Abgrund, Arena und Bibliothek. */
 /* ================= Titelbild als Würfel: Wischen zwischen fünf Seiten ================= */
 const TP={c:[0,0],l:[-1,0],r:[1,0],u:[0,-1],d:[0,1]};
 const TP_NAME={l:'Lager',r:'Aufgaben',u:'Wissen',d:'Abgrund'};
@@ -7625,6 +7737,8 @@ function renderHell(){
   $('#b-rush').classList.toggle('dis',!rushOk);
   $('#b-endless').classList.toggle('dis',!save.endless);$('#b-endless').hidden=false;
 }
+/* src/js/ui/title-pager.js
+   Titel-Pager: Seiten wechseln, Wischen und Knopf-Belegung. */
 function tpApply(){
   const [cx,cy]=TP[tpCur];
   for(const p of Object.keys(TP)){
@@ -7689,6 +7803,8 @@ $('#b-stat').addEventListener('click',()=>{sfx('click');openDex('stat');});
 $('#b-rush').addEventListener('click',()=>{AU.unlock();sfx('click');if(endGate())openClass(()=>startRush());});
 $('#b-souls').addEventListener('click',()=>{if(!endGate())return;sfx('click');openSouls();});
 
+/* src/js/ui/title-build.js
+   Titelbuchstaben und Glut aufbauen. */
 /* ================= Titel aufbauen ================= */
 function buildTitle(){
   const mk=(id,word,dl0)=>{
@@ -7712,6 +7828,8 @@ function buildTitle(){
   }
 }
 
+/* src/js/main.js
+   Start: Spielstand prüfen und die Oberfläche aufbauen. */
 if(!DIFFS[save.diff])save.diff='normal';
 if(!save.achPaid){for(const id of Object.keys(save.ach))addGS(achGS(id));save.achPaid=true;persist();}
 if(!save.bd)save.bd={};if(!save.dex)save.dex={};if(!save.ach)save.ach={};if(!save.stats)save.stats={bosses:0,throws:0,rolls:0,turns:0};

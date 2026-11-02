@@ -1,0 +1,39 @@
+<!-- ========== Spiel ========== -->
+<section class="screen" id="scr-game" data-kind="gruft">
+  <div class="zbg" id="zbg"></div>
+  <div class="embers" id="dust"></div>
+  <header class="hud">
+    <div class="hearts" id="hearts"></div>
+    <div class="hud-r">
+      <div class="chips" id="chips"></div>
+      <button class="icon-btn" id="b-pause" aria-label="Pause"><svg viewBox="0 0 24 24"><use href="#s-pause"/></svg></button>
+    </div>
+  </header>
+  <div class="sub"><span class="depth" id="depth"></span><span class="score" id="score"></span></div>
+  <p class="msg" id="msg"></p>
+  <main class="stage" id="stage">
+    <button class="mebtn" id="b-me">Zu mir</button>
+    <div class="board-wrap">
+      <div class="board-frame" id="frame">
+        <div id="bossbar" hidden><i id="bb-fill"></i><u style="left:33%"></u><u style="left:66%"></u></div>
+        <div class="board" id="board">
+          <div class="grid" id="grid"></div>
+          <div class="layer" id="ents"></div>
+          <div class="layer" id="fx"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="dock">
+    <div class="dock-row">
+      <div class="net" id="net" aria-label="Würfelnetz"></div>
+      <div class="acts">
+        <button class="act" id="b-wait"><svg viewBox="0 0 32 32"><use href="#s-hourglass"/></svg><span>Warten</span></button>
+        <button class="act" id="b-bomb"><span class="ph" data-spr="bomb"></span><span id="bombn">Bombe</span></button>
+        <button class="act" id="b-undo"><span class="ph" data-spr="undo"></span><span id="undon">Zurück</span></button>
+      </div>
+    </div>
+    <div class="relics" id="relics"></div>
+  </footer>
+</section>
+
