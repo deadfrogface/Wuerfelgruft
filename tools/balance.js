@@ -103,7 +103,7 @@ async function botRun(cfg){
     if(open.length){const r=await modal(open);if(r==='stop')break;lvlActs++;if(lvlActs>CAP_*3){res.stuck=true;break;}continue;}
     if(G.busy){await y0();lvlActs++;if(lvlActs>CAP_*20){res.stuck=true;break;}continue;}
     lvlActs++;res.actions++;
-    if(lvlActs>CAP_){res.stuck=true;res.cause='haengt Etage '+G.depth;break;}
+    if(lvlActs>CAP_){res.stuck=true;res.cause='haengt Etage '+G.depth;res.dbg={goal:G.goal,key:G.keyNeeded,has:G.hasKey,pos:G.pos,exit:G.exit,hp:G.hp,mons:G.mons.map(m=>m.type+':'+m.pos+(m.dormant?'d':'')+(m.stun?'s':'')),items:[...G.items].map(([c,k])=>c+':'+k).slice(0,12),sw:G.sw,swNeed:G.swNeed,rn:G.rn,aim:G.aiming,boss:!!G.boss,cloak:G.cloak,same,sv:G.sv};break;}
     const P=G.pos;
     /* Fähigkeit */
     if(Math.random()<.7&&await useAbility()){continue;}
@@ -122,8 +122,14 @@ async function botRun(cfg){
         if(bi!=null)dest=bi;
       }
       let path=null;
-      if(gl.mon&&dest===gl.mon.pos){const dm=w.bfs(dest,null);const nbs=[...NB[dest]].filter(c=>!G.walls.has(c)&&!w.monAt(c));nbs.sort((a,b)=>(w.bfs(P,null).get(a)||99)-(w.bfs(P,null).get(b)||99));for(const c of nbs){path=c===P?[]:w.pathTo(c);if(path)break;}if(path&&!path.length&&w.reach1(P,dest))tgt=dest;}
+      if(lvlActs>90&&!(gl.mon)){ /* Notfall: ohne Rücksicht auf Stacheln und Gelände direkt hin, Gegner im Weg werden angegriffen */
+        const dm=w.bfs(dest,G.walls);let bestN=null,bv=1e9;
+        for(const n of NB[P]){const v=dm.get(n);if(v!==undefined&&v<bv){bv=v;bestN=n;}}
+        if(bestN!=null)path=[bestN];
+      }
+      else if(gl.mon&&dest===gl.mon.pos){const dm=w.bfs(dest,null);const nbs=[...NB[dest]].filter(c=>!G.walls.has(c)&&!w.monAt(c));nbs.sort((a,b)=>(w.bfs(P,null).get(a)||99)-(w.bfs(P,null).get(b)||99));for(const c of nbs){path=c===P?[]:w.pathTo(c);if(path)break;}if(path&&!path.length&&w.reach1(P,dest))tgt=dest;}
       else path=w.pathTo(dest);
+      if(!path||!path.length){const dm=w.bfs(dest,G.walls);let bestN=null,bv=1e9;for(const n of NB[P]){const v=dm.get(n);if(v!==undefined&&v<bv){bv=v;bestN=n;}}if(bestN!=null&&dest!==P)path=[bestN];}
       if(tgt==null){
         if(path&&path.length)tgt=path[0];
         else{const c=[...NB[P]].filter(n=>!G.walls.has(n)&&!G.spikes.has(n));tgt=c.length?c[Math.floor(Math.random()*c.length)]:null;}
@@ -152,7 +158,7 @@ async function botRun(cfg){
       await pg.evaluate(([m,c])=>{window.MAXD_=m;window.CAP_=c;},[MAXD,CAP]);
       const src=botRun.toString().replace(/MAXD_/g,'window.MAXD_').replace(/CAP_/g,'window.CAP_');
       try{const r=await pg.evaluate(`(${src})(${JSON.stringify(j)})`);out.push(r);
-        process.stderr.write(`${r.cls}/${r.diff}: Etage ${r.depth}${r.won?' (Sieg)':r.capped?' (Ende)':r.stuck?' (haengt)':' †'+r.cause}\n`);}
+        process.stderr.write(`${r.cls}/${r.diff}: Etage ${r.depth}${r.won?' (Sieg)':r.capped?' (Ende)':r.stuck?' (haengt) '+JSON.stringify(r.dbg||''):' †'+r.cause}\n`);}
       catch(e){out.push({cls:j.cls,diff:j.diff,error:String(e).slice(0,120)});process.stderr.write('Fehler '+j.cls+': '+String(e).slice(0,100)+'\n');}
     }
     await pg.close();
