@@ -61,7 +61,7 @@ Voraussetzung: Node 22, Python 3 und `npm i playwright` in `tools/` (danach `npx
 python3 tools/build_test.py     # baut index.html aus src/ und erzeugt tools/.out/test.html mit window.__wg
 node tools/regress.js           # Bot spielt 10 Etagen und prüft Fehler und Zustände
 node tools/swipe.js             # prüft die Wischrichtungen der Titelseiten
-node tools/balance.js --runs=6 --maxdepth=40 --classes=krieger,zauberer   # Balance-Bot, Bericht in tools/.out/balance.md
+node tools/balance.js --runs=8 --maxdepth=20 --skill=basic   # Balance-Bot (--skill=smart für den vorsichtigeren Stil, --seed=N für reproduzierbare Läufe), Bericht in tools/.out/balance.md; Ergebnisse stehen in tools/BALANCE.md
 ```
 
 `regress.js` ist ein Rauchtest mit unendlich Leben. `balance.js` spielt ganze Läufe fair (kein Dauer-Leben, mit Klassenfähigkeiten, Verstärkungen und Händler) und zeigt je Klasse, wie tief der Bot kommt und woran er stirbt. Er ist ein einfacher Spieler und kein Mensch, die Zahlen sind Vergleichswerte zwischen Klassen und Stufen und keine Spielerstatistik.

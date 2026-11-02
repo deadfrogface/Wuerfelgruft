@@ -2,13 +2,13 @@
 /* Balance-Bot: spielt ganze Läufe fair (kein Dauer-Leben, nutzt Klassenfähigkeiten, Verstärkungen und Händler)
    und zeigt je Klasse/Schwierigkeit, wie tief er kommt, woran er stirbt und wie viel Schaden jede Etage macht.
    Start: python3 tools/build_test.py && node tools/balance.js --runs=6 --maxdepth=40 --diff=normal --classes=krieger,zauberer
-   Optionen: --skill=basic|smart (smart bewertet jeden Zug nach Risiko und Nutzen), --seed (reproduzierbare Läufe), --runs (je Klasse und Stufe), --maxdepth, --diff (Liste), --classes (Liste), --par (parallele Seiten), --cap (Aktionen je Etage bis "hängt") */
+   Optionen: --skill=basic|smart (basic ist zuverlässiger, smart wägt jeden Zug nach Risiko und Nutzen ab, hängt aber öfter), --seed (reproduzierbare Läufe), --runs (je Klasse und Stufe), --maxdepth, --diff (Liste), --classes (Liste), --par (parallele Seiten), --cap (Aktionen je Etage bis "hängt") */
 const {chromium}=require('playwright');
 const path=require('path'),fs=require('fs');
 const A=Object.fromEntries(process.argv.slice(2).map(a=>{const [k,v]=a.replace(/^--/,'').split('=');return [k,v===undefined?true:v];}));
 const CLASSES=(A.classes||'krieger,zauberer,jaeger,schatz,dieb,waechter,alchemist').split(',');
 const DIFFS=(A.diff||'normal').split(',');
-const RUNS=+(A.runs||4),MAXD=+(A.maxdepth||40),PAR=+(A.par||3),CAP=+(A.cap||320),SKILL=A.skill||'smart',SEED=+(A.seed||Date.now()%100000);
+const RUNS=+(A.runs||4),MAXD=+(A.maxdepth||40),PAR=+(A.par||3),CAP=+(A.cap||320),SKILL=A.skill||'basic',SEED=+(A.seed||Date.now()%100000);
 
 /* Wird im Browser ausgeführt. Der Bot spielt klassenspezifisch: Schattenschritt als Flucht und für Gratis-Treffer, Fallen vor
    anrückenden Gegnern, Warten für Blöcke beim Wächter, Mana-Management ohne Nahkampf beim Zauberer, Tränke und Münzwürfe auf Distanz. */
