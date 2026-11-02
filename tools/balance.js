@@ -25,7 +25,7 @@ async function botRun(cfg){
   const res={cls:cfg.cls,asked:cfg.cls,diff:cfg.diff,depth:1,over:false,won:false,capped:false,stuck:false,cause:'',turns:0,score:0,actions:0,dmg:{},abil:0,kills:0};
   res.cls=w.G.cls;
   const MT=w.MT,NB=w.NB;
-  let lvlActs=0,lastPos=-1,same=0,lastDepth=0,prevHp=null,prevDepth=0,waits=0,recent=[],commit=0,commitDirect=0,detour=null,detourN=0,dbgDest=null;
+  let lvlActs=0,lastPos=-1,same=0,lastDepth=0,prevHp=null,prevDepth=0,waits=0,recent=[],smartHold=0,commit=0,commitDirect=0,detour=null,detourN=0,dbgDest=null;
   const GOODP=/^p_|^chest$|^heart$|^coin$/;
   const rnd=a=>a[Math.floor(Math.random()*a.length)];
   const awakeMons=()=>w.G.mons.filter(m=>!MT[m.type].npc&&!MT[m.type].decoy&&!m.dormant&&!(MT[m.type].sleep&&!m.awake));
@@ -157,7 +157,8 @@ async function botRun(cfg){
     /* ---------- Gefahr meiden ---------- */
     if(dz.has(P)&&!(attackable.length&&Math.random()<.3)){const s=stepTo(target!=null?target:P,cls==='jaeger');if(s!=null){await w.playerAct(s);await idle();continue;}}
     /* ---------- Smart: Risiko und Nutzen jedes Zugs abwägen, solange Gegner nah sind ---------- */
-    if(SMART&&near&&near.d<=3&&target!=null&&!gl.wait){
+    if(SMART&&near&&near.d<=3)smartHold=5;else if(smartHold>0)smartHold--;
+    if(SMART&&near&&(near.d<=3||smartHold>0)&&near.d<=6&&target!=null&&!gl.wait){
       const dmG=w.bfs(target,G.walls);
       const ready=m=>{const T=MT[m.type];return T.slow?(m.cd===0?1:.15):1;};
       const riskAt=(c,gone)=>{let r=dz.has(c)?3:0;for(const m of mons){if(m===gone||m.stun>0)continue;const T=MT[m.type];if(w.reach1(c,m.pos))r+=(T.dmg||1)*ready(m);else if((T.fast||T.charge)&&nearestD(c,m.pos)<=2)r+=.6*(T.dmg||1);}return r;};
