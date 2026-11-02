@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:420,height:860},hasTouch:true,isMobile:true});const pg=await ctx.newPage();const e=[];pg.on('pageerror',x=>e.push(x.message));
 await pg.goto('file://'+require('path').join(__dirname,'.out','test.html'));await pg.waitForTimeout(1200);
-await pg.evaluate(()=>{const w=window.__wg;w.save.settings.tips=false;w.save.runs=5;w.save.won=true;document.querySelectorAll('.modal.on').forEach(m=>m.classList.remove('on'));w.updateStats();});
+await pg.evaluate(()=>{const w=window.__wg;w.save.settings.tips=false;w.save.runs=5;w.save.bestDepth=12;w.save.won=true;document.querySelectorAll('.modal.on').forEach(m=>m.classList.remove('on'));w.updateStats();});
 const c=await ctx.newCDPSession(pg);
 async function sw(x0,y0,x1,y1,n=8){await c.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:x0,y:y0}]});for(let i=1;i<=n;i++){await c.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x0+(x1-x0)*i/n,y:y0+(y1-y0)*i/n}]});await pg.waitForTimeout(16);}await c.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await pg.waitForTimeout(650);return pg.evaluate(()=>[...document.querySelectorAll('.tp.cur')].map(t=>t.id)[0]);}
 const R=[];
