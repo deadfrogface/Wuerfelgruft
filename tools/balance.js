@@ -164,11 +164,11 @@ async function botRun(cfg){
       const dist0=dmG.get(P);
       const opts=[];
       if(!noMelee)for(const m of attackable){const kill=m.hp<=(G.dmg||1)*(G.assassin&&m.stun>0?2:1);opts.push({k:'atk',pos:m.pos,v:(kill?3+(MT[m.type].dmg||1)*1.5:.7*(G.dmg||1))-riskAt(P,kill?m:null)*1.4});}
-      opts.push({k:'wait',v:-riskAt(P,null)*1.4-.3+(cls==='waechter'?.8:0)});
-      for(const n of NB[P]){if(G.walls.has(n)||w.monAt(n)||G.spikes.has(n))continue;const dn=dmG.get(n);const prog=(dist0!==undefined&&dn!==undefined)?(dist0-dn)*.9:0;opts.push({k:'mv',pos:n,v:prog-riskAt(n,null)*1.4-((G.traps||[]).includes(n)&&cls==='jaeger'?1:0)});}
+      opts.push({k:'wait',v:-riskAt(P,null)*1.4-(waits>=2?3:1.1)+(cls==='waechter'?.9:0)});
+      for(const n of NB[P]){if(G.walls.has(n)||w.monAt(n)||G.spikes.has(n))continue;const dn=dmG.get(n);const prog=(dist0!==undefined&&dn!==undefined)?(dist0-dn)*1.6:0;opts.push({k:'mv',pos:n,v:prog-riskAt(n,null)*1.4-((G.traps||[]).includes(n)&&cls==='jaeger'?1:0)});}
       for(const o of opts)o.v+=Math.random()*.2;
       opts.sort((a,b)=>b.v-a.v);const best=opts[0];
-      if(best.k==='wait'){await w.waitTurn();continue;}
+      if(best.k==='wait'){waits++;await w.waitTurn();continue;}
       waits=0;(res.tr=res.tr||[]).push(P+'>'+best.pos+'S');if(res.tr.length>14)res.tr.shift();
       await w.playerAct(best.pos);await idle();continue;
     }
