@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Quellen prüfen (index.html muss aus src/ gebaut sein)
+        run: python3 tools/build.py --check
       - name: Playwright installieren
         working-directory: tools
         run: |

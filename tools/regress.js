@@ -3,7 +3,7 @@ const {chromium}=require('playwright');
 (async()=>{
 const b=await chromium.launch();const pg=await b.newPage({viewport:{width:420,height:860}});
 const errs=[];pg.on('pageerror',e=>errs.push('PAGEERR '+e.message));pg.on('console',m=>{if(m.type()==='error'&&!/ERR_FILE/.test(m.text()))errs.push('CONSOLE '+m.text())});
-await pg.goto('file://'+require('path').join(__dirname,'.out','test.html'));await pg.waitForTimeout(300);
+await pg.goto('file://'+require('path').join(__dirname,process.env.WG_OUT||'.out','test.html'));await pg.waitForTimeout(300);
 await pg.evaluate(()=>{document.querySelector('#scr-game').classList.add('on');});
 const res=await pg.evaluate(async()=>{
   const w=window.__wg;const out={levels:0,actions:0,bad:[],kinds:{},deaths:0};
