@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Erzeugt App-Icon und Splash fuer Wuerfelgruft und schreibt sie in die Android-Ressourcen.
-Aufruf: python3 tools/brand.py <android-res-ordner>   |   python3 tools/brand.py --preview <ordner>"""
+Aufruf: python3 brand.py <android-res-ordner>   |   python3 brand.py --ios <Assets.xcassets>   |   python3 tools/brand.py --preview <ordner>"""
 import sys,os,glob
 from PIL import Image,ImageDraw
 PAL={"k": "#17152b", "W": "#f4efe0", "b": "#e9dfc8", "B": "#c9ba98", "s": "#6f6993", "S": "#4a4566", "d": "#2c2847", "t": "#3fd0b0", "T": "#2a9a82", "u": "#8ff5da", "r": "#e8553d", "R": "#a93a28", "o": "#ff8a5c", "y": "#f4b942", "Y": "#b47a14", "z": "#ffe27a", "m": "#8bd450", "M": "#5aa02c", "l": "#c5f285", "v": "#cdbfff", "V": "#8a72e0", "p": "#ff5d73", "P": "#b8334a", "n": "#5aa0e8", "N": "#3f6fb5", "a": "#dfe6f2", "A": "#8b93ad", "h": "#c98a4b", "H": "#312b58", "e": "#8a5fa8", "E": "#5d3d78", "g": "#2a2547", "F": "#3d3768", "G": "#4b4580", "I": "#474177"}
@@ -67,7 +67,19 @@ def splash(w,h):
     a=cube_art().resize((s,s),Image.NEAREST)
     im.alpha_composite(a,((w-s)//2,(h-s)//2))
     return im.convert('RGB')
+def ios(assets):
+    """iOS: AppIcon (1024, ohne Transparenz) und Splash in Assets.xcassets ersetzen."""
+    n=0
+    for p in glob.glob(assets+'/**/*.png',recursive=True):
+        name=os.path.basename(p)
+        if name.startswith('AppIcon'):
+            icon_full(1024).convert('RGB').save(p);n+=1
+        elif name.startswith('splash'):
+            w,h=Image.open(p).size;splash(w,h).convert('RGB').save(p);n+=1
+    print('iOS-Bilder ersetzt:',n)
 def main():
+    if sys.argv[1]=='--ios':
+        ios(sys.argv[2]);return
     if sys.argv[1]=='--preview':
         out=sys.argv[2];os.makedirs(out,exist_ok=True)
         icon_full(512).save(out+'/icon.png');circle(icon_full(512)).save(out+'/round.png')
