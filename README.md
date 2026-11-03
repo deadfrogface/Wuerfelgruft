@@ -17,6 +17,7 @@ Roguelike auf einem Würfel mit sechs Seiten. Du läufst auf der Außenfläche, 
 | `index.html` | die fertig zusammengesetzte Datei, die in die App kommt. **Nicht von Hand ändern**, sie entsteht aus `src/` |
 | `package.json`, `capacitor.config.json` | Capacitor-Android-Hülle |
 | `.github/workflows/android.yml` | baut bei Push auf `main` zwei Varianten: **store** (AAB und APK) und **dev** (eigenes Paket `com.wuerfelgruft.dev`, Release `dev-latest`) |
+| `.github/workflows/ios.yml` | baut die iOS-App auf einem macOS-Runner (Simulator-App, unsigniertes IPA, mit Apple-Secrets auch signiert und TestFlight), siehe `store/IOS_ANLEITUNG.md` |
 | `.github/workflows/tests.yml` | prüft bei Pull Requests, dass `index.html` zu `src/` passt, und startet die Tests |
 | `tools/` | Bau- und Testskripte (siehe unten) |
 | `store/` | Store-Texte (DE/EN), Screenshots, Grafiken, Anleitung |

@@ -1,9 +1,11 @@
 /* src/js/meta/monetization.js
    Unterstützen: Werbefrei, Unterstützer-Skin und freiwillige Belohnungs-Werbung. */
 /* ================= Unterstützen: Werbefrei-Kauf und freiwillige Werbung =================
-   Nur in der Android-App (Capacitor-Plugins AdMob und NativePurchases). Im Browser bleibt alles verborgen.
+   Nur in der App für Android und iOS (Capacitor-Plugins AdMob und NativePurchases). Im Browser bleibt alles verborgen.
    Vor der Veröffentlichung: Test-IDs durch echte AdMob-IDs ersetzen und test:false setzen. */
 const MONET={appId:'ca-app-pub-3940256099942544~3347511713',reward:'ca-app-pub-3940256099942544/5224354917',test:true,noads:'remove_ads',sup:'supporter',dailyGS:50};
+const IOS_APP=(()=>{try{return !!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==='ios');}catch(e){return false;}})();
+if(IOS_APP){MONET.appId='ca-app-pub-3940256099942544~1458002511';MONET.reward='ca-app-pub-3940256099942544/1712485313';}   /* iOS-Test-IDs von Google; echte iOS-IDs vor der Veröffentlichung eintragen */
 const capPlug=n=>{try{const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform())return null;return (C.Plugins&&C.Plugins[n])||(C.registerPlugin?C.registerPlugin(n):null);}catch(e){return null;}};
 const iapHas=k=>!!(save.iap&&save.iap[k]);
 let monetPrices={},monetAdInit=false;

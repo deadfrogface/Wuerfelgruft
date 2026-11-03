@@ -1,0 +1,195 @@
+name: iOS Build
+
+# Baut die iOS-App auf einem macOS-Runner. Ohne Apple-Zugangsdaten entstehen
+#   - eine Simulator-App (zum Ausprobieren im Xcode-Simulator) und
+#   - ein unsigniertes IPA (muss vor dem Installieren signiert werden).
+# Mit den Secrets IOS_CERT_P12_B64, IOS_CERT_PASSWORD, IOS_PROFILE_B64, IOS_TEAM_ID entsteht zusätzlich ein signiertes IPA,
+# und mit ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_B64 wird es zu TestFlight hochgeladen (siehe store/IOS_ANLEITUNG.md).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '.github/workflows/ios.yml'
+      - 'package.json'
+      - 'capacitor.config.json'
+      - 'brand.py'
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'store, dev oder beide'
+        default: 'both'
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [store, dev]
+    steps:
+      - name: Variante überspringen, wenn nicht gewünscht
+        id: gate
+        run: |
+          WANT="${{ github.event.inputs.variant }}"
+          if [ -n "$WANT" ] && [ "$WANT" != "both" ] && [ "$WANT" != "${{ matrix.variant }}" ]; then echo "skip=true" >> $GITHUB_OUTPUT; fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.skip != 'true'
+
+      - name: Quellen prüfen (index.html muss aus src/ gebaut sein)
+        if: steps.gate.outputs.skip != 'true'
+        run: python3 tools/build.py --check
+
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.skip != 'true'
+        with:
+          node-version: 22
+
+      - name: Xcode 26 wählen
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          ls -d /Applications/Xcode* || true
+          XC=$(ls -d /Applications/Xcode_26* 2>/dev/null | sort -V | tail -1)
+          if [ -z "$XC" ]; then echo "::error::Kein Xcode 26 auf diesem Runner (Capacitor 8 braucht Xcode 26). Runner-Label prüfen, z. B. macos-26."; exit 1; fi
+          sudo xcode-select -s "$XC"
+          xcodebuild -version
+
+      - name: Abhängigkeiten installieren
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          npm install --no-audit --no-fund
+          npm install --no-save --no-audit --no-fund @fontsource/grenze-gotisch @fontsource/alegreya-sans
+
+      - name: Web-Dateien und Schriften vorbereiten
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          mkdir -p www/fonts
+          cp index.html www/index.html
+          if [ "${{ matrix.variant }}" = "dev" ]; then
+            sed -i '' 's/const DEVBUILD=false;/const DEVBUILD=true;/' www/index.html
+            grep -c "DEVBUILD=true" www/index.html
+            sed -i '' 's/"appId": "com.wuerfelgruft.game"/"appId": "com.wuerfelgruft.dev"/; s/"appName": "Würfelgruft"/"appName": "Würfelgruft DEV"/' capacitor.config.json
+            head -4 capacitor.config.json
+          fi
+          cp node_modules/@fontsource/grenze-gotisch/files/grenze-gotisch-latin-{600,800}-normal.woff2 www/fonts/
+          cp node_modules/@fontsource/alegreya-sans/files/alegreya-sans-latin-{400,500,700,800}-normal.woff2 www/fonts/
+
+      - name: iOS-Projekt erzeugen (CocoaPods, damit alle Plugins sicher eingebunden sind)
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          npx cap add ios --packagemanager CocoaPods
+          npx cap sync ios
+          ls ios/App
+
+      - name: Icon, Splash und Info.plist anpassen
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install pillow
+          "$RUNNER_TEMP/venv/bin/python" brand.py --ios ios/App/App/Assets.xcassets
+          P=ios/App/App/Info.plist
+          PB=/usr/libexec/PlistBuddy
+          # nur Hochformat auf dem iPhone
+          $PB -c "Delete :UISupportedInterfaceOrientations" $P || true
+          $PB -c "Add :UISupportedInterfaceOrientations array" -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" $P
+          # AdMob (Variable ADMOB_IOS_APP_ID im Repo, sonst Googles Test-ID)
+          ADMOB_ID="${{ vars.ADMOB_IOS_APP_ID }}"; [ -z "$ADMOB_ID" ] && ADMOB_ID="ca-app-pub-3940256099942544~1458002511"
+          $PB -c "Add :GADApplicationIdentifier string $ADMOB_ID" $P || $PB -c "Set :GADApplicationIdentifier $ADMOB_ID" $P
+          $PB -c "Add :NSUserTrackingUsageDescription string Damit dir passendere Werbung gezeigt werden kann. Du kannst es jederzeit ablehnen." $P || true
+          $PB -c "Add :SKAdNetworkItems array" -c "Add :SKAdNetworkItems:0 dict" -c "Add :SKAdNetworkItems:0:SKAdNetworkIdentifier string cstr6suwn9.skadnetwork" $P || true
+          $PB -c "Add :ITSAppUsesNonExemptEncryption bool false" $P || true
+          cat $P | head -60
+
+      - name: Simulator-App bauen (unsigniert)
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd-sim" \
+            MARKETING_VERSION="1.${{ github.run_number }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGNING_ALLOWED=NO build | tail -30
+          mkdir -p out
+          ditto -c -k --sequesterRsrc --keepParent "$RUNNER_TEMP/dd-sim/Build/Products/Release-iphonesimulator/App.app" "out/Wuerfelgruft-${{ matrix.variant }}-Simulator.zip"
+
+      - name: IPA bauen (unsigniert)
+        if: steps.gate.outputs.skip != 'true'
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App-unsigned.xcarchive" \
+            MARKETING_VERSION="1.${{ github.run_number }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGNING_ALLOWED=NO archive | tail -30
+          rm -rf "$RUNNER_TEMP/Payload"; mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$RUNNER_TEMP/App-unsigned.xcarchive/Products/Applications/App.app" "$RUNNER_TEMP/Payload/"
+          (cd "$RUNNER_TEMP" && zip -qr "$GITHUB_WORKSPACE/out/Wuerfelgruft-${{ matrix.variant }}-unsigned.ipa" Payload)
+          ls -la out
+
+      - name: Prüfen, ob Signierung möglich ist
+        if: steps.gate.outputs.skip != 'true'
+        id: sign
+        env:
+          CERT: ${{ secrets.IOS_CERT_P12_B64 }}
+          PROFILE: ${{ secrets.IOS_PROFILE_B64 }}
+          TEAM: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          if [ -n "$CERT" ] && [ -n "$PROFILE" ] && [ -n "$TEAM" ]; then echo "ok=true" >> $GITHUB_OUTPUT; else echo "Keine Apple-Zugangsdaten hinterlegt: es entsteht nur das unsignierte IPA."; fi
+
+      - name: Signiertes IPA bauen
+        if: steps.gate.outputs.skip != 'true' && steps.sign.outputs.ok == 'true'
+        env:
+          CERT: ${{ secrets.IOS_CERT_P12_B64 }}
+          CERT_PASS: ${{ secrets.IOS_CERT_PASSWORD }}
+          PROFILE: ${{ secrets.IOS_PROFILE_B64 }}
+          TEAM: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          KC="$RUNNER_TEMP/build.keychain"; KCP="$(uuidgen)"
+          security create-keychain -p "$KCP" "$KC"; security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KCP" "$KC"; security list-keychains -d user -s "$KC" login.keychain
+          echo "$CERT" | base64 -D > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CERT_PASS" -A -t cert -f pkcs12 -k "$KC"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KCP" "$KC"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          echo "$PROFILE" | base64 -D > "$RUNNER_TEMP/profile.mobileprovision"
+          security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" > "$RUNNER_TEMP/profile.plist"
+          PUUID=$(/usr/libexec/PlistBuddy -c "Print :UUID" "$RUNNER_TEMP/profile.plist")
+          PNAME=$(/usr/libexec/PlistBuddy -c "Print :Name" "$RUNNER_TEMP/profile.plist")
+          cp "$RUNNER_TEMP/profile.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PUUID.mobileprovision"
+          BUNDLE=$(grep -o '"appId": "[^"]*"' capacitor.config.json | cut -d'"' -f4)
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/App.xcarchive" \
+            MARKETING_VERSION="1.${{ github.run_number }}" CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="$TEAM" PROVISIONING_PROFILE_SPECIFIER="$PNAME" CODE_SIGN_IDENTITY="Apple Distribution" archive | tail -30
+          cat > "$RUNNER_TEMP/export.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>$TEAM</string>
+            <key>signingStyle</key><string>manual</string>
+            <key>provisioningProfiles</key><dict><key>$BUNDLE</key><string>$PNAME</string></dict>
+          </dict></plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/App.xcarchive" -exportOptionsPlist "$RUNNER_TEMP/export.plist" -exportPath "$RUNNER_TEMP/export"
+          cp "$RUNNER_TEMP/export/App.ipa" "out/Wuerfelgruft-${{ matrix.variant }}-signed.ipa"
+
+      - name: Zu TestFlight hochladen (nur Store-Variante mit API-Schlüssel)
+        if: steps.gate.outputs.skip != 'true' && steps.sign.outputs.ok == 'true' && matrix.variant == 'store'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8_B64 }}
+        run: |
+          if [ -z "$ASC_KEY_ID" ] || [ -z "$ASC_ISSUER_ID" ] || [ -z "$ASC_KEY_P8" ]; then echo "Kein App-Store-Connect-Schlüssel hinterlegt, Upload übersprungen."; exit 0; fi
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          echo "$ASC_KEY_P8" | base64 -D > "$HOME/.appstoreconnect/private_keys/AuthKey_$ASC_KEY_ID.p8"
+          xcrun altool --upload-app -f out/Wuerfelgruft-store-signed.ipa -t ios --apiKey "$ASC_KEY_ID" --apiIssuer "$ASC_ISSUER_ID"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.gate.outputs.skip != 'true'
+        with:
+          name: Wuerfelgruft-iOS-${{ matrix.variant }}
+          path: out/*
