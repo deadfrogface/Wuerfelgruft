@@ -30,12 +30,12 @@ const ACT={
     async run(t){const from=G.pos;burst(from,'#8a5fa8',12);G.pos=t;G.cloak=Math.max(G.cloak,2);burst(t,'#8a5fa8',12);sfx('blink');floatText(t,'Schattenschritt','blue');landing(t,from,0,true);return [];}},
   alchemist:{n:'Trank',ico:'p_kristall',d:'Mischt die zwei ältesten Zutaten zu einem Trank mit eigener Wirkung',cnt:()=>(G.ing||[]).length,have:()=>(G.ing||[]).length>=2,no:'Du brauchst 2 Zutaten. Sie fallen von besiegten Gegnern.',range:AIM,
     valid:t=>true,pay(){return G.ing.splice(0,2);},async run(t,mix){return brew(t,mix);}},
-  schatz:{n:'Münzwurf',ico:'s-coin',d:'Wirft 8 Münzen als Geschoss: 2 Schaden, mehr bei vollem Beutel',cnt:()=>G.money,have:()=>G.money>=8,no:'Du brauchst mindestens 8 Münzen.',range:AIM,
-    valid:t=>!!monAt(t),pay(){G.money-=8;return null;},
-    async run(t){const m=monAt(t),b=Math.min(3,Math.floor(G.money/40));burst(t,'#ffe27a',10);sfx('coin');if(m)hitMonster(m,2+b+(G.fang?2:0),true);else floatText(t,'Verpufft','dim');if(Math.random()<.5&&!G.items.has(t)&&!G.walls.has(t)&&!G.spikes.has(t))G.items.set(t,'coin');return m?[m]:[];}},
+  schatz:{n:'Münzwurf',ico:'s-coin',d:'Wirft 10 Münzen als Geschoss: 2 Schaden, mehr bei vollem Beutel',cnt:()=>G.money,have:()=>G.money>=10,no:'Du brauchst mindestens 10 Münzen.',range:AIM,
+    valid:t=>!!monAt(t),pay(){G.money-=10;return null;},
+    async run(t){const m=monAt(t),b=Math.min(2,Math.floor(G.money/50));burst(t,'#ffe27a',10);sfx('coin');if(m)hitMonster(m,2+b+(G.fang?2:0),true);else floatText(t,'Verpufft','dim');if(Math.random()<.5&&!G.items.has(t)&&!G.walls.has(t)&&!G.spikes.has(t))G.items.set(t,'coin');return m?[m]:[];}},
   waechter:{n:'Schildstoß',ico:'s-shield',d:'Schleudert einen Nachbarn 2 Felder zurück, betäubt ihn und gibt dir einen Block',cnt:()=>G.bashCd>0?G.bashCd:'bereit',have:()=>!(G.bashCd>0),no:'Der Schildstoß lädt noch auf.',range:1,
-    valid:t=>!!monAt(t)&&NB[G.pos].includes(t),pay(){G.bashCd=3;return null;},
-    async run(t){const m=monAt(t);if(!m)return [];const dead=hitMonster(m,1+(G.fang?2:0),true);if(!dead&&G.mons.includes(m)){floatText(m.pos,'Schildstoß','gold');knock(m,2);if(G.mons.includes(m))m.stun=Math.max(m.stun||0,2);}G.shield=Math.min(G.shield+1,G.shieldMax+3);sfx('block');return [m];}}
+    valid:t=>!!monAt(t)&&NB[G.pos].includes(t),pay(){G.bashCd=4;return null;},
+    async run(t){const m=monAt(t);if(!m)return [];const dead=hitMonster(m,1+(G.fang?2:0),true);if(!dead&&G.mons.includes(m)){floatText(m.pos,'Schildstoß','gold');knock(m,2);if(G.mons.includes(m))m.stun=Math.max(m.stun||0,2);}G.shield=Math.min(G.shield+1,G.shieldMax+2);sfx('block');return [m];}}
 };
 async function useBomb(){
   if(!G||G.busy||G.over||flipping)return;
