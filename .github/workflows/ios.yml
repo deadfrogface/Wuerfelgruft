@@ -194,15 +194,29 @@ jobs:
           name: Wuerfelgruft-iOS-${{ matrix.variant }}
           path: out/*
 
-      - name: Release veröffentlichen (Store-Variante)
+      - name: iOS-Dateien an das Android-Release dieses Commits hängen (Store-Variante)
         if: github.ref == 'refs/heads/main' && matrix.variant == 'store' && steps.gate.outputs.skip != 'true'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ios-v1.${{ github.run_number }}
-          name: Würfelgruft iOS 1.${{ github.run_number }}
-          make_latest: false
-          files: out/*
-          body: "iOS-Build: Simulator-App (Zip) und unsigniertes IPA. Das IPA lässt sich erst nach dem Signieren auf einem iPhone installieren (siehe store/IOS_ANLEITUNG.md). Mit Apple-Zugangsdaten in den Secrets entsteht zusätzlich ein signiertes IPA."
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Der Android-Workflow legt das Release v1.N für denselben Commit an. Bis zu 15 Minuten darauf warten.
+          TAG=""
+          for i in $(seq 1 30); do
+            for t in $(gh release list --limit 10 --json tagName --jq '.[].tagName' | grep -E '^v1\.[0-9]+$'); do
+              SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$t" --jq '.object.sha' 2>/dev/null || true)
+              if [ "$SHA" = "$GITHUB_SHA" ]; then TAG="$t"; break; fi
+            done
+            [ -n "$TAG" ] && break
+            echo "Android-Release für $GITHUB_SHA noch nicht da, warte ($i/30) ..."; sleep 30
+          done
+          if [ -n "$TAG" ]; then
+            echo "Hänge iOS-Dateien an $TAG"
+            gh release upload "$TAG" out/* --clobber
+          else
+            echo "Kein Android-Release gefunden, lege ein eigenes iOS-Release an."
+            gh release create "ios-v1.${{ github.run_number }}" out/* --title "Würfelgruft iOS 1.${{ github.run_number }}" --latest=false \
+              --notes "iOS-Build: Simulator-App (Zip) und unsigniertes IPA (siehe store/IOS_ANLEITUNG.md)."
+          fi
 
       - name: DEV-Release ergänzen (iOS-Dateien neben der DEV-APK)
         if: github.ref == 'refs/heads/main' && matrix.variant == 'dev' && steps.gate.outputs.skip != 'true'
