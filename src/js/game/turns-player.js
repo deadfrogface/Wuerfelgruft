@@ -145,7 +145,7 @@ async function waitTurn(){
   if(!G||G.over)return;
   if(G.busy||flipping){pending=()=>waitTurn();return;}
   G.busy=true;AU.unlock();G.last=snap();sfx('wait');floatText(G.pos,'…','dim');
-  if(G.cls==='waechter'){G.shield=Math.min(G.shield+1,G.shieldMax+3);floatText(G.pos,'Bollwerk','blue');sfx('block');}
+  if(G.cls==='waechter'){G.shield=Math.min(G.shield+1,G.shieldMax+2);floatText(G.pos,'Bollwerk','blue');sfx('block');}
   if(G.burn>0){G.burn=0;floatText(G.pos,'Gelöscht','blue');}
   await sleep(60);await endTurn();
 }
