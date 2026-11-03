@@ -89,8 +89,9 @@ jobs:
       - name: Icon, Splash und Info.plist anpassen
         if: steps.gate.outputs.skip != 'true'
         run: |
-          pip3 install pillow
-          python3 brand.py --ios ios/App/App/Assets.xcassets
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install pillow
+          "$RUNNER_TEMP/venv/bin/python" brand.py --ios ios/App/App/Assets.xcassets
           P=ios/App/App/Info.plist
           PB=/usr/libexec/PlistBuddy
           # nur Hochformat auf dem iPhone
