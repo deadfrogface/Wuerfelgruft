@@ -200,16 +200,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Der Android-Workflow legt das Release v1.N für denselben Commit an. Bis zu 15 Minuten darauf warten.
-          git fetch --tags --force -q
           TAG=""
           for i in $(seq 1 30); do
             for t in $(gh release list --limit 10 --json tagName --jq '.[].tagName' | grep -E '^v1\.[0-9]+$'); do
-              SHA=$(git rev-list -n1 "$t" 2>/dev/null || true)
+              SHA=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$t" --jq '.object.sha' 2>/dev/null || true)
               if [ "$SHA" = "$GITHUB_SHA" ]; then TAG="$t"; break; fi
             done
             [ -n "$TAG" ] && break
             echo "Android-Release für $GITHUB_SHA noch nicht da, warte ($i/30) ..."; sleep 30
-            git fetch --tags --force -q
           done
           if [ -n "$TAG" ]; then
             echo "Hänge iOS-Dateien an $TAG"
