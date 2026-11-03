@@ -22,7 +22,7 @@ on:
         default: 'both'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   ios:
@@ -193,3 +193,23 @@ jobs:
         with:
           name: Wuerfelgruft-iOS-${{ matrix.variant }}
           path: out/*
+
+      - name: Release veröffentlichen (Store-Variante)
+        if: github.ref == 'refs/heads/main' && matrix.variant == 'store' && steps.gate.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ios-v1.${{ github.run_number }}
+          name: Würfelgruft iOS 1.${{ github.run_number }}
+          make_latest: false
+          files: out/*
+          body: "iOS-Build: Simulator-App (Zip) und unsigniertes IPA. Das IPA lässt sich erst nach dem Signieren auf einem iPhone installieren (siehe store/IOS_ANLEITUNG.md). Mit Apple-Zugangsdaten in den Secrets entsteht zusätzlich ein signiertes IPA."
+
+      - name: DEV-Release ergänzen (iOS-Dateien neben der DEV-APK)
+        if: github.ref == 'refs/heads/main' && matrix.variant == 'dev' && steps.gate.outputs.skip != 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: dev-latest
+          name: Würfelgruft DEV (neuester Stand)
+          prerelease: true
+          make_latest: false
+          files: out/*
